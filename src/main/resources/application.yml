@@ -5,3 +5,5 @@ spring:
     url: jdbc:mysql://localhost:3306/document_management_system?createDatabaseIfNotExist=true
     username: root
     password: Nipun1234@#
+  jpa:
+    show-sql: true
