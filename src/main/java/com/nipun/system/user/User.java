@@ -1,7 +1,11 @@
 package com.nipun.system.user;
 
+import com.nipun.system.document.Document;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,4 +31,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Role role;
+
+    @OneToMany(mappedBy = "owner", cascade = {CascadeType.REMOVE})
+    private Set<Document> documents = new HashSet<>();
 }

@@ -1,0 +1,104 @@
+package com.nipun.system.document;
+
+import com.nipun.system.document.dtos.*;
+import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.shared.dtos.ErrorResponse;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
+import java.util.UUID;
+
+@AllArgsConstructor
+@RestController
+@RequestMapping("/documents")
+public class DocumentController {
+
+    private final DocumentService documentService;
+    private final DocumentMapper documentMapper;
+    private final ContentMapper contentMapper;
+
+    @PostMapping
+    public ResponseEntity<DocumentDto> createDocument(
+            @RequestBody @Valid CreateDocumentRequest request,
+            UriComponentsBuilder uriBuilder
+    ) {
+        var document = documentService.createDocument(
+                documentMapper.toEntity(request)
+        );
+
+        var uri = uriBuilder.path("/documents/{documentId}")
+                .buildAndExpand(document.getPublicId()).toUri();
+
+        return ResponseEntity
+                .created(uri)
+                .body(documentMapper.toDto(document));
+    }
+
+    @GetMapping("/{documentId}")
+    public ResponseEntity<DocumentDto> getDocument(
+            @PathVariable(name = "documentId") UUID documentId
+    ) {
+        var document = documentService.getDocument(documentId);
+        return ResponseEntity.ok(documentMapper.toDto(document));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<DocumentDto>> getAllDocuments() {
+        var documents = documentService.getAllDocuments();
+        var documentDtos = documents.stream().map(documentMapper::toDto).toList();
+        return ResponseEntity.ok(documentDtos);
+    }
+
+    @PatchMapping("/{documentId}")
+    public ResponseEntity<DocumentDto> updateDocumentTitle(
+            @PathVariable(name = "documentId") UUID documentId,
+            @RequestBody @Valid UpdateTitleRequest request
+    ) {
+        var document = documentService
+                .updateTitle(documentId, documentMapper.toEntity(request));
+
+        return ResponseEntity.ok(documentMapper.toDto(document));
+    }
+
+    @DeleteMapping("/{documentId}")
+    public ResponseEntity<Void> deleteDocument(
+            @PathVariable(name = "documentId") UUID documentId
+    ) {
+        documentService.deleteDocument(documentId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{documentId}/content")
+    public ResponseEntity<ContentDto> updateDocumentContent(
+            @PathVariable UUID documentId,
+            @RequestBody @Valid UpdateContentRequest request
+    ) {
+        System.out.println(request.getContent());
+        var content = documentService.updateContent(documentId, contentMapper.toEntity(request));
+
+        return ResponseEntity.ok(contentMapper.toDto(content));
+    }
+
+    @GetMapping("/{documentId}/content")
+    public ResponseEntity<ContentDto> getDocumentContent(
+        @PathVariable(name = "documentId") UUID documentId
+    ) {
+        var document = documentService.getContent(documentId);
+        return ResponseEntity.ok(contentMapper.toDto(document));
+    }
+
+    @ExceptionHandler(DocumentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
+            DocumentNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+}
