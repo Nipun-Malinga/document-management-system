@@ -1,5 +1,6 @@
 package com.nipun.system.shared.exceptions;
 
+import com.nipun.system.auth.exceptions.BadCredentialsException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -43,5 +44,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse("User not found"));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException() {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("Invalid Credentials"));
     }
 }

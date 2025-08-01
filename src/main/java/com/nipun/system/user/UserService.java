@@ -2,12 +2,14 @@ package com.nipun.system.user;
 
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User registerUser(
             User user
@@ -17,6 +19,7 @@ public class UserService {
                     "Email: " + user.getEmail()  + " is already registered in system."
             );
 
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
         userRepository.save(user);
 
