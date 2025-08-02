@@ -47,4 +47,14 @@ public class Document {
         this.setUpdatedAt(LocalDateTime.now());
         return this;
     }
+
+    public static Document createDocument(Document document, User user) {
+        document.setPublicId(UUID.randomUUID());
+        document.setOwner(user);
+        document.setContent(new Content());
+        document.setCreatedAt(LocalDateTime.now());
+        document.setUpdatedAt(LocalDateTime.now());
+
+        return document;
+    }
 }

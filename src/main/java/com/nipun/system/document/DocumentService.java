@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,13 +20,8 @@ public class DocumentService {
     public Document createDocument(Document document) {
         var user = getUserFromContext();
 
-        document.setPublicId(UUID.randomUUID());
-        document.setOwner(user);
-        document.setContent(new Content());
-        document.setCreatedAt(LocalDateTime.now());
-        document.setUpdatedAt(LocalDateTime.now());
-
-        documentRepository.save(document);
+        documentRepository.save(
+                        Document.createDocument(document, user));
 
         return document;
     }
@@ -94,8 +88,6 @@ public class DocumentService {
 
         if (document == null)
             throw new DocumentNotFoundException();
-
-        System.out.println(content.getContent());
 
         document.getContent().setContent(content.getContent());
 
