@@ -28,7 +28,7 @@ public class Document {
     @Column(name = "title")
     private String title;
 
-    @ManyToOne(cascade = {CascadeType.REMOVE})
+    @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
 

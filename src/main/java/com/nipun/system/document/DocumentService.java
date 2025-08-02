@@ -1,9 +1,10 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.user.User;
 import com.nipun.system.user.UserRepository;
-import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,21 +17,9 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
-    /*
-        NOTE: Under Development
-        TODO: Implement spring security to fetch user id through JWT token.
-    */
 
     public Document createDocument(Document document) {
-
-        /*
-            FIXME: Fix the default user adding after implementing spring security.
-        */
-
-        var user = userRepository.findById(1L).orElse(null);
-
-        if (user == null)
-            throw new UserNotFoundException();
+        var user = getUserFromContext();
 
         document.setPublicId(UUID.randomUUID());
         document.setOwner(user);
@@ -39,23 +28,17 @@ public class DocumentService {
         document.setUpdatedAt(LocalDateTime.now());
 
         documentRepository.save(document);
+
         return document;
     }
 
     public Document getDocument(UUID documentId) {
 
-        /*
-            FIXME: Fetch the user id from the JWT
-        */
+        var user = getUserFromContext();
 
-        Long userId = 1L;
-
-        var user = userRepository.findById(userId).orElse(null);
-
-        if(user == null)
-            throw new UserNotFoundException();
-
-        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElse(null);
+        var document = documentRepository
+                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .orElse(null);
 
         if(document == null)
             throw new DocumentNotFoundException();
@@ -65,34 +48,18 @@ public class DocumentService {
 
     public List<Document> getAllDocuments() {
 
-        /*
-            FIXME: Fetch the user id from the JWT
-        */
+        var user = getUserFromContext();
 
-        Long userId = 1L;
-
-        var user = userRepository.findById(userId).orElse(null);
-
-        if(user == null)
-            throw new UserNotFoundException();
-
-        return documentRepository.findAllByOwnerId(1L);
+        return documentRepository.findAllByOwnerId(user.getId());
     }
 
     public Document updateTitle(UUID documentId, Document documentRequest) {
 
-        /*
-            FIXME: Fetch the user id from the JWT
-        */
+        var user = getUserFromContext();
 
-        Long userId = 1L;
-
-        var user = userRepository.findById(userId).orElse(null);
-
-        if(user == null)
-            throw new UserNotFoundException();
-
-        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElse(null);
+        var document = documentRepository
+                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .orElse(null);
 
         if (document == null)
             throw new DocumentNotFoundException();
@@ -106,18 +73,11 @@ public class DocumentService {
 
     public void deleteDocument(UUID documentId) {
 
-        /*
-            FIXME: Fetch the user id from the JWT
-        */
+        var user = getUserFromContext();
 
-        Long userId = 1L;
-
-        var user = userRepository.findById(userId).orElse(null);
-
-        if(user == null)
-            throw new UserNotFoundException();
-
-        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElse(null);
+        var document = documentRepository
+                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .orElse(null);
 
         if (document == null)
             throw new DocumentNotFoundException();
@@ -126,19 +86,11 @@ public class DocumentService {
     }
 
     public Content updateContent(UUID documentId, Content content) {
+        var user = getUserFromContext();
 
-        /*
-            FIXME: Fetch the user id from the JWT
-        */
-
-        Long userId = 1L;
-
-        var user = userRepository.findById(userId).orElse(null);
-
-        if(user == null)
-            throw new UserNotFoundException();
-
-        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElse(null);
+        var document = documentRepository
+                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .orElse(null);
 
         if (document == null)
             throw new DocumentNotFoundException();
@@ -153,23 +105,21 @@ public class DocumentService {
     }
 
     public Content getContent(UUID documentId) {
-
-        /*
-            FIXME: Fetch the user id from the JWT
-        */
-
-        Long userId = 1L;
-
-        var user = userRepository.findById(userId).orElse(null);
-
-        if(user == null)
-            throw new UserNotFoundException();
-
-        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElse(null);
+        var user = getUserFromContext();
+        var document = documentRepository
+                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .orElse(null);
 
         if (document == null)
             throw new DocumentNotFoundException();
 
         return document.getContent();
+    }
+
+    private User getUserFromContext() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var userId = (Long) authentication.getPrincipal();
+
+        return userRepository.findById(userId).orElseThrow();
     }
 }
