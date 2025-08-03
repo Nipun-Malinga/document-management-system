@@ -18,7 +18,7 @@ public class Jwt {
     private Claims claims;
 
     public boolean isExpired() {
-        return !claims.getExpiration().before(new Date());
+        return claims.getExpiration().before(new Date());
     }
 
     public Long getUserId() {
