@@ -1,7 +1,10 @@
 package com.nipun.system.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nipun.system.shared.config.SecurityConfig;
 import com.nipun.system.shared.exceptions.GlobalExceptionHandler;
+import com.nipun.system.shared.filters.JwtAuthenticationFilter;
+import com.nipun.system.shared.services.JwtService;
 import com.nipun.system.user.dtos.RegisterUserRequest;
 import com.nipun.system.user.dtos.UserDto;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
@@ -18,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, SecurityConfig.class, JwtAuthenticationFilter.class})
 class UserControllerTest {
 
     @Autowired
@@ -31,10 +34,16 @@ class UserControllerTest {
     UserService userService;
 
     @MockitoBean
-    UserMapper userMapper;
+    private UserMapper userMapper;
 
     @MockitoBean
     private UserRepository userRepository;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsService;
 
     @Test
     void userRegisterShouldReturnNewUser() throws Exception {
@@ -56,6 +65,8 @@ class UserControllerTest {
         userDto.setEmail(request.getEmail());
         userDto.setRole(Role.USER);
 
+        var jwt = jwtService.generateAccessToken(user);
+
         when(userMapper.toEntity(any(RegisterUserRequest.class))).thenReturn(user);
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
         when(userService.registerUser(any(User.class))).thenReturn(user);
@@ -63,6 +74,7 @@ class UserControllerTest {
 
         mockMvc.perform(post("/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + jwt)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
@@ -85,6 +97,8 @@ class UserControllerTest {
         user.setPassword(request.getPassword());
         user.setRole(Role.USER);
 
+        var jwt = jwtService.generateAccessToken(user);
+
         when(userMapper.toEntity(any(RegisterUserRequest.class))).thenReturn(user);
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
         when(userService.registerUser(user))
@@ -94,6 +108,7 @@ class UserControllerTest {
 
         mockMvc.perform(post("/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + jwt)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error")
