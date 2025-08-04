@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -48,10 +47,27 @@ public class DocumentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DocumentDto>> getAllDocuments() {
-        var documents = documentService.getAllDocuments();
-        var documentDtos = documents.stream().map(documentMapper::toDto).toList();
-        return ResponseEntity.ok(documentDtos);
+    public ResponseEntity<Documents> getAllDocuments(
+            @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "page-size", defaultValue = "20") int pageSize
+    ) {
+        var documents = documentService.getAllDocuments(pageNumber, pageSize);
+
+        var documentDtos = documents
+                .getContent()
+                .stream()
+                .map(documentMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(
+                new Documents(
+                        documentDtos,
+                        pageNumber,
+                        pageSize,
+                        documents.getTotalPages(),
+                        documents.getTotalElements(),
+                        documents.hasNext(),
+                        documents.hasPrevious()
+                ));
     }
 
     @PatchMapping("/{documentId}")

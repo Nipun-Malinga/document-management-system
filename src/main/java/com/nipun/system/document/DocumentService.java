@@ -1,13 +1,13 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
-import com.nipun.system.user.User;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -18,7 +18,9 @@ public class DocumentService {
     private final UserRepository userRepository;
 
     public Document createDocument(Document document) {
-        var user = getUserFromContext();
+        var userId = getUserIdFromContext();
+
+        var user = userRepository.findById(userId).orElseThrow();
 
         documentRepository.save(
                         Document.createDocument(document, user));
@@ -28,10 +30,10 @@ public class DocumentService {
 
     public Document getDocument(UUID documentId) {
 
-        var user = getUserFromContext();
+        var userId = getUserIdFromContext();
 
         var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .findByPublicIdAndOwnerId(documentId, userId)
                 .orElse(null);
 
         if(document == null)
@@ -40,19 +42,20 @@ public class DocumentService {
         return document;
     }
 
-    public List<Document> getAllDocuments() {
+    public Page<Document> getAllDocuments(int pageNumber, int size) {
+        var userId = getUserIdFromContext();
 
-        var user = getUserFromContext();
+        PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        return documentRepository.findAllByOwnerId(user.getId());
+        return documentRepository.findAllByOwnerId(userId, pageRequest);
     }
 
     public Document updateTitle(UUID documentId, Document documentRequest) {
 
-        var user = getUserFromContext();
+        var userId = getUserIdFromContext();
 
         var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .findByPublicIdAndOwnerId(documentId, userId)
                 .orElse(null);
 
         if (document == null)
@@ -67,10 +70,10 @@ public class DocumentService {
 
     public void deleteDocument(UUID documentId) {
 
-        var user = getUserFromContext();
+        var userId = getUserIdFromContext();
 
         var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .findByPublicIdAndOwnerId(documentId, userId)
                 .orElse(null);
 
         if (document == null)
@@ -80,10 +83,10 @@ public class DocumentService {
     }
 
     public Content updateContent(UUID documentId, Content content) {
-        var user = getUserFromContext();
+        var userId = getUserIdFromContext();
 
         var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .findByPublicIdAndOwnerId(documentId, userId)
                 .orElse(null);
 
         if (document == null)
@@ -97,9 +100,9 @@ public class DocumentService {
     }
 
     public Content getContent(UUID documentId) {
-        var user = getUserFromContext();
+        var userId = getUserIdFromContext();
         var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, user.getId())
+                .findByPublicIdAndOwnerId(documentId, userId)
                 .orElse(null);
 
         if (document == null)
@@ -108,10 +111,8 @@ public class DocumentService {
         return document.getContent();
     }
 
-    private User getUserFromContext() {
+    private Long getUserIdFromContext() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        var userId = (Long) authentication.getPrincipal();
-
-        return userRepository.findById(userId).orElseThrow();
+        return (Long) authentication.getPrincipal();
     }
 }
