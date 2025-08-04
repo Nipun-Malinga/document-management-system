@@ -143,6 +143,14 @@ public class DocumentService {
         return sharedDocument;
     }
 
+    public Page<Document> getAllSharedDocumentsWithUser(int pageNumber, int size) {
+        var userId = getUserIdFromContext();
+
+        PageRequest pageRequest = PageRequest.of(pageNumber, size);
+
+        return documentRepository.findAllSharedDocumentsWithUser(userId, pageRequest);
+    }
+
     private Long getUserIdFromContext() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         return (Long) authentication.getPrincipal();

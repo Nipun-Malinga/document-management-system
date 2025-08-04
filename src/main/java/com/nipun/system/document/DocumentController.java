@@ -122,6 +122,31 @@ public class DocumentController {
         return ResponseEntity.ok(documentMapper.toSharedDocumentDto(sharedDocument));
     }
 
+    @GetMapping("/share")
+    public ResponseEntity<Documents> getAllSharedDocumentsWithUser(
+            @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "page-size", defaultValue = "20") int pageSize
+    ) {
+
+        var documents = documentService.getAllSharedDocumentsWithUser(pageNumber, pageSize);
+
+        var documentDtos = documents
+                .getContent()
+                .stream()
+                .map(documentMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(
+                new Documents(
+                        documentDtos,
+                        pageNumber,
+                        pageSize,
+                        documents.getTotalPages(),
+                        documents.getTotalElements(),
+                        documents.hasNext(),
+                        documents.hasPrevious()
+                ));
+    }
+
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
             DocumentNotFoundException exception
