@@ -3,6 +3,7 @@ package com.nipun.system.document;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
+import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -158,6 +159,16 @@ public class DocumentController {
                 ));
     }
 
+    @PutMapping("/share/{documentId}")
+    public ResponseEntity<ContentDto> updateSharedDocument(
+            @PathVariable(name = "documentId") UUID documentId,
+            @RequestBody @Valid UpdateContentRequest request
+    ) {
+        var content = documentService.updateSharedDocument(documentId, contentMapper.toEntity(request));
+
+        return ResponseEntity.ok(contentMapper.toDto(content));
+    }
+
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
             DocumentNotFoundException exception
@@ -173,6 +184,15 @@ public class DocumentController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(ReadOnlyDocumentException.class)
+    public ResponseEntity<ErrorResponse> handleReadOnlyDocumentException(
+            ReadOnlyDocumentException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse(exception.getMessage()));
     }
 }

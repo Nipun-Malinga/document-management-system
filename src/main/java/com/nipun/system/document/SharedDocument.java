@@ -20,7 +20,7 @@ public class SharedDocument {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.MERGE})
     @JoinColumn(name = "document_id")
     private Document document;
 

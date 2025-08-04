@@ -2,6 +2,7 @@ package com.nipun.system.document;
 
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
+import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
@@ -165,6 +166,29 @@ public class DocumentService {
             );
 
         return sharedDocument.getDocument().getContent();
+    }
+
+    public Content updateSharedDocument(UUID documentId, Content content) {
+        var userId = getUserIdFromContext();
+
+        var sharedDocument =  sharedDocumentRepository
+                .findByDocumentPublicIdAndSharedUserId(documentId, userId)
+                .orElse(null);
+
+        if(sharedDocument == null)
+            throw new NoSharedDocumentException(
+                    "No such document shard with userId: " + userId
+            );
+
+        if(sharedDocument.getPermission().equals(Permission.READ_ONLY))
+            throw new ReadOnlyDocumentException();
+
+        var document = sharedDocument.getDocument();
+        document.setContent(content);
+
+        sharedDocumentRepository.save(sharedDocument);
+
+        return document.getContent();
     }
 
     private Long getUserIdFromContext() {
