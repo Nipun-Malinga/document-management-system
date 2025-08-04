@@ -1,6 +1,7 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.exceptions.NoSharedDocumentException;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
@@ -149,6 +150,21 @@ public class DocumentService {
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
         return documentRepository.findAllSharedDocumentsWithUser(userId, pageRequest);
+    }
+
+    public Content accessSharedDocument(UUID documentId) {
+        var userId = getUserIdFromContext();
+
+        var sharedDocument = sharedDocumentRepository
+                .findByDocumentPublicIdAndSharedUserId(documentId, userId)
+                .orElse(null);
+
+        if(sharedDocument == null)
+            throw new NoSharedDocumentException(
+                    "No such document shard with userId: " + userId
+            );
+
+        return sharedDocument.getDocument().getContent();
     }
 
     private Long getUserIdFromContext() {

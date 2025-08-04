@@ -2,6 +2,7 @@ package com.nipun.system.document;
 
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.exceptions.NoSharedDocumentException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -147,12 +148,31 @@ public class DocumentController {
                 ));
     }
 
+    @GetMapping("/share/access")
+    public ResponseEntity<ContentDto> accessSharedDocument(
+            @RequestBody @Valid AccessSharedDocumentRequest request
+    ) {
+        return ResponseEntity
+                .ok(contentMapper.toDto(
+                        documentService.accessSharedDocument(request.getDocumentId())
+                ));
+    }
+
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
             DocumentNotFoundException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(NoSharedDocumentException.class)
+    public ResponseEntity<ErrorResponse> handleNoSharedDocumentException(
+            NoSharedDocumentException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(exception.getMessage()));
     }
 }
