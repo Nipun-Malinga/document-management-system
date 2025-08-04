@@ -6,5 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SharedDocumentRepository extends JpaRepository<SharedDocument, Long> {
+    Optional<SharedDocument> findByDocumentIdAndSharedUserId(Long documentId, Long userId);
     Optional<SharedDocument> findByDocumentPublicIdAndSharedUserId(UUID documentId, Long userId);
 }

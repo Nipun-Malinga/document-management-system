@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -129,7 +130,7 @@ public class DocumentService {
             throw new UserNotFoundException();
 
         var sharedDocument = sharedDocumentRepository
-                .findByDocumentPublicIdAndSharedUserId(documentId, userId)
+                .findByDocumentIdAndSharedUserId(document.getId(), sharedUser.getId())
                 .orElse(null);
 
         if(sharedDocument == null) {
@@ -139,6 +140,8 @@ public class DocumentService {
             document.addSharedDocument(sharedDocument);
         } else
             sharedDocument.setPermission(permission);
+
+        document.setUpdatedAt(LocalDateTime.now());
 
         documentRepository.save(document);
 
