@@ -1,6 +1,7 @@
 package com.nipun.system.user;
 
 import com.nipun.system.shared.dtos.ErrorResponse;
+import com.nipun.system.user.dtos.FindUserRequest;
 import com.nipun.system.user.dtos.RegisterUserRequest;
 import com.nipun.system.user.dtos.UserDto;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
@@ -32,6 +33,15 @@ public class UserController {
                     .toUri();
 
         return ResponseEntity.created(uri).body(userMapper.toDto(user));
+    }
+
+    @GetMapping("/find")
+    public ResponseEntity<UserDto> findUser(
+            @RequestBody @Valid FindUserRequest request
+    ) {
+        var user = userService.findUser(request.getEmail());
+
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @ExceptionHandler(EmailAlreadyRegisteredException.class)

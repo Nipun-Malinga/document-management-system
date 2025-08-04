@@ -36,4 +36,13 @@ public class UserService {
         return user;
     }
 
+    public User findUser(String email) {
+        var user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null)
+            throw new UserNotFoundException();
+
+        return user;
+    }
+
 }
