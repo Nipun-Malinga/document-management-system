@@ -2,6 +2,7 @@ package com.nipun.system.document;
 
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.user.UserRepository;
+import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
+    private final SharedDocumentRepository sharedDocumentRepository;
 
     public Document createDocument(Document document) {
         var userId = getUserIdFromContext();
@@ -109,6 +111,36 @@ public class DocumentService {
             throw new DocumentNotFoundException();
 
         return document.getContent();
+    }
+
+    public SharedDocument shareDocument(UUID documentId, Long sharedUserId, Permission permission) {
+        var userId = getUserIdFromContext();
+
+        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElse(null);
+
+        if(document == null)
+            throw new DocumentNotFoundException();
+
+        var sharedUser = userRepository.findById(sharedUserId).orElse(null);
+
+        if(sharedUser == null)
+            throw new UserNotFoundException();
+
+        var sharedDocument = sharedDocumentRepository
+                .findByDocumentPublicIdAndSharedUserId(documentId, userId)
+                .orElse(null);
+
+        if(sharedDocument == null) {
+            sharedDocument = new SharedDocument();
+            sharedDocument.addSharingData(sharedUser, document, permission);
+
+            document.addSharedDocument(sharedDocument);
+        } else
+            sharedDocument.setPermission(permission);
+
+        documentRepository.save(document);
+
+        return sharedDocument;
     }
 
     private Long getUserIdFromContext() {

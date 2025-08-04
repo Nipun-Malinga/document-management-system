@@ -1,6 +1,7 @@
 package com.nipun.system.user;
 
 import com.nipun.system.document.Document;
+import com.nipun.system.document.SharedDocument;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,4 +35,7 @@ public class User {
 
     @OneToMany(mappedBy = "owner", cascade = {CascadeType.REMOVE})
     private Set<Document> documents = new HashSet<>();
+
+    @OneToMany(mappedBy = "sharedUser", cascade = {CascadeType.REMOVE})
+    private Set<SharedDocument> sharedDocuments = new HashSet<>();
 }

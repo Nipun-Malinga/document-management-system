@@ -1,5 +1,6 @@
 package com.nipun.system.document;
 
+import com.nipun.system.document.dtos.SharedDocumentDto;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -42,6 +46,9 @@ public class Document {
     @JoinColumn(name = "content_id")
     private Content content;
 
+    @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
+    private Set<SharedDocument> sharedDocuments = new HashSet<>();
+
     public Document updateTitle(Document updatedDocument) {
         this.setTitle(updatedDocument.getTitle());
         this.setUpdatedAt(LocalDateTime.now());
@@ -56,5 +63,21 @@ public class Document {
         document.setUpdatedAt(LocalDateTime.now());
 
         return document;
+    }
+
+    public void addSharedDocument(SharedDocument document) {
+        sharedDocuments.add(document);
+    }
+
+    public List<SharedDocumentDto> getSharedUsers() {
+         return this.getSharedDocuments()
+                .stream()
+                .map(item ->
+                        new SharedDocumentDto(
+                                item.getDocument().getPublicId(),
+                                item.getSharedUser().getId(),
+                                item.getPermission())
+                )
+                .toList();
     }
 }

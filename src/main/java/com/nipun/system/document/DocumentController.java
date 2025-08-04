@@ -109,6 +109,19 @@ public class DocumentController {
         return ResponseEntity.ok(contentMapper.toDto(document));
     }
 
+    @PostMapping("/share")
+    public ResponseEntity<SharedDocumentDto> shareDocument(
+            @RequestBody @Valid ShareDocumentRequest request
+    ) {
+        var sharedDocument = documentService
+                .shareDocument(
+                        request.getDocumentId(),
+                        request.getShareUserId(),
+                        request.getPermission()
+                );
+        return ResponseEntity.ok(documentMapper.toSharedDocumentDto(sharedDocument));
+    }
+
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
             DocumentNotFoundException exception
