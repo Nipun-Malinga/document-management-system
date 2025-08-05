@@ -30,8 +30,9 @@ public class DocumentVersion {
     @Column(name = "version_number")
     private UUID versionNumber;
 
-    @Column(name = "content")
-    private String content;
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @JoinColumn(name = "version_content_id")
+    private DocumentVersionContent content;
 
     @ManyToOne
     @JoinColumn(name = "author")
@@ -40,11 +41,15 @@ public class DocumentVersion {
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
-    public void addData(Document document, User author, String content) {
-        this.setAuthor(author);
+    public void addData(
+            Document document,
+            User author,
+            DocumentVersionContent content
+    ) {
         this.setDocument(document);
-        this.setContent(content);
-        this.setTimestamp(LocalDateTime.now());
         this.setVersionNumber(UUID.randomUUID());
+        this.setContent(content);
+        this.setAuthor(author);
+        this.setTimestamp(LocalDateTime.now());
     }
 }

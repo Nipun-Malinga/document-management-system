@@ -1,8 +1,10 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
+import com.nipun.system.user.User;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,6 +24,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final SharedDocumentRepository sharedDocumentRepository;
+    private final DocumentVersionRepository documentVersionRepository;
 
     public Document createDocument(Document document) {
         var userId = getUserIdFromContext();
@@ -87,6 +91,7 @@ public class DocumentService {
         documentRepository.deleteById(document.getId());
     }
 
+    @Transactional
     public Content updateContent(UUID documentId, Content content) {
         var userId = getUserIdFromContext();
 
@@ -99,13 +104,11 @@ public class DocumentService {
         if (document == null)
             throw new DocumentNotFoundException();
 
+        var documentVersion = createVersion(document, user);
+        document.addDocumentVersion(documentVersion);
+
         document.getContent().setContent(content.getContent());
         document.setUpdatedAt(LocalDateTime.now());
-
-        var documentVersion = new DocumentVersion();
-        documentVersion.addData(document, user, content.getContent());
-
-        document.versionDocument(documentVersion);
 
         documentRepository.save(document);
 
@@ -179,6 +182,7 @@ public class DocumentService {
         return sharedDocument.getDocument().getContent();
     }
 
+    @Transactional
     public Content updateSharedDocument(UUID documentId, Content content) {
         var userId = getUserIdFromContext();
 
@@ -197,20 +201,69 @@ public class DocumentService {
         var user = userRepository.findById(userId).orElseThrow();
 
         var document = sharedDocument.getDocument();
+
+        var documentVersion = createVersion(document, user);
+        document.addDocumentVersion(documentVersion);
+
         document.setContent(content);
-
-        var documentVersion = new DocumentVersion();
-        documentVersion.addData(document, user, content.getContent());
-
-        document.versionDocument(documentVersion);
 
         sharedDocumentRepository.save(sharedDocument);
 
         return document.getContent();
     }
 
+    public Page<DocumentVersion> getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
+        var userId = getUserIdFromContext();
+
+        var document = documentRepository.findByPublicId(documentId).orElse(null);
+
+        if(document == null)
+            throw new DocumentNotFoundException();
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException(
+                    "No such document own or shard with userId: " + userId
+            );
+
+        PageRequest pageRequest = PageRequest.of(pageNumber, size);
+
+        return documentVersionRepository.findAllByDocumentId(document.getId(), pageRequest);
+    }
+
+    public DocumentVersionContent getVersionContent(UUID versionNumber) {
+        var userId = getUserIdFromContext();
+
+        var documentVersion = documentVersionRepository.findByVersionNumber(versionNumber).orElse(null);
+
+        if(documentVersion == null)
+            throw new DocumentVersionNotFoundException(
+                    ""
+            );
+
+        var document = documentVersion.getDocument();
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException(
+                    "No such document own or shard with userId: " + userId
+            );
+
+        return documentVersion.getContent();
+    }
+
     private Long getUserIdFromContext() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         return (Long) authentication.getPrincipal();
+    }
+
+    private DocumentVersion createVersion(Document document, User user) {
+        var versionContent = new DocumentVersionContent();
+
+        if(document.getContent().getContent() != null)
+            versionContent.setContent(document.getContent().getContent());
+
+        var version = new DocumentVersion();
+        version.addData(document, user, versionContent);
+
+        return version;
     }
 }

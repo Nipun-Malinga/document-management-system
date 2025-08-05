@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -49,7 +46,7 @@ public class Document {
     @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     private Set<SharedDocument> sharedDocuments = new HashSet<>();
 
-    @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "document", cascade = {CascadeType.PERSIST ,CascadeType.MERGE, CascadeType.REMOVE})
     private Set<DocumentVersion> documentVersions = new HashSet<>();
 
     public Document updateTitle(Document updatedDocument) {
@@ -84,7 +81,24 @@ public class Document {
                 .toList();
     }
 
-    public void versionDocument(DocumentVersion documentVersion) {
+    public void addDocumentVersion(DocumentVersion documentVersion) {
         documentVersions.add(documentVersion);
+    }
+
+    public boolean isUnauthorizedUser(Long userId) {
+        return !isOwner(userId) &&  !isSharedUser(userId);
+    }
+
+    private boolean isOwner(Long userId) {
+        return !Objects.equals(this.getOwner().getId(), userId);
+    }
+
+    private boolean isSharedUser(Long userId) {
+        return !this.getSharedUsers()
+                .stream()
+                .map(user ->
+                    Objects.equals(user.getUserId(), userId))
+                .findFirst()
+                .orElse(false);
     }
 }

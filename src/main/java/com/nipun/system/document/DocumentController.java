@@ -2,6 +2,7 @@ package com.nipun.system.document;
 
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.shared.dtos.ErrorResponse;
@@ -169,6 +170,40 @@ public class DocumentController {
         return ResponseEntity.ok(contentMapper.toDto(content));
     }
 
+    @GetMapping("/{documentId}/versions")
+    public ResponseEntity<Versions> getAllDocumentVersions(
+            @PathVariable(name = "documentId") UUID documentId,
+            @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "page-size", defaultValue = "20") int pageSize
+    ) {
+        var versions = documentService
+                .getAllDocumentVersions(documentId, pageNumber, pageSize);
+
+        var documentDtos = versions.getContent().stream().map(documentMapper::toDto).toList();
+
+        return ResponseEntity.ok(
+                new Versions(
+                        documentDtos,
+                        pageNumber,
+                        pageSize,
+                        versions.getTotalPages(),
+                        versions.getTotalElements(),
+                        versions.hasNext(),
+                        versions.hasPrevious()
+                )
+        );
+    }
+
+    @GetMapping("/versions/{versionId}")
+    public ResponseEntity<DocumentVersionContentDto> getDocumentVersionContent(
+            @PathVariable(name = "versionId") UUID versionId
+    ) {
+        var versionContent = documentService.getVersionContent(versionId);
+
+        return ResponseEntity.ok(
+                new DocumentVersionContentDto(versionContent.getContent()));
+    }
+
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
             DocumentNotFoundException exception
@@ -193,6 +228,15 @@ public class DocumentController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(DocumentVersionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDocumentVersionNotFoundException(
+            DocumentVersionNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(exception.getMessage()));
     }
 }

@@ -1,9 +1,6 @@
 package com.nipun.system.document;
 
-import com.nipun.system.document.dtos.CreateDocumentRequest;
-import com.nipun.system.document.dtos.DocumentDto;
-import com.nipun.system.document.dtos.SharedDocumentDto;
-import com.nipun.system.document.dtos.UpdateTitleRequest;
+import com.nipun.system.document.dtos.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -22,4 +19,8 @@ public interface DocumentMapper {
     @Mapping(target = "userId", source = "sharedUser.id")
     @Mapping(target = "permission", source = "permission")
     SharedDocumentDto toSharedDocumentDto(SharedDocument document);
+
+    @Mapping(target = "documentId", source = "document.publicId")
+    @Mapping(target = "author", source = "author.id")
+    DocumentVersionDto toDto(DocumentVersion version);
 }
