@@ -1,7 +1,7 @@
 package com.nipun.system.user;
 
 import com.nipun.system.document.Document;
-import com.nipun.system.document.SharedDocument;
+import com.nipun.system.document.share.SharedDocument;
 import jakarta.persistence.*;
 import lombok.*;
 

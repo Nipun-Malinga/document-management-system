@@ -1,4 +1,4 @@
-package com.nipun.system.document;
+package com.nipun.system.document.share;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

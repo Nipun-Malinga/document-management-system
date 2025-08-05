@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos;
+package com.nipun.system.document.dtos.share;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

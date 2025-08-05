@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos;
+package com.nipun.system.document.dtos.version;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;

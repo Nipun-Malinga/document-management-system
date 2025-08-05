@@ -1,6 +1,11 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.dtos.*;
+import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.document.dtos.share.AccessSharedDocumentRequest;
+import com.nipun.system.document.dtos.share.ShareDocumentRequest;
+import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.dtos.version.DocumentVersionContentDto;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
@@ -126,7 +131,7 @@ public class DocumentController {
     }
 
     @GetMapping("/share")
-    public ResponseEntity<Documents> getAllSharedDocumentsWithUser(
+    public ResponseEntity<PaginatedData> getAllSharedDocumentsWithUser(
             @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
             @RequestParam(name = "page-size", defaultValue = "20") int pageSize
     ) {
@@ -139,7 +144,7 @@ public class DocumentController {
                 .map(documentMapper::toDto)
                 .toList();
         return ResponseEntity.ok(
-                new Documents(
+                new PaginatedData(
                         documentDtos,
                         pageNumber,
                         pageSize,
@@ -171,7 +176,7 @@ public class DocumentController {
     }
 
     @GetMapping("/{documentId}/versions")
-    public ResponseEntity<Versions> getAllDocumentVersions(
+    public ResponseEntity<PaginatedData> getAllDocumentVersions(
             @PathVariable(name = "documentId") UUID documentId,
             @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
             @RequestParam(name = "page-size", defaultValue = "20") int pageSize
@@ -182,7 +187,7 @@ public class DocumentController {
         var documentDtos = versions.getContent().stream().map(documentMapper::toDto).toList();
 
         return ResponseEntity.ok(
-                new Versions(
+                new PaginatedData(
                         documentDtos,
                         pageNumber,
                         pageSize,

@@ -1,6 +1,8 @@
 package com.nipun.system.document;
 
-import com.nipun.system.document.dtos.SharedDocumentDto;
+import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.share.SharedDocument;
+import com.nipun.system.document.version.DocumentVersion;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

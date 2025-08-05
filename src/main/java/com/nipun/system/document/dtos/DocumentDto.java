@@ -1,6 +1,7 @@
 package com.nipun.system.document.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
