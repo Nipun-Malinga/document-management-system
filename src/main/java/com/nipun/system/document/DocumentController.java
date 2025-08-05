@@ -209,6 +209,15 @@ public class DocumentController {
                 new DocumentVersionContentDto(versionContent.getContent()));
     }
 
+    @PostMapping("/versions/restore/{versionNumber}")
+    public ResponseEntity<Void> restoreDocument(
+            @PathVariable(name = "versionNumber") UUID versionNumber
+    ) {
+        documentService.restoreDocument(versionNumber);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
             DocumentNotFoundException exception

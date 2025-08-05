@@ -1,6 +1,7 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.share.Permission;
 import com.nipun.system.document.share.SharedDocument;
 import com.nipun.system.document.version.DocumentVersion;
 import com.nipun.system.user.User;
@@ -91,12 +92,22 @@ public class Document {
         return !isOwner(userId) &&  !isSharedUser(userId);
     }
 
+    public boolean isReadOnlyUser(Long userId) {
+        return getSharedUsers()
+                .stream()
+                .map(user ->
+                        user.getUserId().equals(userId) &&
+                        user.getPermission().equals(Permission.READ_ONLY))
+                .findFirst()
+                .orElse(false);
+    }
+
     private boolean isOwner(Long userId) {
-        return !Objects.equals(this.getOwner().getId(), userId);
+        return Objects.equals(this.getOwner().getId(), userId);
     }
 
     private boolean isSharedUser(Long userId) {
-        return !this.getSharedUsers()
+        return this.getSharedUsers()
                 .stream()
                 .map(user ->
                     Objects.equals(user.getUserId(), userId))

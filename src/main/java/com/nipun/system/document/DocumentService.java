@@ -218,6 +218,32 @@ public class DocumentService {
         return documentVersion.getContent();
     }
 
+    @Transactional
+    public void restoreDocument(UUID versionNumber) {
+        var documentVersion = documentVersionRepository
+                .findByVersionNumber(versionNumber)
+                .orElseThrow(DocumentNotFoundException::new);
+
+        var document = documentRepository
+                .findById(documentVersion.getDocument().getId())
+                .orElseThrow(DocumentNotFoundException::new);
+
+        var userId = getUserIdFromContext();
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        if(document.isReadOnlyUser(userId)) {
+            throw new ReadOnlyDocumentException();
+        }
+
+        document.getContent().setContent(documentVersion.getContent().getContent());
+
+        documentRepository.save(document);
+
+        documentVersionRepository.deleteDocumentVersionsAfter(document.getId(), documentVersion.getTimestamp());
+    }
+
     private Long getUserIdFromContext() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         return (Long) authentication.getPrincipal();
