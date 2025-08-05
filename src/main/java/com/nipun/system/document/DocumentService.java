@@ -37,8 +37,7 @@ public class DocumentService {
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        documentRepository.save(
-                        Document.createDocument(document, user));
+        documentRepository.save(Document.createDocument(document, user));
 
         return document;
     }
@@ -47,14 +46,9 @@ public class DocumentService {
 
         var userId = getUserIdFromContext();
 
-        var document = documentRepository
+        return documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
-                .orElse(null);
-
-        if(document == null)
-            throw new DocumentNotFoundException();
-
-        return document;
+                .orElseThrow(DocumentNotFoundException::new);
     }
 
     public Page<Document> getAllDocuments(int pageNumber, int size) {
@@ -71,10 +65,7 @@ public class DocumentService {
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
-                .orElse(null);
-
-        if (document == null)
-            throw new DocumentNotFoundException();
+                .orElseThrow(DocumentNotFoundException::new);
 
         document = document.updateTitle(documentRequest);
 
@@ -89,10 +80,7 @@ public class DocumentService {
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
-                .orElse(null);
-
-        if (document == null)
-            throw new DocumentNotFoundException();
+                .orElseThrow(DocumentNotFoundException::new);
 
         documentRepository.deleteById(document.getId());
     }
@@ -105,10 +93,7 @@ public class DocumentService {
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
-                .orElse(null);
-
-        if (document == null)
-            throw new DocumentNotFoundException();
+                .orElseThrow(DocumentNotFoundException::new);
 
         var documentVersion = createVersion(document, user);
         document.addDocumentVersion(documentVersion);
@@ -125,10 +110,7 @@ public class DocumentService {
         var userId = getUserIdFromContext();
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
-                .orElse(null);
-
-        if (document == null)
-            throw new DocumentNotFoundException();
+                .orElseThrow(DocumentNotFoundException::new);
 
         return document.getContent();
     }
@@ -136,15 +118,13 @@ public class DocumentService {
     public SharedDocument shareDocument(UUID documentId, Long sharedUserId, Permission permission) {
         var userId = getUserIdFromContext();
 
-        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElse(null);
+        var document = documentRepository
+                .findByPublicIdAndOwnerId(documentId, userId)
+                .orElseThrow(DocumentNotFoundException::new);
 
-        if(document == null)
-            throw new DocumentNotFoundException();
-
-        var sharedUser = userRepository.findById(sharedUserId).orElse(null);
-
-        if(sharedUser == null)
-            throw new UserNotFoundException();
+        var sharedUser = userRepository
+                .findById(sharedUserId)
+                .orElseThrow(UserNotFoundException::new);
 
         var sharedDocument = sharedDocumentRepository
                 .findByDocumentIdAndSharedUserId(document.getId(), sharedUser.getId())
@@ -178,12 +158,7 @@ public class DocumentService {
 
         var sharedDocument = sharedDocumentRepository
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
-                .orElse(null);
-
-        if(sharedDocument == null)
-            throw new NoSharedDocumentException(
-                    "No such document shard with userId: " + userId
-            );
+                .orElseThrow(NoSharedDocumentException::new);
 
         return sharedDocument.getDocument().getContent();
     }
@@ -194,12 +169,7 @@ public class DocumentService {
 
         var sharedDocument =  sharedDocumentRepository
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
-                .orElse(null);
-
-        if(sharedDocument == null)
-            throw new NoSharedDocumentException(
-                    "No such document shard with userId: " + userId
-            );
+                .orElseThrow(NoSharedDocumentException::new);
 
         if(sharedDocument.getPermission().equals(Permission.READ_ONLY))
             throw new ReadOnlyDocumentException();
@@ -221,15 +191,12 @@ public class DocumentService {
     public Page<DocumentVersion> getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
         var userId = getUserIdFromContext();
 
-        var document = documentRepository.findByPublicId(documentId).orElse(null);
-
-        if(document == null)
-            throw new DocumentNotFoundException();
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new);
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException(
-                    "No such document own or shard with userId: " + userId
-            );
+            throw new NoSharedDocumentException();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
@@ -239,19 +206,14 @@ public class DocumentService {
     public DocumentVersionContent getVersionContent(UUID versionNumber) {
         var userId = getUserIdFromContext();
 
-        var documentVersion = documentVersionRepository.findByVersionNumber(versionNumber).orElse(null);
-
-        if(documentVersion == null)
-            throw new DocumentVersionNotFoundException(
-                    ""
-            );
+        var documentVersion = documentVersionRepository
+                .findByVersionNumber(versionNumber)
+                .orElseThrow(DocumentVersionNotFoundException::new);
 
         var document = documentVersion.getDocument();
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException(
-                    "No such document own or shard with userId: " + userId
-            );
+            throw new NoSharedDocumentException();
 
         return documentVersion.getContent();
     }
