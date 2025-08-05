@@ -90,6 +90,8 @@ public class DocumentService {
     public Content updateContent(UUID documentId, Content content) {
         var userId = getUserIdFromContext();
 
+        var user = userRepository.findById(userId).orElseThrow();
+
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElse(null);
@@ -98,6 +100,12 @@ public class DocumentService {
             throw new DocumentNotFoundException();
 
         document.getContent().setContent(content.getContent());
+        document.setUpdatedAt(LocalDateTime.now());
+
+        var documentVersion = new DocumentVersion();
+        documentVersion.addData(document, user, content.getContent());
+
+        document.versionDocument(documentVersion);
 
         documentRepository.save(document);
 
@@ -186,8 +194,15 @@ public class DocumentService {
         if(sharedDocument.getPermission().equals(Permission.READ_ONLY))
             throw new ReadOnlyDocumentException();
 
+        var user = userRepository.findById(userId).orElseThrow();
+
         var document = sharedDocument.getDocument();
         document.setContent(content);
+
+        var documentVersion = new DocumentVersion();
+        documentVersion.addData(document, user, content.getContent());
+
+        document.versionDocument(documentVersion);
 
         sharedDocumentRepository.save(sharedDocument);
 

@@ -49,6 +49,9 @@ public class Document {
     @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     private Set<SharedDocument> sharedDocuments = new HashSet<>();
 
+    @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
+    private Set<DocumentVersion> documentVersions = new HashSet<>();
+
     public Document updateTitle(Document updatedDocument) {
         this.setTitle(updatedDocument.getTitle());
         this.setUpdatedAt(LocalDateTime.now());
@@ -79,5 +82,9 @@ public class Document {
                                 item.getPermission())
                 )
                 .toList();
+    }
+
+    public void versionDocument(DocumentVersion documentVersion) {
+        documentVersions.add(documentVersion);
     }
 }
