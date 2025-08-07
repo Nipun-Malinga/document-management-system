@@ -95,13 +95,13 @@ public class DocumentService {
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        var documentVersion = createVersion(document, user);
-        document.addDocumentVersion(documentVersion);
-
         document.getContent().setContent(content.getContent());
         document.setUpdatedAt(LocalDateTime.now());
 
         documentRepository.save(document);
+
+        var documentVersion = createVersion(document, user);
+        document.addDocumentVersion(documentVersion);
 
         return document.getContent();
     }
@@ -178,12 +178,12 @@ public class DocumentService {
 
         var document = sharedDocument.getDocument();
 
-        var documentVersion = createVersion(document, user);
-        document.addDocumentVersion(documentVersion);
-
         document.setContent(content);
 
         sharedDocumentRepository.save(sharedDocument);
+
+        var documentVersion = createVersion(document, user);
+        document.addDocumentVersion(documentVersion);
 
         return document.getContent();
     }
