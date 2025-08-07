@@ -209,11 +209,19 @@ public class DocumentController {
                 new DocumentVersionContentDto(versionContent.getContent()));
     }
 
+    @PostMapping("/{documentId}/versions/restore")
+    public ResponseEntity<Void> restoreToPreviousVersion(
+            @PathVariable(name = "documentId") UUID documentId
+    ) {
+        documentService.restoreToPreviousVersion(documentId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/versions/restore/{versionNumber}")
-    public ResponseEntity<Void> restoreDocument(
+    public ResponseEntity<Void> restoreToDocumentSpecificVersion(
             @PathVariable(name = "versionNumber") UUID versionNumber
     ) {
-        documentService.restoreDocument(versionNumber);
+        documentService.restoreToDocumentSpecificVersion(versionNumber);
 
         return ResponseEntity.noContent().build();
     }

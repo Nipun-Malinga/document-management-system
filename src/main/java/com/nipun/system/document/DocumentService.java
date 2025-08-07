@@ -219,7 +219,32 @@ public class DocumentService {
     }
 
     @Transactional
-    public void restoreDocument(UUID versionNumber) {
+    public void restoreToPreviousVersion(UUID documentId) {
+        var userId = getUserIdFromContext();
+
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new);
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        if(document.isReadOnlyUser(userId))
+            throw new ReadOnlyDocumentException();
+
+        var version = documentVersionRepository
+                .findFirstByDocumentIdOrderByTimestampDesc(document.getId())
+                .orElseThrow(DocumentVersionNotFoundException::new);
+
+        document.getContent().setContent(version.getContent().getContent());
+
+        documentRepository.save(document);
+
+        documentVersionRepository.delete(version);
+    }
+
+    @Transactional
+    public void restoreToDocumentSpecificVersion(UUID versionNumber) {
         var documentVersion = documentVersionRepository
                 .findByVersionNumber(versionNumber)
                 .orElseThrow(DocumentNotFoundException::new);
