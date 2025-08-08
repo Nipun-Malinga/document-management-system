@@ -5,11 +5,12 @@ import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.dtos.share.AccessSharedDocumentRequest;
 import com.nipun.system.document.dtos.share.ShareDocumentRequest;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
-import com.nipun.system.document.dtos.version.DocumentVersionContentDto;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
+import com.nipun.system.document.version.DocumentVersionMapper;
+import com.nipun.system.document.version.SharedDocumentMapper;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,8 @@ public class DocumentController {
     private final DocumentService documentService;
     private final DocumentMapper documentMapper;
     private final ContentMapper contentMapper;
+    private final DocumentVersionMapper documentVersionMapper;
+    private final SharedDocumentMapper sharedDocumentMapper;
 
     @PostMapping
     public ResponseEntity<DocumentDto> createDocument(
@@ -98,7 +101,7 @@ public class DocumentController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{documentId}/content")
+    @PutMapping("/{documentId}/content")
     public ResponseEntity<ContentDto> updateDocumentContent(
             @PathVariable UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
@@ -127,7 +130,7 @@ public class DocumentController {
                         request.getShareUserId(),
                         request.getPermission()
                 );
-        return ResponseEntity.ok(documentMapper.toSharedDocumentDto(sharedDocument));
+        return ResponseEntity.ok(sharedDocumentMapper.toSharedDocumentDto(sharedDocument));
     }
 
     @GetMapping("/share")
@@ -184,7 +187,7 @@ public class DocumentController {
         var versions = documentService
                 .getAllDocumentVersions(documentId, pageNumber, pageSize);
 
-        var documentDtos = versions.getContent().stream().map(documentMapper::toDto).toList();
+        var documentDtos = versions.getContent().stream().map(documentVersionMapper::toDto).toList();
 
         return ResponseEntity.ok(
                 new PaginatedData(
@@ -200,13 +203,13 @@ public class DocumentController {
     }
 
     @GetMapping("/versions/{versionId}")
-    public ResponseEntity<DocumentVersionContentDto> getDocumentVersionContent(
+    public ResponseEntity<ContentDto> getDocumentVersionContent(
             @PathVariable(name = "versionId") UUID versionId
     ) {
         var versionContent = documentService.getVersionContent(versionId);
 
         return ResponseEntity.ok(
-                new DocumentVersionContentDto(versionContent.getContent()));
+                new ContentDto(versionContent.getContent()));
     }
 
     @PostMapping("/{documentId}/versions/restore")

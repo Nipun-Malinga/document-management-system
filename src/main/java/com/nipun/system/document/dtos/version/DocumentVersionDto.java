@@ -9,11 +9,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 public class DocumentVersionDto {
-    private Long id;
+    private UUID id;
 
     private UUID documentId;
-
-    private UUID versionNumber;
 
     private Long author;
 

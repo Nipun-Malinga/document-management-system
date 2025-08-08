@@ -1,10 +1,6 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.dtos.*;
-import com.nipun.system.document.dtos.share.SharedDocumentDto;
-import com.nipun.system.document.dtos.version.DocumentVersionDto;
-import com.nipun.system.document.share.SharedDocument;
-import com.nipun.system.document.version.DocumentVersion;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -18,13 +14,4 @@ public interface DocumentMapper {
     @Mapping(target = "id", source = "publicId")
     @Mapping(target = "sharedUsers", expression = "java(document.getSharedUsers())")
     DocumentDto toDto(Document document);
-
-    @Mapping(target = "documentId", source = "document.publicId")
-    @Mapping(target = "userId", source = "sharedUser.id")
-    @Mapping(target = "permission", source = "permission")
-    SharedDocumentDto toSharedDocumentDto(SharedDocument document);
-
-    @Mapping(target = "documentId", source = "document.publicId")
-    @Mapping(target = "author", source = "author.id")
-    DocumentVersionDto toDto(DocumentVersion version);
 }
