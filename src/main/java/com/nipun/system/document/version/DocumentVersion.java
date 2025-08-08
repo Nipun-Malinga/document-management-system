@@ -31,7 +31,7 @@ public class DocumentVersion {
     @Column(name = "version_number")
     private UUID versionNumber;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "version_content_id")
     private DocumentVersionContent content;
 
