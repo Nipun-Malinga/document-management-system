@@ -2,7 +2,6 @@ package com.nipun.system.document;
 
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
-import com.nipun.system.document.dtos.share.AccessSharedDocumentRequest;
 import com.nipun.system.document.dtos.share.ShareDocumentRequest;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.dtos.version.DiffResponse;
@@ -42,7 +41,7 @@ public class DocumentController {
                 documentMapper.toEntity(request)
         );
 
-        var uri = uriBuilder.path("/documents/{documentId}")
+        var uri = uriBuilder.path("/documents/{id}")
                 .buildAndExpand(document.getPublicId()).toUri();
 
         return ResponseEntity
@@ -50,9 +49,9 @@ public class DocumentController {
                 .body(documentMapper.toDto(document));
     }
 
-    @GetMapping("/{documentId}")
+    @GetMapping("/{id}")
     public ResponseEntity<DocumentDto> getDocument(
-            @PathVariable(name = "documentId") UUID documentId
+            @PathVariable(name = "id") UUID documentId
     ) {
         var document = documentService.getDocument(documentId);
         return ResponseEntity.ok(documentMapper.toDto(document));
@@ -82,9 +81,9 @@ public class DocumentController {
                 ));
     }
 
-    @PatchMapping("/{documentId}")
+    @PutMapping("/{id}/title")
     public ResponseEntity<DocumentDto> updateDocumentTitle(
-            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "id") UUID documentId,
             @RequestBody @Valid UpdateTitleRequest request
     ) {
         var document = documentService
@@ -93,18 +92,18 @@ public class DocumentController {
         return ResponseEntity.ok(documentMapper.toDto(document));
     }
 
-    @DeleteMapping("/{documentId}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDocument(
-            @PathVariable(name = "documentId") UUID documentId
+            @PathVariable(name = "id") UUID documentId
     ) {
         documentService.deleteDocument(documentId);
 
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{documentId}/content")
+    @PatchMapping("/{id}/content")
     public ResponseEntity<ContentDto> updateDocumentContent(
-            @PathVariable UUID documentId,
+            @PathVariable(name = "id") UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
     ) {
         var content = documentService.updateContent(documentId, contentMapper.toEntity(request));
@@ -112,22 +111,24 @@ public class DocumentController {
         return ResponseEntity.ok(contentMapper.toDto(content));
     }
 
-    @GetMapping("/{documentId}/content")
+    @GetMapping("/{id}/content")
     public ResponseEntity<ContentDto> getDocumentContent(
-        @PathVariable(name = "documentId") UUID documentId
+        @PathVariable(name = "id") UUID documentId
     ) {
         var document = documentService.getContent(documentId);
         return ResponseEntity.ok(contentMapper.toDto(document));
     }
 
-    @PostMapping("/share")
+    @PostMapping("/{id}/share/{userId}")
     public ResponseEntity<SharedDocumentDto> shareDocument(
+            @PathVariable(name = "id") UUID documentId,
+            @PathVariable(name = "userId") Long shareUserId,
             @RequestBody @Valid ShareDocumentRequest request
     ) {
         var sharedDocument = documentService
                 .shareDocument(
-                        request.getDocumentId(),
-                        request.getShareUserId(),
+                        shareUserId,
+                        documentId,
                         request.getPermission()
                 );
         return ResponseEntity.ok(sharedDocumentMapper.toSharedDocumentDto(sharedDocument));
@@ -158,19 +159,19 @@ public class DocumentController {
                 ));
     }
 
-    @GetMapping("/share/access")
+    @GetMapping("/{id}/share/access")
     public ResponseEntity<ContentDto> accessSharedDocument(
-            @RequestBody @Valid AccessSharedDocumentRequest request
+            @PathVariable(name = "id") UUID documentId
     ) {
         return ResponseEntity
                 .ok(contentMapper.toDto(
-                        documentService.accessSharedDocument(request.getDocumentId())
+                        documentService.accessSharedDocument(documentId)
                 ));
     }
 
-    @PutMapping("/share/{documentId}")
+    @PatchMapping("/share/{id}")
     public ResponseEntity<ContentDto> updateSharedDocument(
-            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "id") UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
     ) {
         var content = documentService.updateSharedDocument(documentId, contentMapper.toEntity(request));
@@ -178,9 +179,9 @@ public class DocumentController {
         return ResponseEntity.ok(contentMapper.toDto(content));
     }
 
-    @GetMapping("/{documentId}/versions")
+    @GetMapping("/{id}/versions")
     public ResponseEntity<PaginatedData> getAllDocumentVersions(
-            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "id") UUID documentId,
             @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
             @RequestParam(name = "page-size", defaultValue = "20") int pageSize
     ) {
@@ -202,19 +203,20 @@ public class DocumentController {
         );
     }
 
-    @GetMapping("/versions/{versionNumber}")
+    @GetMapping("/{id}/versions/{versionNumber}")
     public ResponseEntity<ContentDto> getDocumentVersionContent(
+            @PathVariable(name = "id") UUID documentId,
             @PathVariable(name = "versionNumber") UUID versionNumber
     ) {
-        var versionContent = documentService.getVersionContent(versionNumber);
+        var versionContent = documentService.getVersionContent(documentId, versionNumber);
 
         return ResponseEntity.ok(
                 new ContentDto(versionContent.getContent()));
     }
 
-    @GetMapping("/{documentId}/versions/diffs")
+    @GetMapping("/{id}/versions/diffs")
     public ResponseEntity<DiffResponse> getVersionDiffs(
-            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "id") UUID documentId,
             @RequestParam(name = "base-version") UUID base,
             @RequestParam(name = "compare-version") UUID compare
     ) {
@@ -222,19 +224,20 @@ public class DocumentController {
         return ResponseEntity.ok(new DiffResponse(diffs));
     }
 
-    @PostMapping("/{documentId}/versions/restore")
+    @PostMapping("/{id}/versions/restore")
     public ResponseEntity<Void> restoreToPreviousVersion(
-            @PathVariable(name = "documentId") UUID documentId
+            @PathVariable(name = "id") UUID documentId
     ) {
         documentService.restoreToPreviousVersion(documentId);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/versions/restore/{versionNumber}")
+    @PostMapping("/{id}/versions/restore/{versionNumber}")
     public ResponseEntity<Void> restoreToDocumentSpecificVersion(
+            @PathVariable(name = "id") UUID documentId,
             @PathVariable(name = "versionNumber") UUID versionNumber
     ) {
-        documentService.restoreToDocumentSpecificVersion(versionNumber);
+        documentService.restoreToDocumentSpecificVersion(documentId, versionNumber);
 
         return ResponseEntity.noContent().build();
     }

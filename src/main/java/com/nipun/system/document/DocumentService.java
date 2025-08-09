@@ -119,7 +119,7 @@ public class DocumentService {
         return document.getContent();
     }
 
-    public SharedDocument shareDocument(UUID documentId, Long sharedUserId, Permission permission) {
+    public SharedDocument shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
         var userId = getUserIdFromContext();
 
         var document = documentRepository
@@ -161,10 +161,15 @@ public class DocumentService {
         var userId = getUserIdFromContext();
 
         var sharedDocument = sharedDocumentRepository
-                .findByDocumentPublicIdAndSharedUserId(documentId, userId)
+                .findByDocumentPublicId(documentId)
                 .orElseThrow(NoSharedDocumentException::new);
 
-        return sharedDocument.getDocument().getContent();
+        var document = sharedDocument.getDocument();
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        return document.getContent();
     }
 
     @Transactional
@@ -207,11 +212,11 @@ public class DocumentService {
         return documentVersionRepository.findAllByDocumentId(document.getId(), pageRequest);
     }
 
-    public DocumentVersionContent getVersionContent(UUID versionNumber) {
+    public DocumentVersionContent getVersionContent(UUID documentId, UUID versionNumber) {
         var userId = getUserIdFromContext();
 
         var documentVersion = documentVersionRepository
-                .findByVersionNumber(versionNumber)
+                .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
         var document = documentVersion.getDocument();
@@ -280,9 +285,9 @@ public class DocumentService {
     }
 
     @Transactional
-    public void restoreToDocumentSpecificVersion(UUID versionNumber) {
+    public void restoreToDocumentSpecificVersion(UUID versionNumber, UUID documentId) {
         var documentVersion = documentVersionRepository
-                .findByVersionNumber(versionNumber)
+                .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
         var document = documentRepository
