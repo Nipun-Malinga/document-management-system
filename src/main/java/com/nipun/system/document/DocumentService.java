@@ -1,5 +1,7 @@
 package com.nipun.system.document;
 
+import com.github.difflib.text.DiffRow;
+import com.github.difflib.text.DiffRowGenerator;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -82,7 +86,7 @@ public class DocumentService {
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        documentRepository.deleteById(document.getId());
+        documentRepository.delete(document);
     }
 
     @Transactional
@@ -216,6 +220,38 @@ public class DocumentService {
             throw new NoSharedDocumentException();
 
         return documentVersion.getContent();
+    }
+
+    public Map<String, Object> getVersionDiffs(UUID documentId, UUID base, UUID compare) {
+
+        var userId = getUserIdFromContext();
+
+        var baseVersion = documentVersionRepository
+                .findByVersionNumberAndDocumentPublicId(base, documentId)
+                .orElseThrow(DocumentVersionNotFoundException::new);
+
+        if(baseVersion.getDocument().isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        var comparedWithVersion = documentVersionRepository
+                .findByVersionNumberAndDocumentPublicId(compare, documentId)
+                .orElseThrow(DocumentVersionNotFoundException::new);
+
+
+        DiffRowGenerator generator = DiffRowGenerator.create()
+                .showInlineDiffs(true)
+                .mergeOriginalRevised(true)
+                .inlineDiffByWord(true)
+                .oldTag(_ -> "~")
+                .newTag(_ -> "**")
+                .build();
+
+
+        List<DiffRow> rows = generator.generateDiffRows(
+                List.of(comparedWithVersion.getContent().getContent().split("\n")),
+                List.of(baseVersion.getContent().getContent().split("\n")));
+
+        return  Map.of("diff", rows);
     }
 
     @Transactional

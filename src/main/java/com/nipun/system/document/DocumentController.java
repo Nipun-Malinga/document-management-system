@@ -5,6 +5,7 @@ import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.dtos.share.AccessSharedDocumentRequest;
 import com.nipun.system.document.dtos.share.ShareDocumentRequest;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.dtos.version.DiffResponse;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
@@ -106,7 +107,6 @@ public class DocumentController {
             @PathVariable UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
     ) {
-        System.out.println(request.getContent());
         var content = documentService.updateContent(documentId, contentMapper.toEntity(request));
 
         return ResponseEntity.ok(contentMapper.toDto(content));
@@ -202,14 +202,24 @@ public class DocumentController {
         );
     }
 
-    @GetMapping("/versions/{versionId}")
+    @GetMapping("/versions/{versionNumber}")
     public ResponseEntity<ContentDto> getDocumentVersionContent(
-            @PathVariable(name = "versionId") UUID versionId
+            @PathVariable(name = "versionNumber") UUID versionNumber
     ) {
-        var versionContent = documentService.getVersionContent(versionId);
+        var versionContent = documentService.getVersionContent(versionNumber);
 
         return ResponseEntity.ok(
                 new ContentDto(versionContent.getContent()));
+    }
+
+    @GetMapping("/{documentId}/versions/diffs")
+    public ResponseEntity<DiffResponse> getVersionDiffs(
+            @PathVariable(name = "documentId") UUID documentId,
+            @RequestParam(name = "base-version") UUID base,
+            @RequestParam(name = "compare-version") UUID compare
+    ) {
+        var diffs = documentService.getVersionDiffs(documentId, base, compare);
+        return ResponseEntity.ok(new DiffResponse(diffs));
     }
 
     @PostMapping("/{documentId}/versions/restore")
