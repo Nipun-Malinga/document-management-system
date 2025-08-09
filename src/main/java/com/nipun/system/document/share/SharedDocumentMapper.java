@@ -1,7 +1,6 @@
-package com.nipun.system.document.version;
+package com.nipun.system.document.share;
 
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
-import com.nipun.system.document.share.SharedDocument;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

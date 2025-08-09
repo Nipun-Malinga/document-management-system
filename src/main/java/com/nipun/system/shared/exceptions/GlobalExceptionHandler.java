@@ -1,6 +1,10 @@
 package com.nipun.system.shared.exceptions;
 
 import com.nipun.system.auth.exceptions.BadCredentialsException;
+import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
+import com.nipun.system.document.exceptions.NoSharedDocumentException;
+import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -59,5 +63,41 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(new ErrorResponse("Malformed JSON or missing fields"));
+    }
+
+    @ExceptionHandler(DocumentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
+            DocumentNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(NoSharedDocumentException.class)
+    public ResponseEntity<ErrorResponse> handleNoSharedDocumentException(
+            NoSharedDocumentException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(ReadOnlyDocumentException.class)
+    public ResponseEntity<ErrorResponse> handleReadOnlyDocumentException(
+            ReadOnlyDocumentException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(DocumentVersionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDocumentVersionNotFoundException(
+            DocumentVersionNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(exception.getMessage()));
     }
 }
