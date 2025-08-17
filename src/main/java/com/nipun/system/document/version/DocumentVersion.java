@@ -1,6 +1,7 @@
 package com.nipun.system.document.version;
 
 import com.nipun.system.document.Document;
+import com.nipun.system.document.branch.DocumentBranch;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -42,6 +45,12 @@ public class DocumentVersion {
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
+    @OneToMany(mappedBy = "version", cascade = {CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE}, orphanRemoval = true)
+    private Set<DocumentBranch> documentBranches = new HashSet<>();
+
+    @OneToOne
+    private DocumentBranch branch;
+
     public void addData(
             Document document,
             User author,
@@ -52,5 +61,10 @@ public class DocumentVersion {
         this.setContent(content);
         this.setAuthor(author);
         this.setTimestamp(LocalDateTime.now());
+    }
+
+    public void addBranch(DocumentBranch branch) {
+        branch.setVersion(this);
+        this.documentBranches.add(branch);
     }
 }

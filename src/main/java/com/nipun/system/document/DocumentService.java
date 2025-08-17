@@ -1,6 +1,6 @@
 package com.nipun.system.document;
 
-import com.nipun.system.document.branch.Utils;
+import com.nipun.system.document.common.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;

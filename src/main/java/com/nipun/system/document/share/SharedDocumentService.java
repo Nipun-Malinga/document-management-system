@@ -3,7 +3,7 @@ package com.nipun.system.document.share;
 import com.nipun.system.document.Content;
 import com.nipun.system.document.Document;
 import com.nipun.system.document.DocumentRepository;
-import com.nipun.system.document.branch.Utils;
+import com.nipun.system.document.common.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.NoSharedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;

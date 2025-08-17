@@ -1,4 +1,4 @@
-package com.nipun.system.document.branch;
+package com.nipun.system.document.common;
 
 import com.nipun.system.document.Document;
 import com.nipun.system.document.version.DocumentVersion;
