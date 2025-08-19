@@ -38,11 +38,16 @@ public class DocumentBranchService {
         if(document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
 
+        var fetchedBranch = documentBranchRepository.findByBranchName(branchName).orElse(null);
+
+        if(fetchedBranch != null && fetchedBranch.isBranchTitleExistsAlready(branchName))
+            throw new BranchTitleAlreadyExistsException();
+
         var branchContent = new DocumentBranchContent();
         branchContent.setContent(version.getContent().getContent());
 
         var branch = new DocumentBranch();
-        branch.addData(version, branchName, branchContent);
+        branch.addData(version, branchName, branchContent, document);
 
         var newVersionContent = new DocumentVersionContent();
         newVersionContent.setContent(version.getContent().getContent());

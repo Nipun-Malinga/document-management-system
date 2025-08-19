@@ -4,6 +4,7 @@ import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.branch.CreateBranchRequest;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
+import com.nipun.system.document.exceptions.BranchTitleAlreadyExistsException;
 import com.nipun.system.document.exceptions.DocumentBranchNotFoundException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import lombok.AllArgsConstructor;
@@ -49,6 +50,15 @@ public class DocumentBranchController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(BranchTitleAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleBranchTitleAlreadyExistsException(
+            BranchTitleAlreadyExistsException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(exception.getMessage()));
     }
 }

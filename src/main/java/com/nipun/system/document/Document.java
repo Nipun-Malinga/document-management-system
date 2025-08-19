@@ -1,5 +1,6 @@
 package com.nipun.system.document;
 
+import com.nipun.system.document.branch.DocumentBranch;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.share.Permission;
 import com.nipun.system.document.share.SharedDocument;
@@ -51,6 +52,9 @@ public class Document {
 
     @OneToMany(mappedBy = "document", cascade = {CascadeType.PERSIST ,CascadeType.MERGE, CascadeType.REMOVE})
     private Set<DocumentVersion> documentVersions = new HashSet<>();
+
+    @OneToMany(mappedBy = "document", orphanRemoval = true)
+    private Set<DocumentBranch> documentBranches = new HashSet<>();
 
     public Document updateTitle(Document updatedDocument) {
         this.setTitle(updatedDocument.getTitle());

@@ -48,7 +48,8 @@ public class DocumentVersion {
     @OneToMany(mappedBy = "version", cascade = {CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE}, orphanRemoval = true)
     private Set<DocumentBranch> documentBranches = new HashSet<>();
 
-    @OneToOne
+    @ManyToOne(cascade = {CascadeType.REMOVE})
+    @JoinColumn(name = "branch_id")
     private DocumentBranch branch;
 
     public void addData(

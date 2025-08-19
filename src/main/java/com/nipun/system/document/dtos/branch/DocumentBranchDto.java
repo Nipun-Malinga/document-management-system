@@ -9,11 +9,11 @@ import java.util.UUID;
 public class DocumentBranchDto {
     private UUID branchId;
 
+    private UUID documentId;
+
     private UUID versionNumber;
 
     private String branchName;
-
-    private String content;
 
     private LocalDateTime timestamp;
 }

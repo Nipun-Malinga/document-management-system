@@ -8,8 +8,8 @@ import org.mapstruct.Mapping;
 public interface DocumentBranchMapper {
 
     @Mapping(target = "branchId", source = "publicId")
+    @Mapping(target = "documentId", source = "document.publicId")
     @Mapping(target = "versionNumber", source = "version.versionNumber")
     @Mapping(target = "branchName", source = "branchName")
-    @Mapping(target = "content", source = "content.content")
     DocumentBranchDto toDto(DocumentBranch branch);
 }

@@ -1,5 +1,6 @@
 package com.nipun.system.document.branch;
 
+import com.nipun.system.document.Document;
 import com.nipun.system.document.version.DocumentVersion;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,10 @@ public class DocumentBranch {
     private String branchName;
 
     @ManyToOne
+    @JoinColumn(name = "document_id")
+    private Document document;
+
+    @ManyToOne(cascade = {CascadeType.REMOVE})
     @JoinColumn(name = "version_id")
     private DocumentVersion version;
 
@@ -37,13 +42,19 @@ public class DocumentBranch {
     @JoinColumn(name = "content_id")
     private DocumentBranchContent content;
 
+    @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
-    public void addData(DocumentVersion version, String branchName,DocumentBranchContent content) {
+    public void addData(DocumentVersion version, String branchName,DocumentBranchContent content, Document document) {
+        this.setDocument(document);
         this.setVersion(version);
         this.setContent(content);
         this.setBranchName(branchName);
         this.setPublicId(UUID.randomUUID());
         this.setTimestamp(LocalDateTime.now());
+    }
+
+    public boolean isBranchTitleExistsAlready(String branchName) {
+        return this.branchName.equalsIgnoreCase(branchName);
     }
 }
