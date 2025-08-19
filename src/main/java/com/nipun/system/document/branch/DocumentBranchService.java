@@ -124,8 +124,45 @@ public class DocumentBranchService {
             UUID documentId,
             UUID branchId
     ) {
+        var userId = Utils.getUserIdFromContext();
+
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentBranchNotFoundException::new);
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        if(document.isReadOnlyUser(userId))
+            throw new ReadOnlyDocumentException();
+
         documentBranchRepository
                 .findByPublicIdAndVersionDocumentPublicId(branchId, documentId)
                 .ifPresent(documentBranchRepository::delete);
+    }
+
+    public Page<DocumentVersion> getAllBranchVersions(
+            UUID documentId,
+            UUID branchId,
+            int pageNumber,
+            int size
+    ) {
+        var userId = Utils.getUserIdFromContext();
+
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentBranchNotFoundException::new);
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        PageRequest pageRequest =  PageRequest.of(pageNumber, size);
+
+        return documentVersionRepository
+                .findAllByDocumentPublicIdAndBranchPublicId(
+                        documentId,
+                        branchId,
+                        pageRequest
+                );
     }
 }

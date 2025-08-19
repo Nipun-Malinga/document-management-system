@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -44,6 +46,9 @@ public class DocumentBranch {
 
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
+
+    @OneToMany
+    private Set<DocumentVersion> documentVersions = new HashSet<>();
 
     public void addData(DocumentVersion version, String branchName,DocumentBranchContent content, Document document) {
         this.setDocument(document);

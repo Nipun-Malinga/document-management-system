@@ -23,4 +23,6 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
   @Modifying
   @Query("delete from DocumentVersion d where  d.timestamp > :timestamp and d.document.id = :documentId")
   void deleteDocumentVersionsAfter(@Param("documentId") Long documentId,@Param("timestamp") LocalDateTime timestamp);
+
+  Page<DocumentVersion> findAllByDocumentPublicIdAndBranchPublicId(UUID documentId, UUID branchId, Pageable pageable);
 }

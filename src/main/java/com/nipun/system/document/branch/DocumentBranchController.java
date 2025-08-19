@@ -4,9 +4,10 @@ import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.branch.CreateBranchRequest;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
-import com.nipun.system.document.exceptions.BranchTitleAlreadyExistsException;
 import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.document.exceptions.BranchTitleAlreadyExistsException;
 import com.nipun.system.document.exceptions.DocumentBranchNotFoundException;
+import com.nipun.system.document.version.DocumentVersionMapper;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class DocumentBranchController {
 
     private final DocumentBranchService documentBranchService;
     private final DocumentBranchMapper documentBranchMapper;
+    private final DocumentVersionMapper documentVersionMapper;
 
     @PostMapping("/{documentId}/branches/versions/{versionId}")
     public ResponseEntity<DocumentBranchDto> createBranch(
@@ -63,6 +65,29 @@ public class DocumentBranchController {
                 branches.getTotalElements(),
                 branches.hasNext(),
                 branches.hasPrevious()
+        ));
+    }
+
+    @GetMapping("/{documentId}/branches/{branchId}/versions")
+    public ResponseEntity<PaginatedData> getAllBranchVersions(
+            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "branchId") UUID branchId,
+            @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "page-size", defaultValue = "20") int pageSize
+    ) {
+        var versions = documentBranchService
+                .getAllBranchVersions(documentId, branchId, pageNumber, pageSize);
+
+        var versionDtos = versions.getContent().stream().map(documentVersionMapper::toDto).toList();
+
+        return ResponseEntity.ok(new PaginatedData(
+                versionDtos,
+                versions.getNumber(),
+                versions.getSize(),
+                versions.getTotalPages(),
+                versions.getTotalElements(),
+                versions.hasNext(),
+                versions.hasPrevious()
         ));
     }
 
