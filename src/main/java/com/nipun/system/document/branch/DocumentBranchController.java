@@ -66,6 +66,15 @@ public class DocumentBranchController {
         ));
     }
 
+    @DeleteMapping("/{documentId}/branches/{branchId}")
+    public ResponseEntity<Void> deleteBranch(
+            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "branchId") UUID branchId
+    ) {
+        documentBranchService.deleteBranch(documentId, branchId);
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(DocumentBranchNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBranchNotFoundException(
             DocumentBranchNotFoundException exception

@@ -119,4 +119,13 @@ public class DocumentBranchService {
 
         return documentBranchRepository.findAllByDocumentId(document.getId(), pageRequest);
     }
+
+    public void deleteBranch(
+            UUID documentId,
+            UUID branchId
+    ) {
+        documentBranchRepository
+                .findByPublicIdAndVersionDocumentPublicId(branchId, documentId)
+                .ifPresent(documentBranchRepository::delete);
+    }
 }
