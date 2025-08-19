@@ -59,7 +59,6 @@ public class DocumentBranchService {
         var newVersion = new DocumentVersion();
         newVersion.addData(version.getDocument(), user, newVersionContent);
         newVersion.setBranch(branch);
-        newVersion.addBranch(branch);
 
         documentVersionRepository.save(newVersion);
 
@@ -152,7 +151,7 @@ public class DocumentBranchService {
             throw new ReadOnlyDocumentException();
 
         documentBranchRepository
-                .findByPublicIdAndVersionDocumentPublicId(branchId, documentId)
+                .findByPublicIdAndDocumentId(branchId, document.getId())
                 .ifPresent(documentBranchRepository::delete);
     }
 

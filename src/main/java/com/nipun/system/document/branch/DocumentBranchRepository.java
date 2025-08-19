@@ -10,6 +10,8 @@ import java.util.UUID;
 public interface DocumentBranchRepository extends JpaRepository<DocumentBranch, Long> {
     Optional<DocumentBranch> findByPublicIdAndVersionDocumentPublicId(UUID documentId, UUID branchId);
 
+    Optional<DocumentBranch> findByPublicIdAndDocumentId(UUID branchId, Long documentId);
+
     Optional<DocumentBranch> findByBranchName(String branchName);
 
     Page<DocumentBranch> findAllByDocumentId(Long documentId, Pageable pageable);
