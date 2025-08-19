@@ -1,5 +1,6 @@
 package com.nipun.system.document.branch;
 
+import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.common.Utils;
 import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.version.DocumentVersion;
@@ -7,6 +8,8 @@ import com.nipun.system.document.version.DocumentVersionContent;
 import com.nipun.system.document.version.DocumentVersionRepository;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,7 @@ public class DocumentBranchService {
     private final DocumentVersionRepository documentVersionRepository;
     private final DocumentBranchRepository documentBranchRepository;
     private final UserRepository userRepository;
+    private final DocumentRepository documentRepository;
 
     @Transactional
     public DocumentBranch createBranch(UUID documentId, UUID versionId, String branchName) {
@@ -95,5 +99,24 @@ public class DocumentBranchService {
         documentVersionRepository.save(version);
 
         return branch.getContent();
+    }
+
+    public Page<DocumentBranch> getAllBranches(
+            UUID documentId,
+            int pageNumber,
+            int size
+    ) {
+        var userId = Utils.getUserIdFromContext();
+
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new);
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        PageRequest pageRequest = PageRequest.of(pageNumber, size);
+
+        return documentBranchRepository.findAllByDocumentId(document.getId(), pageRequest);
     }
 }
