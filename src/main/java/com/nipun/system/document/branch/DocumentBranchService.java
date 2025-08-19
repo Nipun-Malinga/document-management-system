@@ -66,6 +66,21 @@ public class DocumentBranchService {
         return branch;
     }
 
+    public DocumentBranchContent getBranchContent(UUID documentId, UUID branchId) {
+        var userId = Utils.getUserIdFromContext();
+
+        var branch = documentBranchRepository
+                .findByPublicIdAndVersionDocumentPublicId(branchId, documentId)
+                .orElseThrow(DocumentBranchNotFoundException::new);
+
+        var document = branch.getDocument();
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        return branch.getContent();
+    }
+
     public DocumentBranchContent updateBranchContent(
             UUID documentId,
             UUID branchId,

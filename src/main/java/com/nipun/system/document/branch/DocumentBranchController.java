@@ -36,6 +36,16 @@ public class DocumentBranchController {
         return ResponseEntity.ok(documentBranchMapper.toDto(branch));
     }
 
+    @GetMapping("/{documentId}/branches/{branchId}")
+    public ResponseEntity<ContentDto> getBranchContent(
+            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "branchId") UUID branchId
+    ) {
+        var branchContent = documentBranchService.getBranchContent(documentId, branchId);
+
+        return ResponseEntity.ok(new ContentDto(branchContent.getContent()));
+    }
+
     @PutMapping("/{documentId}/branches/{branchId}")
     public ResponseEntity<ContentDto> updateBranchContent(
             @PathVariable(name = "documentId") UUID documentId,
