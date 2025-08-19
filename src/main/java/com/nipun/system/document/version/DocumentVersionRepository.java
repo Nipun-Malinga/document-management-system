@@ -12,9 +12,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DocumentVersionRepository extends JpaRepository<DocumentVersion, Long> {
-  Page<DocumentVersion> findAllByDocumentId(Long documentId, Pageable pageable);
 
-  Optional<DocumentVersion> findByVersionNumber(UUID versionNumber);
+  @Query("select v from DocumentVersion v where v.document.id = :documentId and v.branch is null")
+  Page<DocumentVersion> findAllByDocumentId(@Param("documentId") Long documentId, Pageable pageable);
 
   Optional<DocumentVersion> findByVersionNumberAndDocumentPublicId(UUID versionNumber, UUID documentId);
 
