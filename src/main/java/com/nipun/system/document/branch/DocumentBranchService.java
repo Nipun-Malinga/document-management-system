@@ -179,4 +179,73 @@ public class DocumentBranchService {
                         pageRequest
                 );
     }
+
+    public void mergeToMainBranch(UUID documentId, UUID branchId) {
+
+        /*
+            TODO: ADD MERGING TOOL TO MERGER TWO VERSIONS
+        */
+
+        var userId = Utils.getUserIdFromContext();
+
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentBranchNotFoundException::new);
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        if(document.isReadOnlyUser(userId))
+            throw new ReadOnlyDocumentException();
+
+        var branch = documentBranchRepository
+                .findByPublicIdAndDocumentId(branchId, document.getId())
+                .orElseThrow(DocumentBranchNotFoundException::new);
+
+        document.getContent().setContent(branch.getContent().getContent());
+
+        documentRepository.save(document);
+    }
+
+    public void mergeSpecificBranches(UUID documentId, UUID branchId, UUID mergeBranchId) {
+        /*
+            TODO: ADD MERGING TOOL TO MERGER TWO VERSIONS
+        */
+
+        var userId = Utils.getUserIdFromContext();
+
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentBranchNotFoundException::new);
+
+        if(document.isUnauthorizedUser(userId))
+            throw new NoSharedDocumentException();
+
+        if(document.isReadOnlyUser(userId))
+            throw new ReadOnlyDocumentException();
+
+        var branch = document
+                .getDocumentBranches()
+                .stream()
+                .filter(item ->
+                        item.getPublicId().equals(branchId))
+                .findFirst().orElse(null);
+
+        if(branch == null)
+            throw new DocumentBranchNotFoundException();
+
+        var mergeBranch = document
+                .getDocumentBranches()
+                .stream()
+                .filter(item ->
+                        item.getPublicId().equals(mergeBranchId))
+                .findFirst().orElse(null);
+
+        if(mergeBranch == null)
+            throw new DocumentBranchNotFoundException();
+
+        branch.getContent().setContent(mergeBranch.getContent().getContent());
+
+        documentRepository.save(document);
+    }
 }

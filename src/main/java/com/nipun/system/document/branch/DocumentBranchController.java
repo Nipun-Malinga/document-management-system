@@ -110,6 +110,27 @@ public class DocumentBranchController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{documentId}/branches/{branchId}/merge")
+    public ResponseEntity<Void> mergeToMainBranch(
+            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "branchId") UUID branchId
+    ) {
+        documentBranchService.mergeToMainBranch(documentId, branchId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{documentId}/branches/{branchId}/merge/{mergeBranchId}")
+    public ResponseEntity<Void> mergeToMainBranch(
+            @PathVariable(name = "documentId") UUID documentId,
+            @PathVariable(name = "branchId") UUID branchId,
+            @PathVariable(name = "mergeBranchId") UUID mergeBranchId
+    ) {
+        documentBranchService.mergeSpecificBranches(documentId, branchId, mergeBranchId);
+
+        return ResponseEntity.ok().build();
+    }
+
     @ExceptionHandler(DocumentBranchNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBranchNotFoundException(
             DocumentBranchNotFoundException exception

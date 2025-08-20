@@ -53,7 +53,7 @@ public class Document {
     @OneToMany(mappedBy = "document", cascade = {CascadeType.PERSIST ,CascadeType.MERGE, CascadeType.REMOVE})
     private Set<DocumentVersion> documentVersions = new HashSet<>();
 
-    @OneToMany(mappedBy = "document", orphanRemoval = true)
+    @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private Set<DocumentBranch> documentBranches = new HashSet<>();
 
     public Document updateTitle(Document updatedDocument) {

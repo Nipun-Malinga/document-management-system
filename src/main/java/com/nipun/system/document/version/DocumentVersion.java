@@ -48,7 +48,7 @@ public class DocumentVersion {
     @OneToMany(mappedBy = "version", cascade = {CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE}, orphanRemoval = true)
     private Set<DocumentBranch> documentBranches = new HashSet<>();
 
-    @ManyToOne(cascade = {CascadeType.REMOVE})
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @JoinColumn(name = "branch_id")
     private DocumentBranch branch;
 
@@ -62,10 +62,5 @@ public class DocumentVersion {
         this.setContent(content);
         this.setAuthor(author);
         this.setTimestamp(LocalDateTime.now());
-    }
-
-    public void addBranch(DocumentBranch branch) {
-        branch.setVersion(this);
-        this.documentBranches.add(branch);
     }
 }
