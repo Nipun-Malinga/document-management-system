@@ -1,5 +1,6 @@
 package com.nipun.system.document;
 
+import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.common.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.user.UserRepository;
@@ -9,7 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -73,7 +73,7 @@ public class DocumentService {
     }
 
     @Transactional
-    public Content updateContent(UUID documentId, Content content) {
+    public Content updateContent(UUID documentId, Content content) throws PatchFailedException {
         var userId = Utils.getUserIdFromContext();
 
         var user = userRepository.findById(userId).orElseThrow();
@@ -82,13 +82,18 @@ public class DocumentService {
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        document.getContent().setContent(content.getContent());
-        document.setUpdatedAt(LocalDateTime.now());
+        if(document.isContentNull())
+            document.addContent(content.getContent());
+        else
+            document.addContent(
+                    Utils.patchDocument(
+                            document.getContent().getContent(), content.getContent()
+                    )
+            );
+
+        document.addDocumentVersion(document, user);
 
         documentRepository.save(document);
-
-        var documentVersion = Utils.createVersion(document, user);
-        document.addDocumentVersion(documentVersion);
 
         return document.getContent();
     }

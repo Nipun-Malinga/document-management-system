@@ -6,7 +6,7 @@ import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.common.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
-import com.nipun.system.document.exceptions.NoSharedDocumentException;
+import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,7 +33,7 @@ public class DocumentVersionService {
                 .orElseThrow(DocumentNotFoundException::new);
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
@@ -50,7 +50,7 @@ public class DocumentVersionService {
         var document = documentVersion.getDocument();
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         return documentVersion.getContent();
     }
@@ -64,7 +64,7 @@ public class DocumentVersionService {
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
         if(baseVersion.getDocument().isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         var comparedWithVersion = documentVersionRepository
                 .findByVersionNumberAndDocumentPublicId(compare, documentId)
@@ -96,7 +96,7 @@ public class DocumentVersionService {
                 .orElseThrow(DocumentNotFoundException::new);
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         if(document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
@@ -125,7 +125,7 @@ public class DocumentVersionService {
         var userId = Utils.getUserIdFromContext();
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         if(document.isReadOnlyUser(userId)) {
             throw new ReadOnlyDocumentException();

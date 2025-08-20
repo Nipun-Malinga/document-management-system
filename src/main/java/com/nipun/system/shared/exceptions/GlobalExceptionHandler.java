@@ -3,7 +3,7 @@ package com.nipun.system.shared.exceptions;
 import com.nipun.system.auth.exceptions.BadCredentialsException;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
-import com.nipun.system.document.exceptions.NoSharedDocumentException;
+import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserNotFoundException;
@@ -74,9 +74,9 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(exception.getMessage()));
     }
 
-    @ExceptionHandler(NoSharedDocumentException.class)
+    @ExceptionHandler(UnauthorizedDocumentException.class)
     public ResponseEntity<ErrorResponse> handleNoSharedDocumentException(
-            NoSharedDocumentException exception
+            UnauthorizedDocumentException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

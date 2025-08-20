@@ -1,5 +1,6 @@
 package com.nipun.system.document;
 
+import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.dtos.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -91,7 +92,7 @@ public class DocumentController {
     public ResponseEntity<ContentDto> updateDocumentContent(
             @PathVariable(name = "id") UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
-    ) {
+    ) throws PatchFailedException {
         var content = documentService.updateContent(documentId, contentMapper.toEntity(request));
 
         return ResponseEntity.ok(contentMapper.toDto(content));

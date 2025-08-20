@@ -1,12 +1,13 @@
 package com.nipun.system.document.share;
 
+import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.Content;
 import com.nipun.system.document.Document;
 import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.common.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.exceptions.NoSharedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
+import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
@@ -69,23 +70,23 @@ public class SharedDocumentService {
 
         var sharedDocument = sharedDocumentRepository
                 .findByDocumentPublicId(documentId)
-                .orElseThrow(NoSharedDocumentException::new);
+                .orElseThrow(UnauthorizedDocumentException::new);
 
         var document = sharedDocument.getDocument();
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         return document.getContent();
     }
 
     @Transactional
-    public Content updateSharedDocument(UUID documentId, Content content) {
+    public Content updateSharedDocument(UUID documentId, Content content) throws PatchFailedException {
         var userId = Utils.getUserIdFromContext();
 
         var sharedDocument =  sharedDocumentRepository
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
-                .orElseThrow(NoSharedDocumentException::new);
+                .orElseThrow(UnauthorizedDocumentException::new);
 
         if(sharedDocument.getPermission().equals(Permission.READ_ONLY))
             throw new ReadOnlyDocumentException();
@@ -94,12 +95,18 @@ public class SharedDocumentService {
 
         var document = sharedDocument.getDocument();
 
-        document.setContent(content);
+        if(document.isContentNull())
+            document.addContent(content.getContent());
+        else
+            document.addContent(
+                    Utils.patchDocument(
+                            document.getContent().getContent(), content.getContent()
+                    )
+            );
+
+        document.addDocumentVersion(document, user);
 
         sharedDocumentRepository.save(sharedDocument);
-
-        var documentVersion = Utils.createVersion(document, user);
-        document.addDocumentVersion(documentVersion);
 
         return document.getContent();
     }

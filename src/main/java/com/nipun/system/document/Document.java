@@ -1,6 +1,7 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.branch.DocumentBranch;
+import com.nipun.system.document.common.Utils;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.share.Permission;
 import com.nipun.system.document.share.SharedDocument;
@@ -56,6 +57,15 @@ public class Document {
     @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private Set<DocumentBranch> documentBranches = new HashSet<>();
 
+    public void addContent(String content) {
+        this.getContent().setContent(content);
+        this.setUpdatedAt(LocalDateTime.now());
+    }
+
+    public boolean isContentNull() {
+        return this.getContent().getContent() == null;
+    }
+
     public Document updateTitle(Document updatedDocument) {
         this.setTitle(updatedDocument.getTitle());
         this.setUpdatedAt(LocalDateTime.now());
@@ -88,8 +98,8 @@ public class Document {
                 .toList();
     }
 
-    public void addDocumentVersion(DocumentVersion documentVersion) {
-        documentVersions.add(documentVersion);
+    public void addDocumentVersion(Document document, User user) {
+        documentVersions.add(Utils.createVersion(document, user));
     }
 
     public boolean isUnauthorizedUser(Long userId) {

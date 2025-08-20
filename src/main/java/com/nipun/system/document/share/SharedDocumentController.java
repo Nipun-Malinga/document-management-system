@@ -1,5 +1,6 @@
 package com.nipun.system.document.share;
 
+import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.ContentMapper;
 import com.nipun.system.document.DocumentMapper;
 import com.nipun.system.document.dtos.ContentDto;
@@ -78,7 +79,7 @@ public class SharedDocumentController {
     public ResponseEntity<ContentDto> updateSharedDocument(
             @PathVariable(name = "id") UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
-    ) {
+    ) throws PatchFailedException {
         var content = sharedDocumentService.updateSharedDocument(documentId, contentMapper.toEntity(request));
 
         return ResponseEntity.ok(contentMapper.toDto(content));

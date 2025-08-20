@@ -38,7 +38,7 @@ public class DocumentBranchService {
         var document = version.getDocument();
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         if(document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
@@ -76,7 +76,7 @@ public class DocumentBranchService {
         var document = branch.getDocument();
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         return branch.getContent();
     }
@@ -95,7 +95,7 @@ public class DocumentBranchService {
         var document = branch.getVersion().getDocument();
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         if(document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
@@ -128,7 +128,7 @@ public class DocumentBranchService {
                 .orElseThrow(DocumentNotFoundException::new);
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
@@ -146,7 +146,7 @@ public class DocumentBranchService {
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         if(document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
@@ -169,7 +169,7 @@ public class DocumentBranchService {
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         PageRequest pageRequest =  PageRequest.of(pageNumber, size);
 
@@ -189,7 +189,7 @@ public class DocumentBranchService {
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         if(document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
@@ -216,7 +216,7 @@ public class DocumentBranchService {
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
         if(document.isUnauthorizedUser(userId))
-            throw new NoSharedDocumentException();
+            throw new UnauthorizedDocumentException();
 
         if(document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
