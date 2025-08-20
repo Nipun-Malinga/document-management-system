@@ -1,5 +1,6 @@
 package com.nipun.system.document.branch;
 
+import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.common.Utils;
 import com.nipun.system.document.exceptions.*;
@@ -180,12 +181,7 @@ public class DocumentBranchService {
                 );
     }
 
-    public void mergeToMainBranch(UUID documentId, UUID branchId) {
-
-        /*
-            TODO: ADD MERGING TOOL TO MERGER TWO VERSIONS
-        */
-
+    public void mergeToMainBranch(UUID documentId, UUID branchId) throws PatchFailedException {
         var userId = Utils.getUserIdFromContext();
 
         var document = documentRepository
@@ -202,16 +198,17 @@ public class DocumentBranchService {
                 .findByPublicIdAndDocumentId(branchId, document.getId())
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
-        document.getContent().setContent(branch.getContent().getContent());
+        document.getContent().setContent(Utils.patchDocument(
+                document.getContent().getContent(),
+                branch.getContent().getContent()
+        ));
 
         documentRepository.save(document);
     }
 
-    public void mergeSpecificBranches(UUID documentId, UUID branchId, UUID mergeBranchId) {
-        /*
-            TODO: ADD MERGING TOOL TO MERGER TWO VERSIONS
-        */
-
+    public void mergeSpecificBranches(
+            UUID documentId, UUID branchId, UUID mergeBranchId
+    ) throws PatchFailedException {
         var userId = Utils.getUserIdFromContext();
 
         var document = documentRepository
@@ -229,22 +226,21 @@ public class DocumentBranchService {
                 .stream()
                 .filter(item ->
                         item.getPublicId().equals(branchId))
-                .findFirst().orElse(null);
-
-        if(branch == null)
-            throw new DocumentBranchNotFoundException();
+                .findFirst()
+                .orElseThrow(DocumentBranchNotFoundException::new);
 
         var mergeBranch = document
                 .getDocumentBranches()
                 .stream()
                 .filter(item ->
                         item.getPublicId().equals(mergeBranchId))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElseThrow(DocumentBranchNotFoundException::new);
 
-        if(mergeBranch == null)
-            throw new DocumentBranchNotFoundException();
-
-        branch.getContent().setContent(mergeBranch.getContent().getContent());
+        branch.getContent().setContent(Utils.patchDocument(
+                              branch.getContent().getContent(),
+                              mergeBranch.getContent().getContent()
+        ));
 
         documentRepository.save(document);
     }
