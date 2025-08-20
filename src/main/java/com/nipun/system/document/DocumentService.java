@@ -1,7 +1,7 @@
 package com.nipun.system.document;
 
 import com.github.difflib.patch.PatchFailedException;
-import com.nipun.system.document.common.Utils;
+import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;

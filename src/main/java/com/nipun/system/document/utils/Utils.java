@@ -1,4 +1,4 @@
-package com.nipun.system.document.common;
+package com.nipun.system.document.utils;
 
 import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.Patch;

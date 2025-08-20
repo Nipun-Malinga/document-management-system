@@ -3,7 +3,7 @@ package com.nipun.system.document.version;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import com.nipun.system.document.DocumentRepository;
-import com.nipun.system.document.common.Utils;
+import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;

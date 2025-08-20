@@ -2,6 +2,7 @@ package com.nipun.system.document;
 
 import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.dtos.*;
+import com.nipun.system.document.dtos.common.PaginatedData;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class DocumentController {
     }
 
     @GetMapping
-    public ResponseEntity<Documents> getAllDocuments(
+    public ResponseEntity<PaginatedData> getAllDocuments(
             @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
             @RequestParam(name = "page-size", defaultValue = "20") int pageSize
     ) {
@@ -57,7 +58,7 @@ public class DocumentController {
                 .map(documentMapper::toDto)
                 .toList();
         return ResponseEntity.ok(
-                new Documents(
+                new PaginatedData(
                         documentDtos,
                         pageNumber,
                         pageSize,
