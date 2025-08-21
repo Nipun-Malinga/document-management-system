@@ -34,7 +34,7 @@ public class Document {
     @Column(name = "title")
     private String title;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
 
@@ -44,17 +44,35 @@ public class Document {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToOne(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY
+    )
     @JoinColumn(name = "content_id")
     private Content content;
 
-    @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(
+            mappedBy = "document",
+            cascade = {CascadeType.MERGE, CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private Set<SharedDocument> sharedDocuments = new HashSet<>();
 
-    @OneToMany(mappedBy = "document", cascade = {CascadeType.PERSIST ,CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(
+            mappedBy = "document",
+            cascade = {CascadeType.PERSIST ,CascadeType.MERGE, CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private Set<DocumentVersion> documentVersions = new HashSet<>();
 
-    @OneToMany(mappedBy = "document", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "document",
+            cascade = {CascadeType.MERGE, CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private Set<DocumentBranch> documentBranches = new HashSet<>();
 
     public void addContent(String content) {

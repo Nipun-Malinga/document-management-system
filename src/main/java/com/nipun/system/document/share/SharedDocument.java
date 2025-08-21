@@ -25,7 +25,7 @@ public class SharedDocument {
     @JoinColumn(name = "document_id")
     private Document document;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User sharedUser;
 

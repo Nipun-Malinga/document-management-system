@@ -2,6 +2,7 @@ package com.nipun.system.document.branch;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -14,5 +15,6 @@ public interface DocumentBranchRepository extends JpaRepository<DocumentBranch, 
 
     Optional<DocumentBranch> findByBranchName(String branchName);
 
+    @EntityGraph(attributePaths = {"document", "version"})
     Page<DocumentBranch> findAllByDocumentId(Long documentId, Pageable pageable);
 }

@@ -34,21 +34,33 @@ public class DocumentVersion {
     @Column(name = "version_number")
     private UUID versionNumber;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToOne(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     @JoinColumn(name = "version_content_id")
     private DocumentVersionContent content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author")
     private User author;
 
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
-    @OneToMany(mappedBy = "version", cascade = {CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "version",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private Set<DocumentBranch> documentBranches = new HashSet<>();
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @ManyToOne(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY
+    )
     @JoinColumn(name = "branch_id")
     private DocumentBranch branch;
 

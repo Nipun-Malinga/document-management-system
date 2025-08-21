@@ -19,6 +19,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public Document createDocument(Document document) {
         var userId = Utils.getUserIdFromContext();
 
@@ -46,6 +47,7 @@ public class DocumentService {
         return documentRepository.findAllByOwnerId(userId, pageRequest);
     }
 
+    @Transactional
     public Document updateTitle(UUID documentId, Document documentRequest) {
 
         var userId = Utils.getUserIdFromContext();
@@ -61,6 +63,7 @@ public class DocumentService {
         return document;
     }
 
+    @Transactional
     public void deleteDocument(UUID documentId) {
 
         var userId = Utils.getUserIdFromContext();

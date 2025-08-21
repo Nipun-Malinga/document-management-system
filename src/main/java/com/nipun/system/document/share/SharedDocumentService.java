@@ -27,6 +27,7 @@ public class SharedDocumentService {
     private final UserRepository userRepository;
     private final SharedDocumentRepository sharedDocumentRepository;
 
+    @Transactional
     public SharedDocument shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
         var userId = Utils.getUserIdFromContext();
 
@@ -68,11 +69,8 @@ public class SharedDocumentService {
     public Content accessSharedDocument(UUID documentId) {
         var userId = Utils.getUserIdFromContext();
 
-        var sharedDocument = sharedDocumentRepository
-                .findByDocumentPublicId(documentId)
+        var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(UnauthorizedDocumentException::new);
-
-        var document = sharedDocument.getDocument();
 
         if(document.isUnauthorizedUser(userId))
             throw new UnauthorizedDocumentException();

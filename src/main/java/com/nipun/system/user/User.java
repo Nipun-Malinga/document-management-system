@@ -33,9 +33,9 @@ public class User {
     @Column(name = "role")
     private Role role;
 
-    @OneToMany(mappedBy = "owner", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "owner", cascade = {CascadeType.REMOVE}, orphanRemoval = true)
     private Set<Document> documents = new HashSet<>();
 
-    @OneToMany(mappedBy = "sharedUser", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "sharedUser", cascade = {CascadeType.REMOVE}, orphanRemoval = true)
     private Set<SharedDocument> sharedDocuments = new HashSet<>();
 }

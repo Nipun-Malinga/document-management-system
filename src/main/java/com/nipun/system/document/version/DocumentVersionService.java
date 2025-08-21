@@ -47,9 +47,7 @@ public class DocumentVersionService {
                 .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
-        var document = documentVersion.getDocument();
-
-        if(document.isUnauthorizedUser(userId))
+        if(documentVersion.getDocument().isUnauthorizedUser(userId))
             throw new UnauthorizedDocumentException();
 
         return documentVersion.getContent();
