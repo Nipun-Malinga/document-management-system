@@ -1,10 +1,11 @@
 package com.nipun.system.shared.exceptions;
 
+import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.auth.exceptions.BadCredentialsException;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
-import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
+import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -99,5 +100,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(PatchFailedException.class)
+    public ResponseEntity<ErrorResponse> handlePatchFailedException() {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Failed to patch requested document"));
     }
 }
