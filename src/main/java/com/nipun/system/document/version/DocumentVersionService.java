@@ -22,6 +22,13 @@ import java.util.UUID;
 @Service
 public class DocumentVersionService {
 
+    /*
+        TODO:
+         Combine All THE CONTENT TABLES INTO ONE.
+         CREATE A SEPARATE BRANCH FOR MAIN DOCUMENT AND DEVELOP
+            AND REPLACE EXISTING VERSION RESTORE FUNCTIONS.
+    */
+
     private final DocumentRepository documentRepository;
     private final DocumentVersionRepository documentVersionRepository;
 
@@ -133,6 +140,6 @@ public class DocumentVersionService {
 
         documentRepository.save(document);
 
-        documentVersionRepository.deleteDocumentVersionsAfter(document.getId(), documentVersion.getTimestamp());
+        documentVersionRepository.rollbackMainDocToPreviousVersion(document.getId(), documentVersion.getTimestamp());
     }
 }

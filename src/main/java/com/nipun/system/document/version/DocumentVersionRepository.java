@@ -14,10 +14,6 @@ import java.util.UUID;
 
 public interface DocumentVersionRepository extends JpaRepository<DocumentVersion, Long> {
 
-    /*
-        FIXME: FIX THE CONFLICT WHEN RESTORING BRANCH VERSIONS, SYSTEM MISTAKENLY DELETE MAIN DOCUMENT VERSIONS
-    */
-
   @Query("select v from DocumentVersion v where v.document.id = :documentId and v.branch is null")
   Page<DocumentVersion> findAllByDocumentId(@Param("documentId") Long documentId, Pageable pageable);
 
@@ -28,8 +24,8 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
   Optional<DocumentVersion> findFirstByDocumentIdOrderByTimestampDesc(Long documentId);
 
   @Modifying
-  @Query("delete from DocumentVersion d where  d.timestamp > :timestamp and d.document.id = :documentId")
-  void deleteDocumentVersionsAfter(@Param("documentId") Long documentId,@Param("timestamp") LocalDateTime timestamp);
+  @Query("delete from DocumentVersion d where  d.timestamp > :timestamp and d.document.id = :documentId and d.branch is null")
+  void rollbackMainDocToPreviousVersion(@Param("documentId") Long documentId, @Param("timestamp") LocalDateTime timestamp);
 
   Page<DocumentVersion> findAllByDocumentPublicIdAndBranchPublicId(UUID documentId, UUID branchId, Pageable pageable);
 }
