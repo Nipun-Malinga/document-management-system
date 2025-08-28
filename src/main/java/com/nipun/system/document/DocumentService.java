@@ -109,4 +109,9 @@ public class DocumentService {
 
         return document.getContent();
     }
+
+    public Boolean isAuthorizedUser(Long userId, UUID documentId) {
+        var document = documentRepository.findByPublicId(documentId).orElseThrow(DocumentNotFoundException::new);
+        return !document.isUnauthorizedUser(userId) && !document.isReadOnlyUser(userId);
+    }
 }

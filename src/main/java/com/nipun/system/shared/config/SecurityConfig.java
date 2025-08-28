@@ -36,6 +36,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((requests) ->
                     requests
+                            .requestMatchers("/gs-guide-websocket/**").permitAll()
                             .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                             .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
                             .requestMatchers(HttpMethod.POST,"/users/register").permitAll()
