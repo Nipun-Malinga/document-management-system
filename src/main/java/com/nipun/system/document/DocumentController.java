@@ -3,22 +3,15 @@ package com.nipun.system.document;
 import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
-import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.utils.Utils;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.security.Principal;
 import java.util.UUID;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/documents")
 public class DocumentController {
@@ -113,18 +106,4 @@ public class DocumentController {
         var document = documentService.getContent(documentId);
         return ResponseEntity.ok(contentMapper.toDto(document));
     }
-
-    @SendTo("/document/{documentId}/broadcastStatus")
-    @MessageMapping("/document/{documentId}/accept-changes")
-    public ContentDto broadcastDocumentCurrentState(
-            @DestinationVariable UUID documentId,
-            @Payload BroadcastDocumentStatusDto statusDto,
-            Principal principal
-    ) {
-        if(documentService.isAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId))
-            return new ContentDto(statusDto.getContent());
-
-        throw new UnauthorizedDocumentException();
-    }
-
 }

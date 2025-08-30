@@ -126,4 +126,11 @@ public class GlobalExceptionHandler {
     ) {
         return new ErrorResponse(exception.getMessage());
     }
+
+    @MessageExceptionHandler(UnauthorizedDocumentException.class)
+    public ErrorResponse handleUnauthorizedDocumentException(
+            UnauthorizedDocumentException exception
+    ) {
+        return new ErrorResponse(exception.getMessage());
+    }
 }
