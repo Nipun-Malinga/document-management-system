@@ -1,4 +1,4 @@
-package com.nipun.system.document;
+package com.nipun.system.document.websocket;
 
 import com.nipun.system.document.dtos.BroadcastContentDto;
 import com.nipun.system.document.dtos.BroadcastDocumentStatusDto;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Controller
 public class DocumentWebsocketController {
-    private final DocumentService documentService;
+    private final DocumentWebSocketService documentWebSocketService;
 
     @SendTo("/document/{documentId}/broadcastStatus")
     @MessageMapping("/document/{documentId}/accept-changes")
@@ -27,8 +27,8 @@ public class DocumentWebsocketController {
             @Payload BroadcastDocumentStatusDto statusDto,
             Principal principal
     ) {
-        if(documentService.isAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId)) {
-            documentService.setDocumentStatus(documentId, statusDto.getContent());
+        if(documentWebSocketService.isAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId)) {
+            documentWebSocketService.setDocumentStatus(documentId, statusDto.getContent());
             return new BroadcastContentDto(documentId, statusDto.getContent());
         }
 
@@ -40,9 +40,9 @@ public class DocumentWebsocketController {
             @DestinationVariable UUID documentId,
             Principal principal
     ) {
-        if(documentService.isAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId)) {
+        if(documentWebSocketService.isAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId)) {
             return new BroadcastContentDto(
-                    documentId, documentService.getDocumentStatusFromCache(documentId));
+                    documentId, documentWebSocketService.getDocumentStatusFromCache(documentId));
         }
 
         throw new UnauthorizedDocumentException();
