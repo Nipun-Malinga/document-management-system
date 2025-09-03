@@ -20,10 +20,13 @@ public class StompSubscribeEventListener {
         var documentId = documentWebSocketService.removeDisconnectedUserFromCache(sha.getSessionId());
         var connectedUsers = documentWebSocketService.getConnectedUsers(documentId);
 
-        if(connectedUsers.getUsers() != null) {
+        if(connectedUsers != null) {
             messagingTemplate
                     .convertAndSend("/document/" + documentId + "/broadcastUsers",
                             connectedUsers.getUsers());
+
+            if(connectedUsers.getUsers().isEmpty())
+                documentWebSocketService.saveDocumentState(documentId);
         }
     }
 

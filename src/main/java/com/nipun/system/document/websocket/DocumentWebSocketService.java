@@ -118,11 +118,25 @@ public class DocumentWebSocketService {
     public ConnectedUsers getConnectedUsers(UUID documentId) {
         var documentSessionCache = cacheManager.getCache("DOCUMENT_SESSION_CACHE");
 
-        if(documentSessionCache != null) {
-            return new ConnectedUsers(documentId, documentSessionCache.get(documentId, HashSet.class));
-        }
+        if(documentSessionCache == null || documentSessionCache.get(documentId) == null) return null;
 
-        return null;
+        return new ConnectedUsers(documentId, documentSessionCache.get(documentId, HashSet.class));
     }
 
+    public void saveDocumentState(UUID documentId) {
+        var cache = cacheManager.getCache("DOCUMENT_STATUS_CACHE");
+
+        if(cache == null) return;
+
+        var currentState = cache.get(documentId, String.class);
+
+        if(currentState == null) return;
+
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new);
+
+        document.addContent(currentState);
+        documentRepository.save(document);
+    }
 }
