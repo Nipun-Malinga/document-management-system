@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -62,4 +64,65 @@ public class DocumentWebSocketService {
 
         return null;
     }
+
+    public void addConnectedUserToCache(UUID documentId, String sessionId, Long userId) {
+        var userCache = cacheManager.getCache("DOCUMENT_USER_CACHE");
+
+        if(userCache == null) return;
+
+        if(userCache.get(sessionId, ConnectedUser.class) == null)
+            userCache.put(sessionId, new ConnectedUser(userId, documentId));
+
+        var documentSessionCache = cacheManager.getCache("DOCUMENT_SESSION_CACHE");
+
+        if(documentSessionCache == null) return;
+
+        Set<Long> connectedUsers = documentSessionCache.get(documentId, HashSet.class);
+
+        if(connectedUsers == null) {
+            connectedUsers = new HashSet<>();
+            documentSessionCache.put(documentId, connectedUsers);
+        }
+
+        connectedUsers.add(userId);
+
+        documentSessionCache.put(documentId, connectedUsers);
+    }
+
+    public UUID removeDisconnectedUserFromCache(String sessionId) {
+        var userCache = cacheManager.getCache("DOCUMENT_USER_CACHE");
+
+        if(userCache == null) return null;
+
+        var documentSessionCache = cacheManager.getCache("DOCUMENT_SESSION_CACHE");
+
+        if(documentSessionCache == null) return null;
+
+        var user = userCache.get(sessionId, ConnectedUser.class);
+
+        userCache.evict(sessionId);
+
+        if(user != null) {
+            Set<Long> connectedUsers = documentSessionCache.get(user.getDocumentId(), HashSet.class);
+
+            if(connectedUsers != null)
+                connectedUsers.remove(user.getUserId());
+
+            documentSessionCache.put(user.getDocumentId(), connectedUsers);
+            return user.getDocumentId();
+        }
+
+        return null;
+    }
+
+    public ConnectedUsers getConnectedUsers(UUID documentId) {
+        var documentSessionCache = cacheManager.getCache("DOCUMENT_SESSION_CACHE");
+
+        if(documentSessionCache != null) {
+            return new ConnectedUsers(documentId, documentSessionCache.get(documentId, HashSet.class));
+        }
+
+        return null;
+    }
+
 }

@@ -9,16 +9,21 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
 public class DocumentWebsocketController {
+
     private final DocumentWebSocketService documentWebSocketService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @SendTo("/document/{documentId}/broadcastStatus")
     @MessageMapping("/document/{documentId}/accept-changes")
@@ -38,12 +43,33 @@ public class DocumentWebsocketController {
     @SubscribeMapping("/document/{documentId}/broadcastStatus")
     public BroadcastContentDto getCurrentState(
             @DestinationVariable UUID documentId,
-            Principal principal
+            Principal principal,
+            SimpMessageHeaderAccessor headerAccessor
     ) {
-        if(documentWebSocketService.isAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId)) {
+        var userId = Utils.getUserIdFromPrincipal(principal);
+
+        if(documentWebSocketService.isAuthorizedUser(userId, documentId)) {
+            documentWebSocketService.addConnectedUserToCache(documentId, headerAccessor.getSessionId(), userId);
+
+            messagingTemplate.convertAndSend(
+                            "/document/" + documentId + "/broadcastUsers",
+                            documentWebSocketService.getConnectedUsers(documentId).getUsers());
             return new BroadcastContentDto(
                     documentId, documentWebSocketService.getDocumentStatusFromCache(documentId));
         }
+
+        throw new UnauthorizedDocumentException();
+    }
+
+    @SubscribeMapping("/document/{documentId}/broadcastUsers")
+    public Set<Long> getConnectedUsers(
+            @DestinationVariable UUID documentId,
+            Principal principal
+    ) {
+        var userId = Utils.getUserIdFromPrincipal(principal);
+
+        if(documentWebSocketService.isAuthorizedUser(userId, documentId))
+            return documentWebSocketService.getConnectedUsers(documentId).getUsers();
 
         throw new UnauthorizedDocumentException();
     }
