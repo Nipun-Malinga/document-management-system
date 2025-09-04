@@ -9,7 +9,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @RequiredArgsConstructor
 @Component
-public class StompSubscribeEventListener {
+public class DocumentWebsocketListener {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final DocumentWebSocketService documentWebSocketService;

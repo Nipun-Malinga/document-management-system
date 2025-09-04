@@ -68,8 +68,10 @@ public class DocumentWebsocketController {
     ) {
         var userId = Utils.getUserIdFromPrincipal(principal);
 
-        if(documentWebSocketService.isAuthorizedUser(userId, documentId))
-            return documentWebSocketService.getConnectedUsers(documentId).getUsers();
+        if(documentWebSocketService.isAuthorizedUser(userId, documentId)) {
+            var connectedUsers = documentWebSocketService.getConnectedUsers(documentId);
+            if(connectedUsers != null) return connectedUsers.getUsers();
+        }
 
         throw new UnauthorizedDocumentException();
     }
