@@ -11,8 +11,6 @@ import com.nipun.system.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -109,28 +107,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("Failed to patch requested document"));
-    }
-
-    @MessageExceptionHandler(InvalidJwtTokenException.class)
-    @SendToUser("/queue/errors")
-    public ErrorResponse handleInvalidJwt(
-            InvalidJwtTokenException exception
-    ) {
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @MessageExceptionHandler(JwtTokenNotFoundException.class)
-    @SendToUser("/queue/errors")
-    public ErrorResponse handleJwtTokenNotFoundException(
-            JwtTokenNotFoundException exception
-    ) {
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @MessageExceptionHandler(UnauthorizedDocumentException.class)
-    public ErrorResponse handleUnauthorizedDocumentException(
-            UnauthorizedDocumentException exception
-    ) {
-        return new ErrorResponse(exception.getMessage());
     }
 }
