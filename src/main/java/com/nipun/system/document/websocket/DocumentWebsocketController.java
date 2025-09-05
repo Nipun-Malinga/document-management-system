@@ -15,6 +15,7 @@ import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,12 +33,11 @@ public class DocumentWebsocketController {
             @Payload BroadcastDocumentStatusDto statusDto,
             Principal principal
     ) {
-        if(documentWebSocketService.isAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId)) {
-            documentWebSocketService.setDocumentStatus(documentId, statusDto.getContent());
-            return new BroadcastContentDto(documentId, statusDto.getContent());
-        }
+        if(documentWebSocketService.isUnAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId))
+            throw new UnauthorizedDocumentException();
 
-        throw new UnauthorizedDocumentException();
+        documentWebSocketService.setDocumentStatus(documentId, statusDto.getContent());
+        return new BroadcastContentDto(documentId, statusDto.getContent());
     }
 
     @SubscribeMapping("/document/{documentId}/broadcastStatus")
@@ -48,17 +48,18 @@ public class DocumentWebsocketController {
     ) {
         var userId = Utils.getUserIdFromPrincipal(principal);
 
-        if(documentWebSocketService.isAuthorizedUser(userId, documentId)) {
-            documentWebSocketService.addConnectedUserToCache(documentId, headerAccessor.getSessionId(), userId);
+        if(documentWebSocketService.isUnAuthorizedUser(userId, documentId))
+            throw new UnauthorizedDocumentException();
 
-            messagingTemplate.convertAndSend(
-                            "/document/" + documentId + "/broadcastUsers",
-                            documentWebSocketService.getConnectedUsers(documentId).getUsers());
-            return new BroadcastContentDto(
-                    documentId, documentWebSocketService.getDocumentStatusFromCache(documentId));
-        }
+        documentWebSocketService
+                .addConnectedUserToCache(documentId, headerAccessor.getSessionId(), userId);
 
-        throw new UnauthorizedDocumentException();
+        messagingTemplate.convertAndSend(
+                "/document/" + documentId + "/broadcastUsers",
+                documentWebSocketService.getConnectedUsers(documentId).getUsers());
+
+        return new BroadcastContentDto(
+                documentId, documentWebSocketService.getDocumentStatusFromCache(documentId));
     }
 
     @SubscribeMapping("/document/{documentId}/broadcastUsers")
@@ -68,11 +69,10 @@ public class DocumentWebsocketController {
     ) {
         var userId = Utils.getUserIdFromPrincipal(principal);
 
-        if(documentWebSocketService.isAuthorizedUser(userId, documentId)) {
-            var connectedUsers = documentWebSocketService.getConnectedUsers(documentId);
-            if(connectedUsers != null) return connectedUsers.getUsers();
-        }
+        if(documentWebSocketService.isUnAuthorizedUser(userId, documentId))
+            throw new UnauthorizedDocumentException();
 
-        throw new UnauthorizedDocumentException();
+        var connectedUsers = documentWebSocketService.getConnectedUsers(documentId);
+        return connectedUsers == null ? new HashSet<>() : connectedUsers.getUsers();
     }
 }

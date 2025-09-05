@@ -17,19 +17,20 @@ public class DocumentWebSocketService {
     private final DocumentRepository documentRepository;
     private final CacheManager cacheManager;
 
-    public Boolean isAuthorizedUser(Long userId, UUID documentId) {
+    public Boolean isUnAuthorizedUser(Long userId, UUID documentId) {
         var permissionCache = cacheManager.getCache("USER_PERMISSION_CACHE");
 
         String cacheKey = documentId.toString() + ":" + userId;
 
-        if (permissionCache != null && Boolean.TRUE.equals(permissionCache.get(cacheKey, Boolean.class)))
-            return true;
+        if (permissionCache != null && permissionCache.get(cacheKey) != null)
+            return permissionCache.get(cacheKey, Boolean.class);
 
         var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        boolean authorized = !document.isUnauthorizedUser(userId)
-                && !document.isReadOnlyUser(userId);
+        boolean authorized = !document.isUnauthorizedUser(userId);
+
+        System.out.println("UserID: " + userId + " Authorized: " + authorized);
 
         if (permissionCache != null)
             permissionCache.put(cacheKey, authorized);
@@ -48,8 +49,11 @@ public class DocumentWebSocketService {
     public String getDocumentStatusFromCache(UUID documentId) {
         var cache = cacheManager.getCache("DOCUMENT_STATUS_CACHE");
 
-        if(cache != null && cache.get(documentId) != null) {
-            return cache.get(documentId, String.class);
+        if (cache != null) {
+            String cachedContent = cache.get(documentId, String.class);
+            if (cachedContent != null) {
+                return cachedContent;
+            }
         }
 
         var document = documentRepository.findByPublicId(documentId)
@@ -57,13 +61,13 @@ public class DocumentWebSocketService {
 
         var content = document.getContent().getContent();
 
-        if(cache != null && content != null) {
-            cache.put(documentId, content);
-            return content;
+        if (cache != null) {
+            cache.put(documentId, content == null ? "" : content);
         }
 
-        return null;
+        return content == null ? "" : content;
     }
+
 
     public void addConnectedUserToCache(UUID documentId, String sessionId, Long userId) {
         var userCache = cacheManager.getCache("DOCUMENT_USER_CACHE");
