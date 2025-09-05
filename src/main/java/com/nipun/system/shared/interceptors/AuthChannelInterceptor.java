@@ -1,4 +1,4 @@
-package com.nipun.system.shared.filters;
+package com.nipun.system.shared.interceptors;
 
 import com.nipun.system.shared.exceptions.InvalidJwtTokenException;
 import com.nipun.system.shared.exceptions.JwtTokenNotFoundException;
@@ -40,14 +40,12 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                 throw new JwtTokenNotFoundException();
             }
 
-
             var token = authHeader.replace("Bearer ", "");
             var jwt = jwtService.parseToken(token);
 
             if (jwt == null || jwt.isExpired()) {
                 throw new InvalidJwtTokenException();
             }
-
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     jwt.getUserId(),
