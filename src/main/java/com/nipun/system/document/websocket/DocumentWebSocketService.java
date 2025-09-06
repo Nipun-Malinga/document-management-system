@@ -28,14 +28,12 @@ public class DocumentWebSocketService {
         var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        boolean authorized = !document.isUnauthorizedUser(userId);
-
-        System.out.println("UserID: " + userId + " Authorized: " + authorized);
+        boolean unAuthorized = document.isUnauthorizedUser(userId);
 
         if (permissionCache != null)
-            permissionCache.put(cacheKey, authorized);
+            permissionCache.put(cacheKey, unAuthorized);
 
-        return authorized;
+        return unAuthorized;
     }
 
     public void setDocumentStatus(UUID documentId, String status) {
