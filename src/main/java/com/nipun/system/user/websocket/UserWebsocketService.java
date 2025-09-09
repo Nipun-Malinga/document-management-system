@@ -1,6 +1,7 @@
 package com.nipun.system.user.websocket;
 
 import com.nipun.system.document.utils.Utils;
+import com.nipun.system.shared.entities.WebsocketPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -15,16 +16,6 @@ import java.util.Set;
 public class UserWebsocketService {
     private final CacheManager cacheManager;
 
-    public Long geConnectedUserIdFromSession(String sessionId) {
-        var sessionCache = cacheManager.getCache("CONNECTED_SESSION_CACHE");
-
-        if(sessionCache == null) return null;
-
-        if(sessionCache.get(sessionId) == null)  return null;
-
-        return Long.valueOf(Objects.requireNonNull(sessionCache.get(sessionId, String.class)));
-    }
-
     public void addConnectedSessionToCache(String sessionId, Principal principal) {
         var sessionCache = cacheManager.getCache("CONNECTED_SESSION_CACHE");
 
@@ -36,20 +27,17 @@ public class UserWebsocketService {
         }
     }
 
-    public Long removeDisconnectedSessionFromCache(String sessionId) {
-        var sessionCache = cacheManager.getCache("CONNECTED_SESSION_CACHE");
+    public WebsocketPayload<Boolean> broadcastConnectedUser(String sessionId) {
+        var userId = geConnectedUserIdFromSession(sessionId);
+        var userStatus = isUserOnline(userId);
+        return new WebsocketPayload<>("/user/" + userId + "/status", userStatus);
+    }
 
-        if(sessionCache == null) return null;
+    public WebsocketPayload<Boolean> removeConnectedUser(String sessionId) {
+        var userId = removeDisconnectedSessionFromCache(sessionId);
+        var userStatus = isUserOnline(userId);
 
-        if(sessionCache.get(sessionId) == null)  return null;
-
-        var userId = Long.valueOf(Objects.requireNonNull(sessionCache.get(sessionId, String.class)));
-
-        removeDisconnectedUserFromCache(userId);
-
-        sessionCache.evict(sessionId);
-
-        return userId;
+        return new WebsocketPayload<>("/user/" + userId + "/status", userStatus);
     }
 
     public Boolean isUserOnline(Long userId) {
@@ -64,6 +52,32 @@ public class UserWebsocketService {
         }
 
         return false;
+    }
+
+    private Long geConnectedUserIdFromSession(String sessionId) {
+        var sessionCache = cacheManager.getCache("CONNECTED_SESSION_CACHE");
+
+        if(sessionCache == null) return null;
+
+        if(sessionCache.get(sessionId) == null)  return null;
+
+        return Long.valueOf(Objects.requireNonNull(sessionCache.get(sessionId, String.class)));
+    }
+
+    private Long removeDisconnectedSessionFromCache(String sessionId) {
+        var sessionCache = cacheManager.getCache("CONNECTED_SESSION_CACHE");
+
+        if(sessionCache == null) return null;
+
+        if(sessionCache.get(sessionId) == null)  return null;
+
+        var userId = Long.valueOf(Objects.requireNonNull(sessionCache.get(sessionId, String.class)));
+
+        removeDisconnectedUserFromCache(userId);
+
+        sessionCache.evict(sessionId);
+
+        return userId;
     }
 
     private void addConnectedUsersToCache(Long userId) {

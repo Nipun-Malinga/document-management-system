@@ -2,6 +2,7 @@ package com.nipun.system.document.websocket;
 
 import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.shared.entities.WebsocketPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -140,5 +141,24 @@ public class DocumentWebSocketService {
 
         document.addContent(currentState);
         documentRepository.save(document);
+    }
+
+    /**
+     * <p style="color:green">Broadcasts the connected users.</p>
+     * <p style="color:green">Saves the current change if there are no users.</p>
+    */
+    public WebsocketPayload<Set<Long>> getDocumentConnectedUsers(String sessionId) {
+        var documentId = removeDisconnectedUserFromCache(sessionId);
+        var connectedUsers = getConnectedUsers(documentId);
+
+        if(connectedUsers != null) {
+            if(connectedUsers.getUsers().isEmpty())
+                saveDocumentState(documentId);
+
+            return new WebsocketPayload<>("/document/" + documentId + "/broadcastUsers",
+                    connectedUsers.getUsers());
+        }
+
+        return null;
     }
 }
