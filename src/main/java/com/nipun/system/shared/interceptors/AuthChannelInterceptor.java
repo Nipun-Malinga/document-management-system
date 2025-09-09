@@ -3,7 +3,8 @@ package com.nipun.system.shared.interceptors;
 import com.nipun.system.shared.exceptions.InvalidJwtTokenException;
 import com.nipun.system.shared.exceptions.JwtTokenNotFoundException;
 import com.nipun.system.shared.services.JwtService;
-import lombok.AllArgsConstructor;
+import com.nipun.system.user.websocket.UserWebsocketService;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -19,20 +20,17 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class AuthChannelInterceptor implements ChannelInterceptor {
 
     private static final String SESSION_AUTH_KEY = "WS_AUTH";
     private final JwtService jwtService;
+    private final UserWebsocketService userWebsocketService;
 
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-
-        if (accessor.getCommand() == null) {
-            return message;
-        }
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             var authHeader = accessor.getFirstNativeHeader("Authorization");
@@ -61,6 +59,9 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
             }
 
             accessor.setLeaveMutable(true);
+
+            userWebsocketService.addConnectedSessionToCache(accessor.getSessionId(), accessor.getUser());
+
             return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
         }
 
