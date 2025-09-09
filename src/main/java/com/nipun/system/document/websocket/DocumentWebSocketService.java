@@ -8,6 +8,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Service
@@ -17,28 +18,30 @@ public class DocumentWebSocketService {
     private final CacheManager cacheManager;
 
     public boolean isUnauthorizedUser(Long userId, UUID documentId) {
-        var permissionCache = cacheManager.getCache("USER_PERMISSION_CACHE");
+        var permissionCache = cacheManager.getCache("DOCUMENT_USER_PERMISSION_CACHE");
+        if (permissionCache == null) return true;
 
-        String cacheKey = documentId + ":" + userId;
 
-        if (permissionCache != null) {
-            Boolean cachedValue = permissionCache.get(cacheKey, Boolean.class);
-            if (cachedValue != null) {
-                return cachedValue;
-            }
+        Map<Long, Boolean> userPermissions = permissionCache.get(documentId, Map.class);
+
+        if (userPermissions != null && userPermissions.containsKey(userId)) {
+            return userPermissions.get(userId);
         }
 
-        var document = documentRepository.findByPublicId(documentId)
-                .orElseThrow(DocumentNotFoundException::new);
+        boolean unauthorized = documentRepository.findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new)
+                .isUnauthorizedUser(userId);
 
-        boolean unauthorized = document.isUnauthorizedUser(userId);
-
-        if (permissionCache != null) {
-            permissionCache.put(cacheKey, unauthorized);
+        if (userPermissions == null) {
+            userPermissions = new ConcurrentHashMap<>();
         }
+
+        userPermissions.put(userId, unauthorized);
+        permissionCache.put(documentId, userPermissions);
 
         return unauthorized;
     }
+
 
     public void setDocumentStatus(UUID documentId, String status) {
         var cache = cacheManager.getCache("DOCUMENT_STATUS_CACHE");

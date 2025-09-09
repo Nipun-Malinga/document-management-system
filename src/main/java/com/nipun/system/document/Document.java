@@ -105,7 +105,7 @@ public class Document {
     }
 
     public List<SharedDocumentDto> getSharedUsers() {
-         return this.getSharedDocuments()
+        return this.getSharedDocuments()
                 .stream()
                 .map(item ->
                         new SharedDocumentDto(
@@ -127,11 +127,9 @@ public class Document {
     public boolean isReadOnlyUser(Long userId) {
         return getSharedUsers()
                 .stream()
-                .map(user ->
-                        user.getUserId().equals(userId) &&
-                        user.getPermission().equals(Permission.READ_ONLY))
-                .findFirst()
-                .orElse(false);
+                .anyMatch(user ->
+                        Objects.equals(user.getUserId(), userId) &&
+                                user.getPermission() == Permission.READ_ONLY);
     }
 
     private boolean isOwner(Long userId) {
@@ -141,9 +139,6 @@ public class Document {
     private boolean isSharedUser(Long userId) {
         return this.getSharedUsers()
                 .stream()
-                .map(user ->
-                    Objects.equals(user.getUserId(), userId))
-                .findFirst()
-                .orElse(false);
+                .anyMatch(user -> Objects.equals(user.getUserId(), userId));
     }
 }

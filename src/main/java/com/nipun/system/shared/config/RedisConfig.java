@@ -44,7 +44,7 @@ public class RedisConfig {
             clearCache(cacheManager.getCache("DOCUMENT_USER_CACHE"));
             clearCache(cacheManager.getCache("CONNECTED_USERS_CACHE"));
             clearCache(cacheManager.getCache("CONNECTED_SESSION_CACHE"));
-            clearCache(cacheManager.getCache("USER_PERMISSION_CACHE"));
+            clearCache(cacheManager.getCache("DOCUMENT_USER_PERMISSION_CACHE"));
         };
     }
 
