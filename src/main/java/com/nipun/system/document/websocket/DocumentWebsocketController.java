@@ -33,7 +33,7 @@ public class DocumentWebsocketController {
             @Payload BroadcastDocumentStatusDto statusDto,
             Principal principal
     ) {
-        if(documentWebSocketService.isUnAuthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId))
+        if(documentWebSocketService.isUnauthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId))
             throw new UnauthorizedDocumentException();
 
         documentWebSocketService.setDocumentStatus(documentId, statusDto.getContent());
@@ -48,7 +48,7 @@ public class DocumentWebsocketController {
     ) {
         var userId = Utils.getUserIdFromPrincipal(principal);
 
-        if(documentWebSocketService.isUnAuthorizedUser(userId, documentId))
+        if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
         documentWebSocketService
@@ -69,7 +69,7 @@ public class DocumentWebsocketController {
     ) {
         var userId = Utils.getUserIdFromPrincipal(principal);
 
-        if(documentWebSocketService.isUnAuthorizedUser(userId, documentId))
+        if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
         var connectedUsers = documentWebSocketService.getConnectedUsers(documentId);

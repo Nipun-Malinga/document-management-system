@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -18,23 +16,28 @@ public class DocumentWebSocketService {
     private final DocumentRepository documentRepository;
     private final CacheManager cacheManager;
 
-    public Boolean isUnAuthorizedUser(Long userId, UUID documentId) {
+    public boolean isUnauthorizedUser(Long userId, UUID documentId) {
         var permissionCache = cacheManager.getCache("USER_PERMISSION_CACHE");
 
-        String cacheKey = documentId.toString() + ":" + userId;
+        String cacheKey = documentId + ":" + userId;
 
-        if (permissionCache != null && permissionCache.get(cacheKey) != null)
-            return permissionCache.get(cacheKey, Boolean.class);
+        if (permissionCache != null) {
+            Boolean cachedValue = permissionCache.get(cacheKey, Boolean.class);
+            if (cachedValue != null) {
+                return cachedValue;
+            }
+        }
 
         var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        boolean unAuthorized = document.isUnauthorizedUser(userId);
+        boolean unauthorized = document.isUnauthorizedUser(userId);
 
-        if (permissionCache != null)
-            permissionCache.put(cacheKey, unAuthorized);
+        if (permissionCache != null) {
+            permissionCache.put(cacheKey, unauthorized);
+        }
 
-        return unAuthorized;
+        return unauthorized;
     }
 
     public void setDocumentStatus(UUID documentId, String status) {

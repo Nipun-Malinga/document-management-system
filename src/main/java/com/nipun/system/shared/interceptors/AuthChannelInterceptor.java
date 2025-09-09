@@ -60,7 +60,8 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
 
             accessor.setLeaveMutable(true);
 
-            userWebsocketService.addConnectedSessionToCache(accessor.getSessionId(), accessor.getUser());
+            userWebsocketService.addConnectedSessionToCache(
+                            (String) message.getHeaders().get("simpSessionId"), accessor.getUser());
 
             return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
         }
