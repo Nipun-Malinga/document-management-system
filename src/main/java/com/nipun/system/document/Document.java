@@ -1,10 +1,10 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.branch.DocumentBranch;
-import com.nipun.system.document.utils.Utils;
-import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.dtos.DocumentSharedDocumentDto;
 import com.nipun.system.document.share.Permission;
 import com.nipun.system.document.share.SharedDocument;
+import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.version.DocumentVersion;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
@@ -104,12 +104,11 @@ public class Document {
         sharedDocuments.add(document);
     }
 
-    public List<SharedDocumentDto> getSharedUsers() {
+    public List<DocumentSharedDocumentDto> getSharedUsers() {
         return this.getSharedDocuments()
                 .stream()
                 .map(item ->
-                        new SharedDocumentDto(
-                                item.getDocument().getPublicId(),
+                        new DocumentSharedDocumentDto(
                                 item.getSharedUser().getId(),
                                 item.getPermission())
                 )

@@ -75,7 +75,7 @@ public class SharedDocumentController {
                 ));
     }
 
-    @PatchMapping("/{id}/share")
+    @PatchMapping("/{id}/share/update")
     public ResponseEntity<ContentDto> updateSharedDocument(
             @PathVariable(name = "id") UUID documentId,
             @RequestBody @Valid UpdateContentRequest request

@@ -1,7 +1,6 @@
 package com.nipun.system.document.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -23,5 +22,5 @@ public class DocumentDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    private List<SharedDocumentDto> sharedUsers;
+    private List<DocumentSharedDocumentDto> sharedUsers;
 }
