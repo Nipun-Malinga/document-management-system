@@ -2,6 +2,7 @@ package com.nipun.system.document.websocket;
 
 import com.nipun.system.document.dtos.BroadcastContentDto;
 import com.nipun.system.document.dtos.BroadcastDocumentStatusDto;
+import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.utils.Utils;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +34,16 @@ public class DocumentWebsocketController {
             @Payload BroadcastDocumentStatusDto statusDto,
             Principal principal
     ) {
-        if(documentWebSocketService.isUnauthorizedUser(Utils.getUserIdFromPrincipal(principal), documentId))
+        var userId = Utils.getUserIdFromPrincipal(principal);
+
+        if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
+        if(documentWebSocketService.isReadOnlyUser(userId, documentId))
+            throw new ReadOnlyDocumentException();
+
         documentWebSocketService.setDocumentStatus(documentId, statusDto.getContent());
+
         return new BroadcastContentDto(documentId, statusDto.getContent());
     }
 

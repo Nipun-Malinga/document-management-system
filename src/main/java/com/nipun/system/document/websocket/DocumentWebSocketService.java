@@ -19,29 +19,49 @@ public class DocumentWebSocketService {
 
     public boolean isUnauthorizedUser(Long userId, UUID documentId) {
         var permissionCache = cacheManager.getCache("DOCUMENT_USER_PERMISSION_CACHE");
+
+        /*
+            Converting the user id to string because redis
+            cache only supports string keys.
+        */
+        var userIdCacheKey = userId.toString();
+
         if (permissionCache == null) return true;
 
+        Map<String, AuthorizedOptions> userPermissions = permissionCache.get(documentId, Map.class);
 
-        Map<Long, Boolean> userPermissions = permissionCache.get(documentId, Map.class);
-
-        if (userPermissions != null && userPermissions.containsKey(userId)) {
-            return userPermissions.get(userId);
+        if (userPermissions != null && userPermissions.containsKey(userIdCacheKey)) {
+            return userPermissions.get(userIdCacheKey).isAuthorizedUser();
         }
 
-        boolean unauthorized = documentRepository.findByPublicId(documentId)
-                .orElseThrow(DocumentNotFoundException::new)
-                .isUnauthorizedUser(userId);
+        var document = documentRepository.findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new);
 
         if (userPermissions == null) {
             userPermissions = new ConcurrentHashMap<>();
         }
 
-        userPermissions.put(userId, unauthorized);
+        var isUnauthorized = document.isUnauthorizedUser(userId);
+        var isReadOnlyUser= document.isReadOnlyUser(userId);
+
+        userPermissions.put(userIdCacheKey, new AuthorizedOptions(isUnauthorized, isReadOnlyUser));
         permissionCache.put(documentId, userPermissions);
 
-        return unauthorized;
+        return isUnauthorized;
     }
 
+    public boolean isReadOnlyUser(Long userId, UUID documentId) {
+        var permissionCache = cacheManager.getCache("DOCUMENT_USER_PERMISSION_CACHE");
+        var userIdKey = userId.toString();
+
+        if (permissionCache == null) return false;
+
+        Map<String, AuthorizedOptions> userPermissions = permissionCache.get(documentId, Map.class);
+
+        return userPermissions != null &&
+               userPermissions.containsKey(userIdKey) &&
+               userPermissions.get(userIdKey).isReadOnlyUser();
+    }
 
     public void setDocumentStatus(UUID documentId, String status) {
         var cache = cacheManager.getCache("DOCUMENT_STATUS_CACHE");
