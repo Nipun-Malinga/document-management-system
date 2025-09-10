@@ -15,5 +15,5 @@ CREATE TABLE document_version (
     CONSTRAINT fk_version_content_id
         FOREIGN KEY (version_content_id) REFERENCES document_version_content(id),
     CONSTRAINT fk_version_user_id
-        FOREIGN KEY (author) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (author) REFERENCES users(id) ON DELETE RESTRICT
 )

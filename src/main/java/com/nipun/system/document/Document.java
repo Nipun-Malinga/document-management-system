@@ -132,6 +132,14 @@ public class Document {
                                 user.getPermission() == Permission.READ_ONLY);
     }
 
+    public void removeSharedUser(Long userId) {
+        getSharedDocuments().forEach(sharedDocument -> {
+            if (sharedDocument.getSharedUser().getId().equals(userId)) {
+                sharedDocuments.remove(sharedDocument);
+            }
+        });
+    }
+
     private boolean isOwner(Long userId) {
         return Objects.equals(this.getOwner().getId(), userId);
     }

@@ -84,4 +84,22 @@ public class SharedDocumentController {
 
         return ResponseEntity.ok(contentMapper.toDto(content));
     }
+
+    @PostMapping("/{id}/share/remove")
+    public ResponseEntity<Void> removeDocumentAccess(
+            @PathVariable(name = "id") UUID documentId
+    ) {
+        sharedDocumentService.removeDocumentAccess(documentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/share/remove/{sharedUserId}")
+    public ResponseEntity<Void> removeDocumentAccess(
+            @PathVariable(name = "id") UUID documentId,
+            @PathVariable(name = "sharedUserId") Long shardUserId
+    ) {
+        sharedDocumentService.removeDocumentAccess(documentId, shardUserId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

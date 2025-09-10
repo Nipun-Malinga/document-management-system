@@ -108,4 +108,27 @@ public class SharedDocumentService {
 
         return document.getContent();
     }
+
+
+    public void removeDocumentAccess(UUID documentId) {
+        var userId = Utils.getUserIdFromContext();
+
+        var sharedDocument = sharedDocumentRepository
+                .findByDocumentPublicIdAndSharedUserId(documentId, userId)
+                .orElseThrow(UnauthorizedDocumentException::new);
+
+        sharedDocumentRepository.delete(sharedDocument);
+    }
+
+    public void removeDocumentAccess(UUID documentId, Long sharedUerId) {
+        var userId = Utils.getUserIdFromContext();
+
+        var document = documentRepository
+                .findByPublicIdAndOwnerId(documentId, userId)
+                .orElseThrow(DocumentNotFoundException::new);
+
+        document.removeSharedUser(sharedUerId);
+
+        documentRepository.save(document);
+    }
 }
