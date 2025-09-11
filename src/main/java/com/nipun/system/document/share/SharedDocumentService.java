@@ -8,6 +8,8 @@ import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.websocket.AuthorizedOptions;
+import com.nipun.system.document.websocket.DocumentWebSocketService;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
@@ -26,6 +28,7 @@ public class SharedDocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final SharedDocumentRepository sharedDocumentRepository;
+    private final DocumentWebSocketService documentWebSocketService;
 
     @Transactional
     public SharedDocument shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
@@ -54,6 +57,14 @@ public class SharedDocumentService {
         document.setUpdatedAt(LocalDateTime.now());
 
         documentRepository.save(document);
+
+        documentWebSocketService.updateDocumentPermissionDetails(
+                        documentId,
+                        sharedUserId,
+                        new AuthorizedOptions(
+                                document.isUnauthorizedUser(sharedUserId),
+                                document.isReadOnlyUser(sharedUserId))
+        );
 
         return sharedDocument;
     }
@@ -117,6 +128,8 @@ public class SharedDocumentService {
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
                 .orElseThrow(UnauthorizedDocumentException::new);
 
+        documentWebSocketService.removeDocumentPermissionDetailsFromCache(documentId, userId);
+
         sharedDocumentRepository.delete(sharedDocument);
     }
 
@@ -128,6 +141,8 @@ public class SharedDocumentService {
                 .orElseThrow(DocumentNotFoundException::new);
 
         document.removeSharedUser(sharedUerId);
+
+        documentWebSocketService.removeDocumentPermissionDetailsFromCache(documentId, sharedUerId);
 
         documentRepository.save(document);
     }

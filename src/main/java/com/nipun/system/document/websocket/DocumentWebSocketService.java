@@ -187,4 +187,35 @@ public class DocumentWebSocketService {
 
         return null;
     }
+
+    public void updateDocumentPermissionDetails(UUID documentId, Long userId, AuthorizedOptions authorizedOptions) {
+        var permissionCache = cacheManager.getCache("DOCUMENT_USER_PERMISSION_CACHE");
+
+        var userIdCacheKey = userId.toString();
+
+        if (permissionCache == null) return;
+
+        Map<String, AuthorizedOptions> userPermissions = permissionCache.get(documentId, Map.class);
+
+        if (userPermissions != null && userPermissions.containsKey(userIdCacheKey)) {
+            userPermissions.put(userIdCacheKey, authorizedOptions);
+            permissionCache.put(documentId, userPermissions);
+        }
+    }
+
+    public void removeDocumentPermissionDetailsFromCache(UUID documentId, Long userId) {
+        var permissionCache = cacheManager.getCache("DOCUMENT_USER_PERMISSION_CACHE");
+
+        if (permissionCache == null) return;
+
+        // Converting the user id to string because redis cache only supports string keys.
+        var userIdCacheKey = userId.toString();
+
+        Map<String, AuthorizedOptions> userPermissions = permissionCache.get(documentId, Map.class);
+
+        if (userPermissions != null) {
+            userPermissions.remove(userIdCacheKey);
+            permissionCache.put(documentId, userPermissions);
+        }
+    }
 }
