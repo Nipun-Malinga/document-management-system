@@ -46,7 +46,7 @@ public class WebsocketListener {
 
     private void broadcastDocumentConnectedUserPayload(String sessionId) {
         var connectedUsersPayload = documentWebSocketService
-                .getDocumentConnectedUsers(sessionId);
+                .getConnectedUsers(sessionId);
 
         if(connectedUsersPayload != null)
             websocketService.broadcastPayload(connectedUsersPayload.getEndpoint(), connectedUsersPayload.getPayload());

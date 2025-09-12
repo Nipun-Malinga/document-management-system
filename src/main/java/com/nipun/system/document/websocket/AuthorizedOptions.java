@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthorizedOptions {
-    private boolean isAuthorizedUser;
+    private boolean isUnAuthorizedUser;
     private boolean isReadOnlyUser;
 }

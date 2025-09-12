@@ -139,6 +139,10 @@ public class Document {
         });
     }
 
+    public String getDocumentContent() {
+        return getContent().getContent();
+    }
+
     private boolean isOwner(Long userId) {
         return Objects.equals(this.getOwner().getId(), userId);
     }

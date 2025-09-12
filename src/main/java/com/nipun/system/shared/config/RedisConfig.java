@@ -41,7 +41,7 @@ public class RedisConfig {
     public ApplicationRunner clearSelectedCache(CacheManager cacheManager) {
         return _ -> {
             clearCache(cacheManager.getCache("DOCUMENT_SESSION_CACHE"));
-            clearCache(cacheManager.getCache("DOCUMENT_USER_CACHE"));
+            clearCache(cacheManager.getCache("DOCUMENT_CONNECTED_USERS_CACHE"));
             clearCache(cacheManager.getCache("CONNECTED_USERS_CACHE"));
             clearCache(cacheManager.getCache("CONNECTED_SESSION_CACHE"));
             clearCache(cacheManager.getCache("DOCUMENT_USER_PERMISSION_CACHE"));
