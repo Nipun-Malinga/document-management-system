@@ -1,8 +1,11 @@
 package com.nipun.system.user;
 
+import com.nipun.system.user.dtos.RegisterUserRequest;
+import com.nipun.system.user.dtos.UserDto;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +14,13 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public User registerUser(
-            User user
+    public UserDto registerUser(
+            RegisterUserRequest request
     ) {
+        var user = userMapper.toEntity(request);
+
         if(userRepository.existsByEmail(user.getEmail()))
             throw new EmailAlreadyRegisteredException(
                     "Email: " + user.getEmail()  + " is already registered in system."
@@ -22,9 +28,8 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
-        userRepository.save(user);
 
-        return user;
+        return userMapper.toDto(userRepository.save(user));
     }
 
     public User findUser(Long id) {
@@ -36,13 +41,14 @@ public class UserService {
         return user;
     }
 
-    public User findUser(String email) {
+    @Cacheable(value = "users", key = "#email")
+    public UserDto findUser(String email) {
         var user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null)
             throw new UserNotFoundException();
 
-        return user;
+        return userMapper.toDto(user);
     }
 
 }
