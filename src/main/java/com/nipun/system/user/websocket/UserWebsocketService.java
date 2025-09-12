@@ -3,6 +3,7 @@ package com.nipun.system.user.websocket;
 import com.nipun.system.document.utils.Utils;
 import com.nipun.system.shared.entities.WebsocketPayload;
 import com.nipun.system.user.cache.UserRedisCacheServiceImpl;
+import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class UserWebsocketService {
         var userId = userRedisCacheService.getConnectedUserIdFromSession(sessionId);
 
         if(userId == null)
-            System.out.println("Exception");
+            throw new UserIdNotFoundInSessionException(sessionId);
 
         return userId;
     }
@@ -45,7 +46,7 @@ public class UserWebsocketService {
         var userId = userRedisCacheService.getConnectedUserIdFromSession(sessionId);
 
         if(userId == null)
-            System.out.println("Exception");
+            throw new UserIdNotFoundInSessionException(sessionId);
 
         removeDisconnectedUserFromCache(userId);
 
