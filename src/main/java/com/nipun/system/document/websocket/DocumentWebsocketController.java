@@ -4,7 +4,7 @@ import com.nipun.system.document.dtos.BroadcastContentDto;
 import com.nipun.system.document.dtos.BroadcastDocumentStatusDto;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.utils.Utils;
+import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -34,7 +34,7 @@ public class DocumentWebsocketController {
             @Payload BroadcastDocumentStatusDto statusDto,
             Principal principal
     ) {
-        var userId = Utils.getUserIdFromPrincipal(principal);
+        var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
         if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
@@ -53,7 +53,7 @@ public class DocumentWebsocketController {
             Principal principal,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        var userId = Utils.getUserIdFromPrincipal(principal);
+        var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
         if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
@@ -74,7 +74,7 @@ public class DocumentWebsocketController {
             @DestinationVariable UUID documentId,
             Principal principal
     ) {
-        var userId = Utils.getUserIdFromPrincipal(principal);
+        var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
         if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();

@@ -1,7 +1,7 @@
 package com.nipun.system.shared.interceptors;
 
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.utils.Utils;
+import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.document.websocket.DocumentWebSocketService;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +34,7 @@ public class SubscribeChannelInterceptor implements ChannelInterceptor {
                 UUID documentId = UUID.fromString(documentIdStr);
 
                 if (documentWebSocketService.isUnauthorizedUser(
-                        Utils.getUserIdFromPrincipal(principal), documentId)) {
+                        UserIdUtils.getUserIdFromPrincipal(principal), documentId)) {
                     throw new UnauthorizedDocumentException();
                 }
             }

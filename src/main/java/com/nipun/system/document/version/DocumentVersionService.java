@@ -9,7 +9,7 @@ import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.utils.Utils;
+import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
@@ -36,7 +36,7 @@ public class DocumentVersionService {
     private final DiffService diffService;
 
     public PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
@@ -68,7 +68,7 @@ public class DocumentVersionService {
 
     @Cacheable(value = "document_version_contents", key = "#documentId + ':' + #versionNumber")
     public ContentDto getVersionContent(UUID versionNumber, UUID documentId) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var documentVersion = documentVersionRepository
                 .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
@@ -83,7 +83,7 @@ public class DocumentVersionService {
     @Cacheable(value = "document_version_diffs", key = "#documentId + ':' + #base + ':' + #compare")
     public DiffResponse getVersionDiffs(UUID documentId, UUID base, UUID compare) {
 
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var baseVersion = documentVersionRepository
                 .findByVersionNumberAndDocumentPublicId(base, documentId)
@@ -105,7 +105,7 @@ public class DocumentVersionService {
 
     @Transactional
     public void restoreToPreviousVersion(UUID documentId) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
@@ -138,7 +138,7 @@ public class DocumentVersionService {
                 .findById(documentVersion.getDocument().getId())
                 .orElseThrow(DocumentNotFoundException::new);
 
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         if(document.isUnauthorizedUser(userId))
             throw new UnauthorizedDocumentException();

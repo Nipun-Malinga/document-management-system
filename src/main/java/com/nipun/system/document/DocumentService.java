@@ -5,7 +5,7 @@ import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.utils.Utils;
+import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -33,7 +33,7 @@ public class DocumentService {
     ) {
         var document = documentMapper.toEntity(request);
 
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var user = userRepository.findById(userId).orElseThrow();
 
@@ -45,7 +45,7 @@ public class DocumentService {
     @Cacheable(value = "documents", key = "#documentId")
     public DocumentDto getDocument(UUID documentId) {
 
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
@@ -55,7 +55,7 @@ public class DocumentService {
     }
 
     public PaginatedData getAllDocuments(int pageNumber, int size) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
@@ -82,7 +82,7 @@ public class DocumentService {
     @Transactional
     public DocumentDto updateTitle(UUID documentId, UpdateTitleRequest request) {
 
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
@@ -97,7 +97,7 @@ public class DocumentService {
     @Transactional
     public void deleteDocument(UUID documentId) {
 
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
@@ -109,7 +109,7 @@ public class DocumentService {
     @CachePut(value = "document_contents", key = "#documentId")
     @Transactional
     public ContentDto updateContent(UUID documentId, UpdateContentRequest request) throws PatchFailedException {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var user = userRepository.findById(userId).orElseThrow();
 
@@ -131,7 +131,7 @@ public class DocumentService {
 
     @Cacheable(value = "document_contents", key = "#documentId")
     public ContentDto getContent(UUID documentId) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);

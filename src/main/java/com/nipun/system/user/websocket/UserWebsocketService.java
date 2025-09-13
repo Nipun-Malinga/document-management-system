@@ -1,6 +1,6 @@
 package com.nipun.system.user.websocket;
 
-import com.nipun.system.document.utils.Utils;
+import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.shared.entities.WebsocketPayload;
 import com.nipun.system.user.cache.UserRedisCacheServiceImpl;
 import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
@@ -17,7 +17,7 @@ public class UserWebsocketService {
     private final UserRedisCacheServiceImpl userRedisCacheService;
 
     public void addConnectedSessionToCache(String sessionId, Principal principal) {
-        var userId = Utils.getUserIdFromPrincipal(principal);
+        var userId = UserIdUtils.getUserIdFromPrincipal(principal);
         userRedisCacheService.putConnectedSession(sessionId, userId);
         addConnectedUsersToCache(userId);
     }

@@ -7,7 +7,7 @@ import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.*;
-import com.nipun.system.document.utils.Utils;
+import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.document.version.DocumentVersion;
 import com.nipun.system.document.version.DocumentVersionContent;
 import com.nipun.system.document.version.DocumentVersionMapper;
@@ -38,7 +38,7 @@ public class DocumentBranchService {
     @Transactional
     public DocumentBranchDto createBranch(UUID documentId, UUID versionId, String branchName) {
 
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
         var user = userRepository.findById(userId).orElseThrow();
 
         var version = documentVersionRepository
@@ -78,7 +78,7 @@ public class DocumentBranchService {
 
     @Cacheable(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
     public ContentDto getBranchContent(UUID documentId, UUID branchId) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var branch = documentBranchRepository
                 .findByPublicIdAndVersionDocumentPublicId(branchId, documentId)
@@ -98,7 +98,7 @@ public class DocumentBranchService {
             UUID branchId,
             String content
     ) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var branch = documentBranchRepository
                 .findByPublicIdAndVersionDocumentPublicId(branchId, documentId)
@@ -133,7 +133,7 @@ public class DocumentBranchService {
             int pageNumber,
             int size
     ) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
@@ -168,7 +168,7 @@ public class DocumentBranchService {
             UUID documentId,
             UUID branchId
     ) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
@@ -191,7 +191,7 @@ public class DocumentBranchService {
             int pageNumber,
             int size
     ) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
@@ -226,7 +226,7 @@ public class DocumentBranchService {
     }
 
     public void mergeToMainBranch(UUID documentId, UUID branchId) throws PatchFailedException {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
@@ -252,7 +252,7 @@ public class DocumentBranchService {
     public void mergeSpecificBranches(
             UUID documentId, UUID branchId, UUID mergeBranchId
     ) throws PatchFailedException {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)

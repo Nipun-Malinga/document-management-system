@@ -5,7 +5,7 @@ import com.nipun.system.document.Content;
 import com.nipun.system.document.Document;
 import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.diff.DiffService;
-import com.nipun.system.document.utils.Utils;
+import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
@@ -34,7 +34,7 @@ public class SharedDocumentService {
 
     @Transactional
     public SharedDocument shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
@@ -72,7 +72,7 @@ public class SharedDocumentService {
     }
 
     public Page<Document> getAllSharedDocumentsWithUser(int pageNumber, int size) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
@@ -80,7 +80,7 @@ public class SharedDocumentService {
     }
 
     public Content accessSharedDocument(UUID documentId) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(UnauthorizedDocumentException::new);
@@ -93,7 +93,7 @@ public class SharedDocumentService {
 
     @Transactional
     public Content updateSharedDocument(UUID documentId, Content content) throws PatchFailedException {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var sharedDocument =  sharedDocumentRepository
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
@@ -123,7 +123,7 @@ public class SharedDocumentService {
 
 
     public void removeDocumentAccess(UUID documentId) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var sharedDocument = sharedDocumentRepository
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
@@ -135,7 +135,7 @@ public class SharedDocumentService {
     }
 
     public void removeDocumentAccess(UUID documentId, Long sharedUerId) {
-        var userId = Utils.getUserIdFromContext();
+        var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
