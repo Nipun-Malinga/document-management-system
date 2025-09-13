@@ -15,7 +15,6 @@ import java.util.UUID;
 public class DocumentVersionController {
 
     private final DocumentVersionService documentVersionService;
-    private final DocumentVersionMapper documentVersionMapper;
 
     @GetMapping("/{id}/versions")
     public ResponseEntity<PaginatedData> getAllDocumentVersions(
@@ -23,22 +22,9 @@ public class DocumentVersionController {
             @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
             @RequestParam(name = "page-size", defaultValue = "20") int pageSize
     ) {
-        var versions = documentVersionService
+        var paginatedVersions = documentVersionService
                 .getAllDocumentVersions(documentId, pageNumber, pageSize);
-
-        var documentDtos = versions.getContent().stream().map(documentVersionMapper::toDto).toList();
-
-        return ResponseEntity.ok(
-                new PaginatedData(
-                        documentDtos,
-                        pageNumber,
-                        pageSize,
-                        versions.getTotalPages(),
-                        versions.getTotalElements(),
-                        versions.hasNext(),
-                        versions.hasPrevious()
-                )
-        );
+        return ResponseEntity.ok(paginatedVersions);
     }
 
     @GetMapping("/{id}/versions/{versionNumber}")
@@ -46,10 +32,8 @@ public class DocumentVersionController {
             @PathVariable(name = "id") UUID documentId,
             @PathVariable(name = "versionNumber") UUID versionNumber
     ) {
-        var versionContent = documentVersionService.getVersionContent(versionNumber, documentId);
-
-        return ResponseEntity.ok(
-                new ContentDto(versionContent.getContent()));
+        var versionContentDto = documentVersionService.getVersionContent(versionNumber, documentId);
+        return ResponseEntity.ok(versionContentDto);
     }
 
     @GetMapping("/{id}/versions/diffs")
@@ -58,8 +42,8 @@ public class DocumentVersionController {
             @RequestParam(name = "base-version") UUID base,
             @RequestParam(name = "compare-version") UUID compare
     ) {
-        var diffs = documentVersionService.getVersionDiffs(documentId, base, compare);
-        return ResponseEntity.ok(new DiffResponse(diffs));
+        var diffResponseDto = documentVersionService.getVersionDiffs(documentId, base, compare);
+        return ResponseEntity.ok(diffResponseDto);
     }
 
     @PostMapping("/{id}/versions/restore")
@@ -76,7 +60,6 @@ public class DocumentVersionController {
             @PathVariable(name = "versionNumber") UUID versionNumber
     ) {
         documentVersionService.restoreToDocumentSpecificVersion(versionNumber, documentId);
-
         return ResponseEntity.noContent().build();
     }
 }

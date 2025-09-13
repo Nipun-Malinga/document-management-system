@@ -2,14 +2,20 @@ package com.nipun.system.document.branch;
 
 import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.DocumentRepository;
+import com.nipun.system.document.dtos.ContentDto;
+import com.nipun.system.document.dtos.branch.DocumentBranchDto;
+import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.version.DocumentVersion;
 import com.nipun.system.document.version.DocumentVersionContent;
+import com.nipun.system.document.version.DocumentVersionMapper;
 import com.nipun.system.document.version.DocumentVersionRepository;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +30,11 @@ public class DocumentBranchService {
     private final DocumentBranchRepository documentBranchRepository;
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
+    private final DocumentBranchMapper documentBranchMapper;
+    private final DocumentVersionMapper documentVersionMapper;
 
     @Transactional
-    public DocumentBranch createBranch(UUID documentId, UUID versionId, String branchName) {
+    public DocumentBranchDto createBranch(UUID documentId, UUID versionId, String branchName) {
 
         var userId = Utils.getUserIdFromContext();
         var user = userRepository.findById(userId).orElseThrow();
@@ -63,10 +71,11 @@ public class DocumentBranchService {
 
         documentVersionRepository.save(newVersion);
 
-        return branch;
+        return documentBranchMapper.toDto(branch);
     }
 
-    public DocumentBranchContent getBranchContent(UUID documentId, UUID branchId) {
+    @Cacheable(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
+    public ContentDto getBranchContent(UUID documentId, UUID branchId) {
         var userId = Utils.getUserIdFromContext();
 
         var branch = documentBranchRepository
@@ -78,10 +87,11 @@ public class DocumentBranchService {
         if(document.isUnauthorizedUser(userId))
             throw new UnauthorizedDocumentException();
 
-        return branch.getContent();
+        return new ContentDto(branch.getBranchContent());
     }
 
-    public DocumentBranchContent updateBranchContent(
+    @CachePut(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
+    public ContentDto updateBranchContent(
             UUID documentId,
             UUID branchId,
             String content
@@ -100,7 +110,7 @@ public class DocumentBranchService {
         if(document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
 
-        branch.getContent().setContent(content);
+        branch.setBranchContent(content);
 
         var user = userRepository.findById(userId).orElseThrow();
 
@@ -113,10 +123,10 @@ public class DocumentBranchService {
 
         documentVersionRepository.save(version);
 
-        return branch.getContent();
+        return new ContentDto(branch.getBranchContent());
     }
 
-    public Page<DocumentBranch> getAllBranches(
+    public PaginatedData getAllBranches(
             UUID documentId,
             int pageNumber,
             int size
@@ -132,9 +142,26 @@ public class DocumentBranchService {
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        return documentBranchRepository.findAllByDocumentId(document.getId(), pageRequest);
+        var branches = documentBranchRepository
+                .findAllByDocumentId(document.getId(), pageRequest);
+
+        var branchDtoList = branches.getContent()
+                .stream()
+                .map(documentBranchMapper::toDto)
+                .toList();
+
+        return new PaginatedData(
+                branchDtoList,
+                branches.getNumber(),
+                branches.getSize(),
+                branches.getTotalPages(),
+                branches.getTotalElements(),
+                branches.hasNext(),
+                branches.hasPrevious()
+        );
     }
 
+    @CacheEvict(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
     public void deleteBranch(
             UUID documentId,
             UUID branchId
@@ -156,7 +183,7 @@ public class DocumentBranchService {
                 .ifPresent(documentBranchRepository::delete);
     }
 
-    public Page<DocumentVersion> getAllBranchVersions(
+    public PaginatedData getAllBranchVersions(
             UUID documentId,
             UUID branchId,
             int pageNumber,
@@ -173,12 +200,27 @@ public class DocumentBranchService {
 
         PageRequest pageRequest =  PageRequest.of(pageNumber, size);
 
-        return documentVersionRepository
+        var versionList =  documentVersionRepository
                 .findAllByDocumentPublicIdAndBranchPublicId(
                         documentId,
                         branchId,
                         pageRequest
                 );
+
+        var versionDtoList = versionList.getContent()
+                .stream()
+                .map(documentVersionMapper::toDto)
+                .toList();
+
+        return new PaginatedData(
+                versionDtoList,
+                versionList.getNumber(),
+                versionList.getSize(),
+                versionList.getTotalPages(),
+                versionList.getTotalElements(),
+                versionList.hasNext(),
+                versionList.hasPrevious()
+        );
     }
 
     public void mergeToMainBranch(UUID documentId, UUID branchId) throws PatchFailedException {

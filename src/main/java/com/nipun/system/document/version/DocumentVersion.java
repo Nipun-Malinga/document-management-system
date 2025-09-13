@@ -75,4 +75,8 @@ public class DocumentVersion {
         this.setAuthor(author);
         this.setTimestamp(LocalDateTime.now());
     }
+
+    public String getVersionContent() {
+        return content.getContent();
+    }
 }

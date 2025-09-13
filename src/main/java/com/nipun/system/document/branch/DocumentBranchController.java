@@ -8,7 +8,6 @@ import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.BranchTitleAlreadyExistsException;
 import com.nipun.system.document.exceptions.DocumentBranchNotFoundException;
-import com.nipun.system.document.version.DocumentVersionMapper;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,8 +22,6 @@ import java.util.UUID;
 public class DocumentBranchController {
 
     private final DocumentBranchService documentBranchService;
-    private final DocumentBranchMapper documentBranchMapper;
-    private final DocumentVersionMapper documentVersionMapper;
 
     @PostMapping("/{documentId}/branches/versions/{versionId}")
     public ResponseEntity<DocumentBranchDto> createBranch(
@@ -32,9 +29,8 @@ public class DocumentBranchController {
             @PathVariable(name = "versionId") UUID versionId,
             @RequestBody CreateBranchRequest request
             ) {
-        var branch = documentBranchService.createBranch(documentId, versionId, request.getBranchName());
-
-        return ResponseEntity.ok(documentBranchMapper.toDto(branch));
+        var branchDto = documentBranchService.createBranch(documentId, versionId, request.getBranchName());
+        return ResponseEntity.ok(branchDto);
     }
 
     @GetMapping("/{documentId}/branches/{branchId}")
@@ -42,9 +38,8 @@ public class DocumentBranchController {
             @PathVariable(name = "documentId") UUID documentId,
             @PathVariable(name = "branchId") UUID branchId
     ) {
-        var branchContent = documentBranchService.getBranchContent(documentId, branchId);
-
-        return ResponseEntity.ok(new ContentDto(branchContent.getContent()));
+        var branchContentDto = documentBranchService.getBranchContent(documentId, branchId);
+        return ResponseEntity.ok(branchContentDto);
     }
 
     @PutMapping("/{documentId}/branches/{branchId}")
@@ -64,19 +59,8 @@ public class DocumentBranchController {
             @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
             @RequestParam(name = "page-size", defaultValue = "20") int pageSize
     ) {
-        var branches = documentBranchService.getAllBranches(documentId, pageNumber, pageSize);
-
-        var branchDtos = branches.getContent().stream().map(documentBranchMapper::toDto).toList();
-
-        return ResponseEntity.ok(new PaginatedData(
-                branchDtos,
-                branches.getNumber(),
-                branches.getSize(),
-                branches.getTotalPages(),
-                branches.getTotalElements(),
-                branches.hasNext(),
-                branches.hasPrevious()
-        ));
+        var paginatedBranches = documentBranchService.getAllBranches(documentId, pageNumber, pageSize);
+        return ResponseEntity.ok(paginatedBranches);
     }
 
     @GetMapping("/{documentId}/branches/{branchId}/versions")
@@ -86,20 +70,9 @@ public class DocumentBranchController {
             @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
             @RequestParam(name = "page-size", defaultValue = "20") int pageSize
     ) {
-        var versions = documentBranchService
+        var paginatedVersionDtoList = documentBranchService
                 .getAllBranchVersions(documentId, branchId, pageNumber, pageSize);
-
-        var versionDtos = versions.getContent().stream().map(documentVersionMapper::toDto).toList();
-
-        return ResponseEntity.ok(new PaginatedData(
-                versionDtos,
-                versions.getNumber(),
-                versions.getSize(),
-                versions.getTotalPages(),
-                versions.getTotalElements(),
-                versions.hasNext(),
-                versions.hasPrevious()
-        ));
+        return ResponseEntity.ok(paginatedVersionDtoList);
     }
 
     @DeleteMapping("/{documentId}/branches/{branchId}")
@@ -117,7 +90,6 @@ public class DocumentBranchController {
             @PathVariable(name = "branchId") UUID branchId
     ) throws PatchFailedException {
         documentBranchService.mergeToMainBranch(documentId, branchId);
-
         return ResponseEntity.ok().build();
     }
 

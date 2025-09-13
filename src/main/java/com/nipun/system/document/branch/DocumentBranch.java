@@ -61,4 +61,12 @@ public class DocumentBranch {
     public boolean isBranchTitleExistsAlready(String branchName) {
         return this.branchName.equalsIgnoreCase(branchName);
     }
+
+    public String getBranchContent() {
+        return content.getContent();
+    }
+
+    public void setBranchContent(String content) {
+        this.content.setContent(content);
+    }
 }

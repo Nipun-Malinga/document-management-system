@@ -3,13 +3,17 @@ package com.nipun.system.document.version;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import com.nipun.system.document.DocumentRepository;
+import com.nipun.system.document.dtos.ContentDto;
+import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.document.dtos.version.DiffResponse;
+import com.nipun.system.document.dtos.version.DiffRowDto;
 import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,14 +29,15 @@ public class DocumentVersionService {
     /*
         TODO:
          Combine All THE CONTENT TABLES INTO ONE.
-         CREATE A SEPARATE BRANCH FOR MAIN DOCUMENT AND DEVELOP
-            AND REPLACE EXISTING VERSION RESTORE FUNCTIONS.
+         CREATE A SEPARATE BRANCH FOR MAIN DOCUMENT AND
+          REPLACE EXISTING VERSION RESTORE FUNCTIONS.
     */
 
     private final DocumentRepository documentRepository;
     private final DocumentVersionRepository documentVersionRepository;
+    private final DocumentVersionMapper documentVersionMapper;
 
-    public Page<DocumentVersion> getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
+    public PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
         var userId = Utils.getUserIdFromContext();
 
         var document = documentRepository
@@ -44,10 +49,27 @@ public class DocumentVersionService {
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        return documentVersionRepository.findAllByDocumentId(document.getId(), pageRequest);
+        var versions =  documentVersionRepository
+                .findAllByDocumentId(document.getId(), pageRequest);
+
+        var documentDtoList = versions.getContent()
+                .stream()
+                .map(documentVersionMapper::toDto)
+                .toList();
+
+        return new PaginatedData(
+                documentDtoList,
+                pageNumber,
+                size,
+                versions.getTotalPages(),
+                versions.getTotalElements(),
+                versions.hasNext(),
+                versions.hasPrevious()
+        );
     }
 
-    public DocumentVersionContent getVersionContent(UUID versionNumber, UUID documentId) {
+    @Cacheable(value = "document_version_contents", key = "#documentId + ':' + #versionNumber")
+    public ContentDto getVersionContent(UUID versionNumber, UUID documentId) {
         var userId = Utils.getUserIdFromContext();
 
         var documentVersion = documentVersionRepository
@@ -57,10 +79,11 @@ public class DocumentVersionService {
         if(documentVersion.getDocument().isUnauthorizedUser(userId))
             throw new UnauthorizedDocumentException();
 
-        return documentVersion.getContent();
+        return new ContentDto(documentVersion.getVersionContent());
     }
 
-    public Map<String, Object> getVersionDiffs(UUID documentId, UUID base, UUID compare) {
+    @Cacheable(value = "document_version_diffs", key = "#documentId + ':' + #base + ':' + #compare")
+    public DiffResponse getVersionDiffs(UUID documentId, UUID base, UUID compare) {
 
         var userId = Utils.getUserIdFromContext();
 
@@ -89,7 +112,17 @@ public class DocumentVersionService {
                 List.of(comparedWithVersion.getContent().getContent().split("\n")),
                 List.of(baseVersion.getContent().getContent().split("\n")));
 
-        return  Map.of("diff", rows);
+        List<DiffRowDto> diffRowDtoList = rows
+                .stream()
+                .map(row ->
+                        new DiffRowDto(
+                                row.getTag().toString(),
+                                row.getOldLine(),
+                                row.getNewLine())
+                )
+                .toList();
+
+        return  new DiffResponse(Map.of("diffs", diffRowDtoList));
     }
 
     @Transactional
