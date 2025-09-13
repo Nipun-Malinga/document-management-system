@@ -1,6 +1,7 @@
 package com.nipun.system.document;
 
 import com.github.difflib.patch.PatchFailedException;
+import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
@@ -24,6 +25,7 @@ public class DocumentService {
     private final UserRepository userRepository;
     private final DocumentMapper documentMapper;
     private final ContentMapper contentMapper;
+    private final DiffService diffService;
 
     @Transactional
     public DocumentDto createDocument(
@@ -118,11 +120,7 @@ public class DocumentService {
         if(document.isContentNull())
             document.addContent(request.getContent());
         else
-            document.addContent(
-                    Utils.patchDocument(
-                            document.getContent().getContent(), request.getContent()
-                    )
-            );
+            document.addContent(diffService.patchDocument(document.getContent().getContent(), request.getContent()));
 
         document.addDocumentVersion(document, user);
 

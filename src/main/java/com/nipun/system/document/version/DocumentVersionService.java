@@ -1,24 +1,21 @@
 package com.nipun.system.document.version;
 
-import com.github.difflib.text.DiffRow;
-import com.github.difflib.text.DiffRowGenerator;
 import com.nipun.system.document.DocumentRepository;
+import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.dtos.version.DiffResponse;
-import com.nipun.system.document.dtos.version.DiffRowDto;
-import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
-import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
+import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.utils.Utils;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,6 +33,7 @@ public class DocumentVersionService {
     private final DocumentRepository documentRepository;
     private final DocumentVersionRepository documentVersionRepository;
     private final DocumentVersionMapper documentVersionMapper;
+    private final DiffService diffService;
 
     public PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
         var userId = Utils.getUserIdFromContext();
@@ -98,29 +96,9 @@ public class DocumentVersionService {
                 .findByVersionNumberAndDocumentPublicId(compare, documentId)
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
-
-        DiffRowGenerator generator = DiffRowGenerator.create()
-                .showInlineDiffs(true)
-                .mergeOriginalRevised(true)
-                .inlineDiffByWord(true)
-                .oldTag(_ -> "~")
-                .newTag(_ -> "**")
-                .build();
-
-
-        List<DiffRow> rows = generator.generateDiffRows(
-                List.of(comparedWithVersion.getContent().getContent().split("\n")),
-                List.of(baseVersion.getContent().getContent().split("\n")));
-
-        List<DiffRowDto> diffRowDtoList = rows
-                .stream()
-                .map(row ->
-                        new DiffRowDto(
-                                row.getTag().toString(),
-                                row.getOldLine(),
-                                row.getNewLine())
-                )
-                .toList();
+        var diffRowDtoList = diffService.getVersionDiffs(
+                        baseVersion.getContent().getContent(),
+                        comparedWithVersion.getContent().getContent());
 
         return  new DiffResponse(Map.of("diffs", diffRowDtoList));
     }

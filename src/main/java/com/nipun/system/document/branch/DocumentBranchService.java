@@ -2,6 +2,7 @@ package com.nipun.system.document.branch;
 
 import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.DocumentRepository;
+import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.document.dtos.common.PaginatedData;
@@ -32,6 +33,7 @@ public class DocumentBranchService {
     private final DocumentRepository documentRepository;
     private final DocumentBranchMapper documentBranchMapper;
     private final DocumentVersionMapper documentVersionMapper;
+    private final DiffService diffService;
 
     @Transactional
     public DocumentBranchDto createBranch(UUID documentId, UUID versionId, String branchName) {
@@ -240,10 +242,9 @@ public class DocumentBranchService {
                 .findByPublicIdAndDocumentId(branchId, document.getId())
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
-        document.getContent().setContent(Utils.patchDocument(
-                document.getContent().getContent(),
-                branch.getContent().getContent()
-        ));
+        document.getContent().setContent(
+                diffService.patchDocument(document.getContent().getContent(), branch.getContent().getContent())
+        );
 
         documentRepository.save(document);
     }
@@ -279,10 +280,10 @@ public class DocumentBranchService {
                 .findFirst()
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
-        branch.getContent().setContent(Utils.patchDocument(
-                              branch.getContent().getContent(),
-                              mergeBranch.getContent().getContent()
-        ));
+        branch.getContent().setContent(diffService
+                .patchDocument(branch.getContent().getContent(),
+                        mergeBranch.getContent().getContent())
+        );
 
         documentRepository.save(document);
     }

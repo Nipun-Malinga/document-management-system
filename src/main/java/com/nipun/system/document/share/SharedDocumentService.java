@@ -4,6 +4,7 @@ import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.Content;
 import com.nipun.system.document.Document;
 import com.nipun.system.document.DocumentRepository;
+import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
@@ -29,6 +30,7 @@ public class SharedDocumentService {
     private final UserRepository userRepository;
     private final SharedDocumentRepository sharedDocumentRepository;
     private final DocumentWebSocketService documentWebSocketService;
+    private final DiffService diffService;
 
     @Transactional
     public SharedDocument shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
@@ -108,9 +110,8 @@ public class SharedDocumentService {
             document.addContent(content.getContent());
         else
             document.addContent(
-                    Utils.patchDocument(
-                            document.getContent().getContent(), content.getContent()
-                    )
+                    diffService.patchDocument(document.getContent().getContent(),
+                            content.getContent())
             );
 
         document.addDocumentVersion(document, user);
