@@ -33,8 +33,9 @@ public class SubscribeChannelInterceptor implements ChannelInterceptor {
                 String documentIdStr = destination.split("/")[2];
                 UUID documentId = UUID.fromString(documentIdStr);
 
-                if (documentWebSocketService.isUnauthorizedUser(
-                        UserIdUtils.getUserIdFromPrincipal(principal), documentId)) {
+                var userId = UserIdUtils.getUserIdFromPrincipal(principal);
+
+                if (userId == null || documentWebSocketService.isUnauthorizedUser(userId, documentId)) {
                     throw new UnauthorizedDocumentException();
                 }
             }
