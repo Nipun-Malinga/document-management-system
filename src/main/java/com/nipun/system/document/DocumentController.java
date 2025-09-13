@@ -17,32 +17,26 @@ import java.util.UUID;
 public class DocumentController {
 
     private final DocumentService documentService;
-    private final DocumentMapper documentMapper;
-    private final ContentMapper contentMapper;
 
     @PostMapping
     public ResponseEntity<DocumentDto> createDocument(
             @RequestBody @Valid CreateDocumentRequest request,
             UriComponentsBuilder uriBuilder
     ) {
-        var document = documentService.createDocument(
-                documentMapper.toEntity(request)
-        );
+        var document = documentService.createDocument(request);
 
         var uri = uriBuilder.path("/documents/{id}")
-                .buildAndExpand(document.getPublicId()).toUri();
+                .buildAndExpand(document.getId()).toUri();
 
-        return ResponseEntity
-                .created(uri)
-                .body(documentMapper.toDto(document));
+        return ResponseEntity.created(uri).body(document);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DocumentDto> getDocument(
             @PathVariable(name = "id") UUID documentId
     ) {
-        var document = documentService.getDocument(documentId);
-        return ResponseEntity.ok(documentMapper.toDto(document));
+        var documentDto = documentService.getDocument(documentId);
+        return ResponseEntity.ok(documentDto);
     }
 
     @GetMapping
@@ -50,23 +44,8 @@ public class DocumentController {
             @RequestParam(name = "page-number", defaultValue = "0") int pageNumber,
             @RequestParam(name = "page-size", defaultValue = "20") int pageSize
     ) {
-        var documents = documentService.getAllDocuments(pageNumber, pageSize);
-
-        var documentDtos = documents
-                .getContent()
-                .stream()
-                .map(documentMapper::toDto)
-                .toList();
-        return ResponseEntity.ok(
-                new PaginatedData(
-                        documentDtos,
-                        pageNumber,
-                        pageSize,
-                        documents.getTotalPages(),
-                        documents.getTotalElements(),
-                        documents.hasNext(),
-                        documents.hasPrevious()
-                ));
+        var paginatedDocumentDtoList = documentService.getAllDocuments(pageNumber, pageSize);
+        return ResponseEntity.ok(paginatedDocumentDtoList);
     }
 
     @PutMapping("/{id}/title")
@@ -74,10 +53,9 @@ public class DocumentController {
             @PathVariable(name = "id") UUID documentId,
             @RequestBody @Valid UpdateTitleRequest request
     ) {
-        var document = documentService
-                .updateTitle(documentId, documentMapper.toEntity(request));
-
-        return ResponseEntity.ok(documentMapper.toDto(document));
+        var documentDto = documentService
+                .updateTitle(documentId, request);
+        return ResponseEntity.ok(documentDto);
     }
 
     @DeleteMapping("/{id}")
@@ -85,7 +63,6 @@ public class DocumentController {
             @PathVariable(name = "id") UUID documentId
     ) {
         documentService.deleteDocument(documentId);
-
         return ResponseEntity.noContent().build();
     }
 
@@ -94,16 +71,17 @@ public class DocumentController {
             @PathVariable(name = "id") UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
     ) throws PatchFailedException {
-        var content = documentService.updateContent(documentId, contentMapper.toEntity(request));
+        var contentDto = documentService.updateContent(documentId, request);
 
-        return ResponseEntity.ok(contentMapper.toDto(content));
+        return ResponseEntity.ok(contentDto);
     }
 
     @GetMapping("/{id}/content")
     public ResponseEntity<ContentDto> getDocumentContent(
         @PathVariable(name = "id") UUID documentId
     ) {
-        var document = documentService.getContent(documentId);
-        return ResponseEntity.ok(contentMapper.toDto(document));
+        var contentDto = documentService.getContent(documentId);
+
+        return ResponseEntity.ok(contentDto);
     }
 }

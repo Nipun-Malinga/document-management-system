@@ -84,8 +84,8 @@ public class Document {
         return this.getContent().getContent() == null;
     }
 
-    public Document updateTitle(Document updatedDocument) {
-        this.setTitle(updatedDocument.getTitle());
+    public Document updateTitle(String title) {
+        this.setTitle(title);
         this.setUpdatedAt(LocalDateTime.now());
         return this;
     }
