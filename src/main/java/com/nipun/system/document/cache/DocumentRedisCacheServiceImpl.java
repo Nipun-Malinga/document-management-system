@@ -1,5 +1,7 @@
 package com.nipun.system.document.cache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nipun.system.document.websocket.AuthorizedOptions;
 import com.nipun.system.document.websocket.ConnectedUser;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +12,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Service
 public class DocumentRedisCacheServiceImpl implements DocumentCacheService {
 
     private final CacheManager cacheManager;
+    private final ObjectMapper objectMapper;
 
     private static final String USER_PERMISSION = "DOCUMENT_USER_PERMISSION_CACHE";
     private static final String STATUS = "DOCUMENT_STATUS_CACHE";
@@ -29,7 +31,11 @@ public class DocumentRedisCacheServiceImpl implements DocumentCacheService {
 
         if (cache == null) return null;
 
-        return cache.get(documentId, ConcurrentHashMap.class);
+        var value = cache.get(documentId, Object.class);
+
+        if (value == null) return null;
+
+        return objectMapper.convertValue(value, new TypeReference<>() {});
     }
 
     @Override
@@ -62,10 +68,13 @@ public class DocumentRedisCacheServiceImpl implements DocumentCacheService {
     @Override
     public Set<Long> getDocumentConnectedSessions(UUID documentId) {
         var cache = cacheManager.getCache(SESSION);
-
         if (cache == null) return null;
 
-        return cache.get(documentId, HashSet.class);
+        var value = cache.get(documentId, Object.class);
+
+        if (value == null) return null;
+
+        return objectMapper.convertValue(value, new TypeReference<HashSet<Long>>() {});
     }
 
     @Override

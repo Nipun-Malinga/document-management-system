@@ -1,16 +1,19 @@
 package com.nipun.system.user.cache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @AllArgsConstructor
 @Service
 public class UserRedisCacheServiceImpl implements UserCacheService{
+
     private final CacheManager cacheManager;
+    private final ObjectMapper objectMapper;
 
     private static final String SESSIONS = "CONNECTED_SESSION_CACHE";
     private static final String USERS = "CONNECTED_USERS_CACHE";
@@ -26,7 +29,7 @@ public class UserRedisCacheServiceImpl implements UserCacheService{
 
         if (userId == null) return null;
 
-        return Long.valueOf(userId);
+        return objectMapper.convertValue(userId, new TypeReference<>() {});
     }
 
     @Override
@@ -53,7 +56,11 @@ public class UserRedisCacheServiceImpl implements UserCacheService{
 
         if (cache == null) return null;
 
-        return cache.get("users", HashSet.class);
+        var users = cache.get("users", Object.class);
+
+        if (users == null)  return null;
+
+        return objectMapper.convertValue(users, new TypeReference<>() {});
     }
 
     @Override

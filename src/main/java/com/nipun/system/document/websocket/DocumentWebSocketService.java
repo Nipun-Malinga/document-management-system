@@ -179,7 +179,7 @@ public class DocumentWebSocketService {
         Map<String, AuthorizedOptions> userPermissions = documentCacheService
                 .getDocumentUserPermissions(documentId);
 
-        if (userPermissions != null) {
+        if (userPermissions != null && userPermissions.containsKey(userIdCacheKey)) {
             userPermissions.remove(userIdCacheKey);
             documentCacheService.putDocumentUserPermissions(documentId, userPermissions);
         }
