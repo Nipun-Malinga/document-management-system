@@ -4,8 +4,8 @@ import com.nipun.system.document.branch.DocumentBranch;
 import com.nipun.system.document.dtos.DocumentSharedDocumentDto;
 import com.nipun.system.document.share.Permission;
 import com.nipun.system.document.share.SharedDocument;
-import com.nipun.system.document.utils.Utils;
 import com.nipun.system.document.version.DocumentVersion;
+import com.nipun.system.document.version.DocumentVersionContent;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -115,8 +115,8 @@ public class Document {
                 .toList();
     }
 
-    public void addDocumentVersion(Document document, User user) {
-        documentVersions.add(Utils.createVersion(document, user));
+    public void addDocumentVersion( User user) {
+        documentVersions.add(createVersion(user));
     }
 
     public boolean isUnauthorizedUser(Long userId) {
@@ -151,5 +151,17 @@ public class Document {
         return this.getSharedUsers()
                 .stream()
                 .anyMatch(user -> Objects.equals(user.getUserId(), userId));
+    }
+
+    private DocumentVersion createVersion(User user) {
+        var versionContent = new DocumentVersionContent();
+
+        if(content.getContent() != null)
+            versionContent.setContent(content.getContent());
+
+        var version = new DocumentVersion();
+        version.addData(this, user, versionContent);
+
+        return version;
     }
 }

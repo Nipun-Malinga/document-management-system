@@ -122,7 +122,7 @@ public class DocumentService {
         else
             document.addContent(diffService.patchDocument(document.getContent().getContent(), request.getContent()));
 
-        document.addDocumentVersion(document, user);
+        document.addDocumentVersion(user);
 
         documentRepository.save(document);
 

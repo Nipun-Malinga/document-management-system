@@ -114,7 +114,7 @@ public class SharedDocumentService {
                             content.getContent())
             );
 
-        document.addDocumentVersion(document, user);
+        document.addDocumentVersion(user);
 
         sharedDocumentRepository.save(sharedDocument);
 
