@@ -4,6 +4,8 @@ import com.nipun.system.document.dtos.BroadcastContentDto;
 import com.nipun.system.document.dtos.BroadcastDocumentStatusDto;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.websocket.mousePosition.MousePosition;
+import com.nipun.system.document.websocket.mousePosition.MousePositionService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -26,6 +28,7 @@ public class DocumentWebsocketController {
 
     private final DocumentWebSocketService documentWebSocketService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final MousePositionService mousePositionService;
 
     @SendTo("/document/{documentId}/broadcastStatus")
     @MessageMapping("/document/{documentId}/accept-changes")
@@ -81,5 +84,19 @@ public class DocumentWebsocketController {
 
         var connectedUsers = documentWebSocketService.getConnectedUsers(documentId);
         return connectedUsers == null ? new HashSet<>() : connectedUsers.getUsers();
+    }
+
+    @MessageMapping("/document/{documentId}/accept-mouse-positions")
+    public void broadcastUserMousePositions(
+            @DestinationVariable UUID documentId,
+            @Payload MousePosition position,
+            Principal principal
+    ) {
+        var userId = UserIdUtils.getUserIdFromPrincipal(principal);
+
+        if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
+            throw new UnauthorizedDocumentException();
+
+        mousePositionService.broadcastUserMousePositions(position, userId, documentId);
     }
 }
