@@ -2,6 +2,7 @@ package com.nipun.system.shared.listeners;
 
 import com.nipun.system.document.websocket.DocumentWebSocketService;
 import com.nipun.system.shared.services.WebsocketService;
+import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
 import com.nipun.system.user.websocket.UserWebsocketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -39,9 +40,13 @@ public class WebsocketListener {
 
         broadcastDocumentConnectedUserPayload(simpSessionId);
 
-        var userStatusPayload = userWebsocketService.removeConnectedUser(simpSessionId);
+        try {
+            var userStatusPayload = userWebsocketService.removeConnectedUser(simpSessionId);
 
-        websocketService.broadcastPayload(userStatusPayload.getEndpoint(), userStatusPayload.getPayload());
+            websocketService.broadcastPayload(userStatusPayload.getEndpoint(), userStatusPayload.getPayload());
+        } catch (UserIdNotFoundInSessionException exception) {
+            System.out.println(exception.getMessage());
+        }
     }
 
     private void broadcastDocumentConnectedUserPayload(String sessionId) {
