@@ -1,4 +1,4 @@
-package com.nipun.system.document.websocket.selectedPosition;
+package com.nipun.system.document.websocket.selectedTextPosition;
 
 import com.nipun.system.shared.services.WebsocketService;
 import lombok.RequiredArgsConstructor;
@@ -8,19 +8,17 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class SelectedPositionService {
+public class SelectedTextPositionService {
 
     private final WebsocketService websocketService;
 
     public void broadcastUserSelectPositions(
-            SelectedPosition selectedPosition,
+            SelectedTextPosition selectedTextPosition,
             Long userId,
             UUID documentId
     ) {
         websocketService
                 .broadcastPayload(
-                        "/document/" + documentId + "/user/" + userId +"/accept-selected-positions",
-                        selectedPosition
-                );
+                        "/document/" + documentId + "/user/" + userId +"/accept-selected-positions", selectedTextPosition);
     }
 }

@@ -19,11 +19,6 @@ public class MousePositionService {
     ) {
         websocketService
                 .broadcastPayload(
-                        "/document/" + documentId + "/user/" + userId +"/accept-mouse-positions",
-                        new MousePosition(
-                                request.getPositionX(),
-                                request.getPositionY()
-                        )
-                );
+                        "/document/" + documentId + "/user/" + userId +"/accept-mouse-positions", request);
     }
 }
