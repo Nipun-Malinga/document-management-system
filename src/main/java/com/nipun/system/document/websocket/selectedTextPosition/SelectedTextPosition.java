@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SelectedTextPosition {
-    private int start;
-    private int end;
+    private Integer start;
+    private Integer end;
 }

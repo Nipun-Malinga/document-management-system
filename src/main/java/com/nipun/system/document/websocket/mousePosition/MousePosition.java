@@ -8,6 +8,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @Data
 public class MousePosition{
-    private Long positionX;
-    private Long positionY;
+    private Double positionX;
+    private Double positionY;
 }
