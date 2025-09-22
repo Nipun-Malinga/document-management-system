@@ -38,4 +38,8 @@ public class SharedDocument {
         this.setDocument(document);
         this.setPermission(permission);
     }
+
+    public boolean isReadOnlyUser() {
+        return getPermission().equals(Permission.READ_ONLY);
+    }
 }

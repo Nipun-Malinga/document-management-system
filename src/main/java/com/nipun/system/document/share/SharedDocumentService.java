@@ -1,20 +1,23 @@
 package com.nipun.system.document.share;
 
 import com.github.difflib.patch.PatchFailedException;
-import com.nipun.system.document.Content;
-import com.nipun.system.document.Document;
+import com.nipun.system.document.ContentMapper;
+import com.nipun.system.document.DocumentMapper;
 import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.diff.DiffService;
-import com.nipun.system.shared.utils.UserIdUtils;
+import com.nipun.system.document.dtos.ContentDto;
+import com.nipun.system.document.dtos.UpdateContentRequest;
+import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.AuthorizedOptions;
 import com.nipun.system.document.websocket.DocumentWebSocketService;
+import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +34,12 @@ public class SharedDocumentService {
     private final SharedDocumentRepository sharedDocumentRepository;
     private final DocumentWebSocketService documentWebSocketService;
     private final DiffService diffService;
+    private final DocumentMapper documentMapper;
+    private final ContentMapper contentMapper;
+    private final SharedDocumentMapper sharedDocumentMapper;
 
     @Transactional
-    public SharedDocument shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
+    public SharedDocumentDto shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
@@ -68,18 +74,34 @@ public class SharedDocumentService {
                                 document.isReadOnlyUser(sharedUserId))
         );
 
-        return sharedDocument;
+        return sharedDocumentMapper.toSharedDocumentDto(sharedDocument);
     }
 
-    public Page<Document> getAllSharedDocumentsWithUser(int pageNumber, int size) {
+    public PaginatedData getAllSharedDocumentsWithUser(int pageNumber, int size) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        return documentRepository.findAllSharedDocumentsWithUser(userId, pageRequest);
+        var documentPage =  documentRepository.findAllSharedDocumentsWithUser(userId, pageRequest);
+
+        var documentDtoList = documentPage
+                .getContent()
+                .stream()
+                .map(documentMapper::toDto)
+                .toList();
+
+        return new PaginatedData(
+                        documentDtoList,
+                        pageNumber,
+                        size,
+                        documentPage.getTotalPages(),
+                        documentPage.getTotalElements(),
+                        documentPage.hasNext(),
+                        documentPage.hasPrevious()
+                );
     }
 
-    public Content accessSharedDocument(UUID documentId) {
+    public ContentDto accessSharedDocument(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository.findByPublicId(documentId)
@@ -88,18 +110,18 @@ public class SharedDocumentService {
         if(document.isUnauthorizedUser(userId))
             throw new UnauthorizedDocumentException();
 
-        return document.getContent();
+        return contentMapper.toDto(document.getContent());
     }
 
     @Transactional
-    public Content updateSharedDocument(UUID documentId, Content content) throws PatchFailedException {
+    public ContentDto updateSharedDocument(UUID documentId, UpdateContentRequest content) throws PatchFailedException {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var sharedDocument =  sharedDocumentRepository
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
                 .orElseThrow(UnauthorizedDocumentException::new);
 
-        if(sharedDocument.getPermission().equals(Permission.READ_ONLY))
+        if(sharedDocument.isReadOnlyUser())
             throw new ReadOnlyDocumentException();
 
         var user = userRepository.findById(userId).orElseThrow();
@@ -110,7 +132,7 @@ public class SharedDocumentService {
             document.addContent(content.getContent());
         else
             document.addContent(
-                    diffService.patchDocument(document.getContent().getContent(),
+                    diffService.patchDocument(document.getDocumentContent(),
                             content.getContent())
             );
 
@@ -118,7 +140,7 @@ public class SharedDocumentService {
 
         sharedDocumentRepository.save(sharedDocument);
 
-        return document.getContent();
+        return contentMapper.toDto(document.getContent());
     }
 
 

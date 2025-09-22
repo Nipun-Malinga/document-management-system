@@ -1,8 +1,6 @@
 package com.nipun.system.document.share;
 
 import com.github.difflib.patch.PatchFailedException;
-import com.nipun.system.document.ContentMapper;
-import com.nipun.system.document.DocumentMapper;
 import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.common.PaginatedData;
@@ -25,9 +23,6 @@ import java.util.UUID;
 public class SharedDocumentController {
 
     private final SharedDocumentService sharedDocumentService;
-    private final DocumentMapper documentMapper;
-    private final ContentMapper contentMapper;
-    private final SharedDocumentMapper sharedDocumentMapper;
 
     @PostMapping("/{id}/share/{userId}")
     @Operation(summary = "Share document", description = "Share document among user")
@@ -42,13 +37,9 @@ public class SharedDocumentController {
             @Valid
             ShareDocumentRequest request
     ) {
-        var sharedDocument = sharedDocumentService
-                .shareDocument(
-                        shareUserId,
-                        documentId,
-                        request.getPermission()
-                );
-        return ResponseEntity.ok(sharedDocumentMapper.toSharedDocumentDto(sharedDocument));
+        var sharedDocumentDto = sharedDocumentService.shareDocument(
+                shareUserId, documentId, request.getPermission());
+        return ResponseEntity.ok(sharedDocumentDto);
     }
 
     @GetMapping("/share")
@@ -61,24 +52,8 @@ public class SharedDocumentController {
             @Parameter(description = "Required page size")
             int pageSize
     ) {
-
-        var documents = sharedDocumentService.getAllSharedDocumentsWithUser(pageNumber, pageSize);
-
-        var documentDtos = documents
-                .getContent()
-                .stream()
-                .map(documentMapper::toDto)
-                .toList();
-        return ResponseEntity.ok(
-                new PaginatedData(
-                        documentDtos,
-                        pageNumber,
-                        pageSize,
-                        documents.getTotalPages(),
-                        documents.getTotalElements(),
-                        documents.hasNext(),
-                        documents.hasPrevious()
-                ));
+        var paginatedDocuments = sharedDocumentService.getAllSharedDocumentsWithUser(pageNumber, pageSize);
+        return ResponseEntity.ok(paginatedDocuments);
     }
 
     @GetMapping("/{id}/share/access")
@@ -88,10 +63,8 @@ public class SharedDocumentController {
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
     ) {
-        return ResponseEntity
-                .ok(contentMapper.toDto(
-                        sharedDocumentService.accessSharedDocument(documentId)
-                ));
+        var contentDto = sharedDocumentService.accessSharedDocument(documentId);
+        return ResponseEntity.ok(contentDto);
     }
 
     @PatchMapping("/{id}/share/update")
@@ -102,8 +75,8 @@ public class SharedDocumentController {
             UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
     ) throws PatchFailedException {
-        var content = sharedDocumentService.updateSharedDocument(documentId, contentMapper.toEntity(request));
-        return ResponseEntity.ok(contentMapper.toDto(content));
+        var contentDto = sharedDocumentService.updateSharedDocument(documentId, request);
+        return ResponseEntity.ok(contentDto);
     }
 
     @PostMapping("/{id}/share/remove")
