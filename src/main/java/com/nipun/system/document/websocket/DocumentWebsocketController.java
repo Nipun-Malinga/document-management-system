@@ -4,6 +4,7 @@ import com.nipun.system.document.dtos.BroadcastContentDto;
 import com.nipun.system.document.dtos.BroadcastDocumentStatusDto;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.shared.services.WebsocketService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -11,7 +12,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
@@ -25,7 +25,7 @@ import java.util.UUID;
 public class DocumentWebsocketController {
 
     private final DocumentWebSocketService documentWebSocketService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebsocketService websocketService;
 
     @SendTo("/document/{documentId}/broadcastStatus")
     @MessageMapping("/document/{documentId}/accept-changes")
@@ -61,9 +61,10 @@ public class DocumentWebsocketController {
         documentWebSocketService
                 .addConnectedUserToCache(documentId, headerAccessor.getSessionId(), userId);
 
-        messagingTemplate.convertAndSend(
+        websocketService.broadcastPayload(
                 "/document/" + documentId + "/broadcastUsers",
-                documentWebSocketService.getConnectedUsers(documentId).getUsers());
+                documentWebSocketService.getConnectedUsers(documentId).getUsers()
+        );
 
         return new BroadcastContentDto(
                 documentId, documentWebSocketService.getDocumentStatusFromCache(documentId));
