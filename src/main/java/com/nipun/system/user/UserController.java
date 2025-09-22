@@ -5,6 +5,8 @@ import com.nipun.system.user.dtos.FindUserRequest;
 import com.nipun.system.user.dtos.RegisterUserRequest;
 import com.nipun.system.user.dtos.UserDto;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +16,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
+@Tag(name = "User Controller", description = "Manage users in the system")
 public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
+    @Operation(summary = "Register user", description = "Register new user to the system")
     public ResponseEntity<UserDto> registerUser(
             @RequestBody @Valid RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
@@ -33,6 +37,7 @@ public class UserController {
     }
 
     @GetMapping("/find")
+    @Operation(summary = "Find user", description = "Find user based by email")
     public ResponseEntity<UserDto> findUser(
             @RequestBody @Valid FindUserRequest request
     ) {

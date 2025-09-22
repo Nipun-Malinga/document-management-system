@@ -6,6 +6,9 @@ import com.nipun.system.shared.dtos.JwtResponseDto;
 import com.nipun.system.shared.services.JwtService;
 import com.nipun.system.user.UserMapper;
 import com.nipun.system.user.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/auth")
 @RestController
+@Tag(name = "Auth Controller", description = "Manage authentication in the system")
 public class AuthController {
 
     private final UserMapper userMapper;
@@ -26,6 +30,7 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/login")
+    @Operation(summary = "User login")
     public ResponseEntity<JwtResponseDto> userLogin(
             @RequestBody @Valid UserLoginRequest request,
             HttpServletResponse response
@@ -46,8 +51,11 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @Operation(summary = "JWT token refresh", description = "Refresh the access token")
     public ResponseEntity<JwtResponseDto> refresh(
-            @CookieValue("refreshToken") String refreshToken
+            @CookieValue("refreshToken")
+            @Parameter(description = "Refresh token issued by the server when login")
+            String refreshToken
     ) {
         var jwt = jwtService.parseToken(refreshToken);
 
