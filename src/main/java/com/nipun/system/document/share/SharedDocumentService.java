@@ -18,6 +18,8 @@ import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,6 +103,7 @@ public class SharedDocumentService {
                 );
     }
 
+    @Cacheable(value = "shared_document_content", key = "#documentId")
     public ContentDto accessSharedDocument(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
@@ -113,20 +116,21 @@ public class SharedDocumentService {
         return contentMapper.toDto(document.getContent());
     }
 
-    @Transactional
+    @CachePut(value = "shared_document_content", key = "#documentId")
     public ContentDto updateSharedDocument(UUID documentId, UpdateContentRequest content) throws PatchFailedException {
         var userId = UserIdUtils.getUserIdFromContext();
 
-        var sharedDocument =  sharedDocumentRepository
-                .findByDocumentPublicIdAndSharedUserId(documentId, userId)
+        var document =  documentRepository.findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(UnauthorizedDocumentException::new);
 
-        if(sharedDocument.isReadOnlyUser())
+        if (document.isUnauthorizedUser(userId))
+            throw new UnauthorizedDocumentException();
+
+        if (document.isReadOnlyUser(userId))
             throw new ReadOnlyDocumentException();
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        var document = sharedDocument.getDocument();
 
         if(document.isContentNull())
             document.addContent(content.getContent());
@@ -138,7 +142,7 @@ public class SharedDocumentService {
 
         document.addDocumentVersion(user);
 
-        sharedDocumentRepository.save(sharedDocument);
+        documentRepository.save(document);
 
         return contentMapper.toDto(document.getContent());
     }
