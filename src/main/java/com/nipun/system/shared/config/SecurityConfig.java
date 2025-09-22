@@ -36,6 +36,11 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((requests) ->
                     requests
+                            .requestMatchers(
+                                    "/v3/api-docs/**",
+                                    "/swagger-ui/**",
+                                    "/swagger-ui.html"
+                            ).permitAll()
                             .requestMatchers("/gs-guide-websocket/**").permitAll()
                             .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                             .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
