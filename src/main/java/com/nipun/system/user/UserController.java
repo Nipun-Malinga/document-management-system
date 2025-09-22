@@ -1,11 +1,11 @@
 package com.nipun.system.user;
 
 import com.nipun.system.shared.dtos.ErrorResponse;
-import com.nipun.system.user.dtos.FindUserRequest;
 import com.nipun.system.user.dtos.RegisterUserRequest;
 import com.nipun.system.user.dtos.UserDto;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +36,14 @@ public class UserController {
         return ResponseEntity.created(uri).body(userDto);
     }
 
-    @GetMapping("/find")
+    @GetMapping("/find/{email}")
     @Operation(summary = "Find user", description = "Find user based by email")
     public ResponseEntity<UserDto> findUser(
-            @RequestBody @Valid FindUserRequest request
+            @PathVariable(name = "email")
+            @Parameter(description = "User email", example = "johndoe@email.com")
+            String email
     ) {
-        var userDto = userService.findUser(request.getEmail());
+        var userDto = userService.findUser(email);
 
         return ResponseEntity.ok(userDto);
     }
