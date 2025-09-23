@@ -1,6 +1,5 @@
 package com.nipun.system.document.share;
 
-import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.ContentMapper;
 import com.nipun.system.document.DocumentMapper;
 import com.nipun.system.document.DocumentRepository;
@@ -117,7 +116,7 @@ public class SharedDocumentService {
     }
 
     @CachePut(value = "shared_document_content", key = "#documentId")
-    public ContentDto updateSharedDocument(UUID documentId, UpdateContentRequest content) throws PatchFailedException {
+    public ContentDto updateSharedDocument(UUID documentId, UpdateContentRequest content) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document =  documentRepository.findByPublicIdAndOwnerId(documentId, userId)

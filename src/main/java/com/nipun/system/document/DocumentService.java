@@ -1,6 +1,5 @@
 package com.nipun.system.document;
 
-import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
@@ -108,7 +107,7 @@ public class DocumentService {
 
     @CachePut(value = "document_contents", key = "#documentId")
     @Transactional
-    public ContentDto updateContent(UUID documentId, UpdateContentRequest request) throws PatchFailedException {
+    public ContentDto updateContent(UUID documentId, UpdateContentRequest request) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var user = userRepository.findById(userId).orElseThrow();

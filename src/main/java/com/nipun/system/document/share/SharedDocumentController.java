@@ -1,6 +1,5 @@
 package com.nipun.system.document.share;
 
-import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.common.PaginatedData;
@@ -74,7 +73,7 @@ public class SharedDocumentController {
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
-    ) throws PatchFailedException {
+    ) {
         var contentDto = sharedDocumentService.updateSharedDocument(documentId, request);
         return ResponseEntity.ok(contentDto);
     }

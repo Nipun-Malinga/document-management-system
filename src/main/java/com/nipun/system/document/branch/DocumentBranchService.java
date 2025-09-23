@@ -1,6 +1,5 @@
 package com.nipun.system.document.branch;
 
-import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.ContentDto;

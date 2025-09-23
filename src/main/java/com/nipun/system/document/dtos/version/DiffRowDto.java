@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class DiffRowDto {
-    private String tag;
-    private String oldLine;
-    private String newLine;
+    private String operation;
+    private String text;
 }

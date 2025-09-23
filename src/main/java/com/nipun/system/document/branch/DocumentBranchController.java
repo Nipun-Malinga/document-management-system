@@ -1,6 +1,5 @@
 package com.nipun.system.document.branch;
 
-import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.branch.CreateBranchRequest;
@@ -132,7 +131,7 @@ public class DocumentBranchController {
             @PathVariable(name = "branchId")
             @Parameter(description = "Document branch ID", example = "8d5177f7-bc39-42b0-84bc-3a945be383c4")
             UUID branchId
-    ) throws PatchFailedException {
+    ) {
         documentBranchService.mergeToMainBranch(documentId, branchId);
         return ResponseEntity.ok().build();
     }
@@ -149,7 +148,7 @@ public class DocumentBranchController {
             @PathVariable(name = "mergeBranchId")
             @Parameter(description = "Merge branch id", example = "3a5c4c09-2a79-4db4-85b1-8d7176125429")
             UUID mergeBranchId
-    ) throws PatchFailedException {
+    ) {
         documentBranchService.mergeSpecificBranches(documentId, branchId, mergeBranchId);
         return ResponseEntity.ok().build();
     }

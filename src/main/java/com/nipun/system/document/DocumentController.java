@@ -1,6 +1,5 @@
 package com.nipun.system.document;
 
-import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -91,7 +90,7 @@ public class DocumentController {
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
             @RequestBody @Valid UpdateContentRequest request
-    ) throws PatchFailedException {
+    ) {
         var contentDto = documentService.updateContent(documentId, request);
         return ResponseEntity.ok(contentDto);
     }

@@ -1,11 +1,7 @@
 package com.nipun.system.shared.exceptions;
 
-import com.github.difflib.patch.PatchFailedException;
 import com.nipun.system.auth.exceptions.BadCredentialsException;
-import com.nipun.system.document.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
-import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
-import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.exceptions.*;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
 import com.nipun.system.user.exceptions.UserNotFoundException;
@@ -86,8 +82,10 @@ public class GlobalWebsocketExceptionHandler {
 
     @MessageExceptionHandler(PatchFailedException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handlePatchFailedException() {
-        return new ErrorResponse("Failed to patch requested document");
+    public ErrorResponse handlePatchFailedException(
+            PatchFailedException exception
+    ) {
+        return new ErrorResponse(exception.getMessage());
     }
 
     @MessageExceptionHandler(UserIdNotFoundInSessionException.class)
