@@ -224,6 +224,7 @@ public class DocumentBranchService {
         );
     }
 
+    @CacheEvict(value = "document_contents", key = "#documentId")
     public void mergeToMainBranch(UUID documentId, UUID branchId) throws PatchFailedException {
         var userId = UserIdUtils.getUserIdFromContext();
 
@@ -248,6 +249,7 @@ public class DocumentBranchService {
         documentRepository.save(document);
     }
 
+    @CacheEvict(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
     public void mergeSpecificBranches(
             UUID documentId, UUID branchId, UUID mergeBranchId
     ) throws PatchFailedException {
