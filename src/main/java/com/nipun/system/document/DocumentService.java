@@ -6,7 +6,6 @@ import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.version.DocumentVersionService;
 import com.nipun.system.shared.utils.UserIdUtils;
-import com.nipun.system.user.User;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -34,13 +32,13 @@ public class DocumentService {
     public DocumentDto createDocument(
             CreateDocumentRequest request
     ) {
-        var document = documentMapper.toEntity(request);
-
         var userId = UserIdUtils.getUserIdFromContext();
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        documentRepository.save(createDocument(document, user));
+        var document = DocumentFactory.createNewDocument(user, request.getTitle());
+
+        document = documentRepository.save(document);
 
         return documentMapper.toDto(document);
     }
@@ -142,15 +140,5 @@ public class DocumentService {
                 .orElseThrow(DocumentNotFoundException::new);
 
         return contentMapper.toDto(document.getContent());
-    }
-
-    private static Document createDocument(Document document, User user) {
-        document.setPublicId(UUID.randomUUID());
-        document.setOwner(user);
-        document.setContent(new Content());
-        document.setCreatedAt(LocalDateTime.now());
-        document.setUpdatedAt(LocalDateTime.now());
-
-        return document;
     }
 }
