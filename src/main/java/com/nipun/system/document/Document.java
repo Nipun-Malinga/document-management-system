@@ -83,6 +83,10 @@ public class Document {
         return getContent().getContent();
     }
 
+    public void setDocumentContent(String content) {
+        getContent().setContent(content);
+    }
+
     public Document updateTitle(String title) {
         setTitle(title);
         setUpdatedAt(LocalDateTime.now());

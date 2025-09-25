@@ -48,6 +48,7 @@ public class DocumentBranchService {
                 .findByVersionNumberAndDocumentPublicId(versionId, documentId)
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
+        var versionContent = version.getVersionContent();
         var document = version.getDocument();
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
@@ -58,10 +59,10 @@ public class DocumentBranchService {
             throw new BranchTitleAlreadyExistsException();
 
         var branchContent = new DocumentBranchContent();
-        branchContent.setContent(version.getContent().getContent());
+        branchContent.setContent(versionContent);
 
         var newBranch = branchFactory.createNewBranch(version, branchName, branchContent, document);
-        var newVersion = versionFactory.createNewVersion(document, user, version.getVersionContent(), newBranch);
+        var newVersion = versionFactory.createNewVersion(document, user, versionContent, newBranch);
 
         documentVersionRepository.save(newVersion);
 
@@ -179,7 +180,7 @@ public class DocumentBranchService {
         if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
-        PageRequest pageRequest =  PageRequest.of(pageNumber, size);
+        PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
         var versionList =  documentVersionRepository
                 .findAllByDocumentPublicIdAndBranchPublicId(
@@ -219,7 +220,7 @@ public class DocumentBranchService {
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
         document.getContent().setContent(
-                diffService.patchDocument(document.getContent().getContent(), branch.getContent().getContent())
+                diffService.patchDocument(document.getDocumentContent(), branch.getBranchContent())
         );
 
         documentRepository.save(document);
@@ -253,10 +254,10 @@ public class DocumentBranchService {
                 .findFirst()
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
-        branch.getContent().setContent(diffService
-                .patchDocument(branch.getContent().getContent(),
-                        mergeBranch.getContent().getContent())
-        );
+        var patchedContent = diffService
+                .patchDocument(branch.getBranchContent(), mergeBranch.getBranchContent());
+
+        branch.setBranchContent(patchedContent);
 
         documentRepository.save(document);
     }

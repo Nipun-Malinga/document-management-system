@@ -8,6 +8,5 @@ import org.mapstruct.Mapping;
 public interface DocumentMapper {
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "id", source = "publicId")
-    @Mapping(target = "sharedUsers", expression = "java(document.getSharedUsers())")
     DocumentDto toDto(Document document);
 }

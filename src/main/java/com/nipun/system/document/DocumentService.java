@@ -121,10 +121,10 @@ public class DocumentService {
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        if(document.getContent() == null)
+        if(document.getDocumentContent() == null)
             document.addContent(request.getContent());
         else
-            document.addContent(diffService.patchDocument(document.getContent().getContent(), request.getContent()));
+            document.addContent(diffService.patchDocument(document.getDocumentContent(), request.getContent()));
 
         var version = versionFactory.createNewVersion(document, user);
 

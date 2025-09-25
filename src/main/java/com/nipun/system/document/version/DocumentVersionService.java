@@ -104,9 +104,7 @@ public class DocumentVersionService {
                 .findByVersionNumberAndDocumentPublicId(compare, documentId)
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
-        var diffRowDtoList = diffService.getVersionDiffs(
-                        baseVersion.getContent().getContent(),
-                        comparedWithVersion.getContent().getContent());
+        var diffRowDtoList = diffService.getVersionDiffs(baseVersion.getVersionContent(), comparedWithVersion.getVersionContent());
 
         return  new DiffResponse(Map.of("diffs", diffRowDtoList));
     }
@@ -125,7 +123,7 @@ public class DocumentVersionService {
                 .findFirstByDocumentIdOrderByTimestampDesc(document.getId())
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
-        document.getContent().setContent(version.getContent().getContent());
+        document.setDocumentContent(version.getVersionContent());
 
         documentRepository.save(document);
 
@@ -134,22 +132,22 @@ public class DocumentVersionService {
 
     @Transactional
     public void restoreToDocumentSpecificVersion(UUID versionNumber, UUID documentId) {
-        var documentVersion = documentVersionRepository
+        var version = documentVersionRepository
                 .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
         var document = documentRepository
-                .findById(documentVersion.getDocument().getId())
+                .findById(version.getDocument().getId())
                 .orElseThrow(DocumentNotFoundException::new);
 
         var userId = UserIdUtils.getUserIdFromContext();
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
-        document.getContent().setContent(documentVersion.getContent().getContent());
+        document.setDocumentContent(version.getVersionContent());
 
         documentRepository.save(document);
 
-        documentVersionRepository.rollbackMainDocToPreviousVersion(document.getId(), documentVersion.getTimestamp());
+        documentVersionRepository.rollbackMainDocToPreviousVersion(document.getId(), version.getTimestamp());
     }
 }

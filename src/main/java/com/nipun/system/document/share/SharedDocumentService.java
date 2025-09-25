@@ -11,7 +11,6 @@ import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.version.DocumentVersionFactory;
-import com.nipun.system.document.version.DocumentVersionService;
 import com.nipun.system.document.websocket.AuthorizedOptions;
 import com.nipun.system.document.websocket.DocumentWebSocketService;
 import com.nipun.system.shared.utils.UserIdUtils;
@@ -40,7 +39,6 @@ public class SharedDocumentService {
     private final ContentMapper contentMapper;
     private final SharedDocumentMapper sharedDocumentMapper;
     private final SharedDocumentAuthService sharedDocumentAuthService;
-    private final DocumentVersionService documentVersionService;
     private final DocumentVersionFactory versionFactory;
 
     @Transactional
@@ -120,7 +118,7 @@ public class SharedDocumentService {
     }
 
     @CachePut(value = "shared_document_content", key = "#documentId")
-    public ContentDto updateSharedDocument(UUID documentId, UpdateContentRequest content) {
+    public ContentDto updateSharedDocument(UUID documentId, UpdateContentRequest request) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document =  documentRepository.findByPublicIdAndOwnerId(documentId, userId)
@@ -130,13 +128,10 @@ public class SharedDocumentService {
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        if(document.getContent() == null)
-            document.addContent(content.getContent());
+        if(document.getDocumentContent() == null)
+            document.addContent(request.getContent());
         else
-            document.addContent(
-                    diffService.patchDocument(document.getDocumentContent(),
-                            content.getContent())
-            );
+            document.addContent(diffService.patchDocument(document.getDocumentContent(), request.getContent()));
 
         var version = versionFactory.createNewVersion(document, user);
 
