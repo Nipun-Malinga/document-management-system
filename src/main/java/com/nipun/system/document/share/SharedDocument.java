@@ -42,4 +42,8 @@ public class SharedDocument {
     public boolean isReadOnlyUser() {
         return getPermission().equals(Permission.READ_ONLY);
     }
+
+    public Long getUserId() {
+        return sharedUser.getId();
+    }
 }

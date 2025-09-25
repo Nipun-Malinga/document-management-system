@@ -1,10 +1,8 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.branch.DocumentBranch;
-import com.nipun.system.document.dtos.DocumentSharedDocumentDto;
 import com.nipun.system.document.share.SharedDocument;
 import com.nipun.system.document.version.DocumentVersion;
-import com.nipun.system.document.version.DocumentVersionContent;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +12,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -78,47 +75,30 @@ public class Document {
     private Set<DocumentBranch> documentBranches = new HashSet<>();
 
     public void addContent(String content) {
-        this.getContent().setContent(content);
-        this.setUpdatedAt(LocalDateTime.now());
+        getContent().setContent(content);
+        setUpdatedAt(LocalDateTime.now());
     }
 
-    public boolean isContentNull() {
-        return this.getContent().getContent() == null;
+    public String getDocumentContent() {
+        return getContent().getContent();
     }
 
     public Document updateTitle(String title) {
-        this.setTitle(title);
-        this.setUpdatedAt(LocalDateTime.now());
+        setTitle(title);
+        setUpdatedAt(LocalDateTime.now());
         return this;
     }
 
-    public static Document createDocument(Document document, User user) {
-        document.setPublicId(UUID.randomUUID());
-        document.setOwner(user);
-        document.setContent(new Content());
-        document.setCreatedAt(LocalDateTime.now());
-        document.setUpdatedAt(LocalDateTime.now());
-
-        return document;
+    public void addDocumentVersion(DocumentVersion version) {
+        documentVersions.add(version);
     }
 
     public void addSharedDocument(SharedDocument document) {
         sharedDocuments.add(document);
     }
 
-    public List<DocumentSharedDocumentDto> getSharedUsers() {
-        return this.getSharedDocuments()
-                .stream()
-                .map(item ->
-                        new DocumentSharedDocumentDto(
-                                item.getSharedUser().getId(),
-                                item.getPermission())
-                )
-                .toList();
-    }
-
-    public void addDocumentVersion( User user) {
-        documentVersions.add(createVersion(user));
+    public Set<SharedDocument> getSharedUsers() {
+        return getSharedDocuments();
     }
 
     public void removeSharedUser(Long userId) {
@@ -127,21 +107,5 @@ public class Document {
                 sharedDocuments.remove(sharedDocument);
             }
         });
-    }
-
-    public String getDocumentContent() {
-        return getContent().getContent();
-    }
-
-    private DocumentVersion createVersion(User user) {
-        var versionContent = new DocumentVersionContent();
-
-        if(content.getContent() != null)
-            versionContent.setContent(content.getContent());
-
-        var version = new DocumentVersion();
-        version.addData(this, user, versionContent);
-
-        return version;
     }
 }

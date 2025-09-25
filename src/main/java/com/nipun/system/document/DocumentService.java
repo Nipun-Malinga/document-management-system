@@ -4,7 +4,9 @@ import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.version.DocumentVersionService;
 import com.nipun.system.shared.utils.UserIdUtils;
+import com.nipun.system.user.User;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -25,6 +28,7 @@ public class DocumentService {
     private final DocumentMapper documentMapper;
     private final ContentMapper contentMapper;
     private final DiffService diffService;
+    private final DocumentVersionService documentVersionService;
 
     @Transactional
     public DocumentDto createDocument(
@@ -36,7 +40,7 @@ public class DocumentService {
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        documentRepository.save(Document.createDocument(document, user));
+        documentRepository.save(createDocument(document, user));
 
         return documentMapper.toDto(document);
     }
@@ -116,12 +120,14 @@ public class DocumentService {
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        if(document.isContentNull())
+        if(document.getContent() == null)
             document.addContent(request.getContent());
         else
             document.addContent(diffService.patchDocument(document.getContent().getContent(), request.getContent()));
 
-        document.addDocumentVersion(user);
+        var version = documentVersionService.createVersion(user, document);
+
+        document.addDocumentVersion(version);
 
         documentRepository.save(document);
 
@@ -136,5 +142,15 @@ public class DocumentService {
                 .orElseThrow(DocumentNotFoundException::new);
 
         return contentMapper.toDto(document.getContent());
+    }
+
+    private static Document createDocument(Document document, User user) {
+        document.setPublicId(UUID.randomUUID());
+        document.setOwner(user);
+        document.setContent(new Content());
+        document.setCreatedAt(LocalDateTime.now());
+        document.setUpdatedAt(LocalDateTime.now());
+
+        return document;
     }
 }

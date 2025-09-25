@@ -10,6 +10,7 @@ import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.version.DocumentVersionService;
 import com.nipun.system.document.websocket.AuthorizedOptions;
 import com.nipun.system.document.websocket.DocumentWebSocketService;
 import com.nipun.system.shared.utils.UserIdUtils;
@@ -38,6 +39,7 @@ public class SharedDocumentService {
     private final ContentMapper contentMapper;
     private final SharedDocumentMapper sharedDocumentMapper;
     private final SharedDocumentAuthService sharedDocumentAuthService;
+    private final DocumentVersionService documentVersionService;
 
     @Transactional
     public SharedDocumentDto shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
@@ -126,7 +128,7 @@ public class SharedDocumentService {
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        if(document.isContentNull())
+        if(document.getContent() == null)
             document.addContent(content.getContent());
         else
             document.addContent(
@@ -134,7 +136,9 @@ public class SharedDocumentService {
                             content.getContent())
             );
 
-        document.addDocumentVersion(user);
+        var version = documentVersionService.createVersion(user, document);
+
+        document.addDocumentVersion(version);
 
         documentRepository.save(document);
 
