@@ -7,11 +7,8 @@ import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.share.SharedDocumentAuthService;
+import com.nipun.system.document.version.*;
 import com.nipun.system.shared.utils.UserIdUtils;
-import com.nipun.system.document.version.DocumentVersion;
-import com.nipun.system.document.version.DocumentVersionContent;
-import com.nipun.system.document.version.DocumentVersionMapper;
-import com.nipun.system.document.version.DocumentVersionRepository;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,10 +28,15 @@ public class DocumentBranchService {
     private final DocumentBranchRepository documentBranchRepository;
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
+
     private final DocumentBranchMapper documentBranchMapper;
     private final DocumentVersionMapper documentVersionMapper;
+
     private final DiffService diffService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
+
+    private final DocumentBranchFactory branchFactory;
+    private final DocumentVersionFactory versionFactory;
 
     @Transactional
     public DocumentBranchDto createBranch(UUID documentId, UUID versionId, String branchName) {
@@ -58,19 +60,12 @@ public class DocumentBranchService {
         var branchContent = new DocumentBranchContent();
         branchContent.setContent(version.getContent().getContent());
 
-        var branch = new DocumentBranch();
-        branch.addData(version, branchName, branchContent, document);
-
-        var newVersionContent = new DocumentVersionContent();
-        newVersionContent.setContent(version.getContent().getContent());
-
-        var newVersion = new DocumentVersion();
-        newVersion.addData(version.getDocument(), user, newVersionContent);
-        newVersion.setBranch(branch);
+        var newBranch = branchFactory.createNewBranch(version, branchName, branchContent, document);
+        var newVersion = versionFactory.createNewVersion(document, user, version.getVersionContent(), newBranch);
 
         documentVersionRepository.save(newVersion);
 
-        return documentBranchMapper.toDto(branch);
+        return documentBranchMapper.toDto(newBranch);
     }
 
     @Cacheable(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
@@ -109,12 +104,7 @@ public class DocumentBranchService {
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        var versionContent = new DocumentVersionContent();
-        versionContent.setContent(content);
-
-        var version = new DocumentVersion();
-        version.addData(branch.getVersion().getDocument(), user, versionContent);
-        version.setBranch(branch);
+        var version = versionFactory.createNewVersion(document, user, content, branch);
 
         documentVersionRepository.save(version);
 

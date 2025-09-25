@@ -64,18 +64,6 @@ public class DocumentVersion {
     @JoinColumn(name = "branch_id")
     private DocumentBranch branch;
 
-    public void addData(
-            Document document,
-            User author,
-            DocumentVersionContent content
-    ) {
-        this.setDocument(document);
-        this.setVersionNumber(UUID.randomUUID());
-        this.setContent(content);
-        this.setAuthor(author);
-        this.setTimestamp(LocalDateTime.now());
-    }
-
     public String getVersionContent() {
         return content.getContent();
     }

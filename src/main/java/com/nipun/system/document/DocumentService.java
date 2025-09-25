@@ -4,7 +4,7 @@ import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.version.DocumentVersionService;
+import com.nipun.system.document.version.DocumentVersionFactory;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
@@ -23,10 +23,13 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
+
     private final DocumentMapper documentMapper;
     private final ContentMapper contentMapper;
+
     private final DiffService diffService;
-    private final DocumentVersionService documentVersionService;
+
+    private final DocumentVersionFactory versionFactory;
 
     @Transactional
     public DocumentDto createDocument(
@@ -123,7 +126,7 @@ public class DocumentService {
         else
             document.addContent(diffService.patchDocument(document.getContent().getContent(), request.getContent()));
 
-        var version = documentVersionService.createVersion(user, document);
+        var version = versionFactory.createNewVersion(document, user);
 
         document.addDocumentVersion(version);
 

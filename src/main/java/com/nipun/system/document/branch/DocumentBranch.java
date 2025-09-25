@@ -49,15 +49,6 @@ public class DocumentBranch {
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 
-    public void addData(DocumentVersion version, String branchName,DocumentBranchContent content, Document document) {
-        this.setDocument(document);
-        this.setVersion(version);
-        this.setContent(content);
-        this.setBranchName(branchName);
-        this.setPublicId(UUID.randomUUID());
-        this.setTimestamp(LocalDateTime.now());
-    }
-
     public boolean isBranchTitleExistsAlready(String branchName) {
         return this.branchName.equalsIgnoreCase(branchName);
     }

@@ -1,6 +1,5 @@
 package com.nipun.system.document.version;
 
-import com.nipun.system.document.Document;
 import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.ContentDto;
@@ -11,7 +10,6 @@ import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.shared.utils.UserIdUtils;
-import com.nipun.system.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +32,9 @@ public class DocumentVersionService {
 
     private final DocumentRepository documentRepository;
     private final DocumentVersionRepository documentVersionRepository;
+
     private final DocumentVersionMapper documentVersionMapper;
+
     private final DiffService diffService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
@@ -151,17 +151,5 @@ public class DocumentVersionService {
         documentRepository.save(document);
 
         documentVersionRepository.rollbackMainDocToPreviousVersion(document.getId(), documentVersion.getTimestamp());
-    }
-
-    public DocumentVersion createVersion(User user, Document document) {
-        var versionContent = new DocumentVersionContent();
-
-        if(document.getDocumentContent() != null)
-            versionContent.setContent(document.getDocumentContent());
-
-        var version = new DocumentVersion();
-        version.addData(document, user, versionContent);
-
-        return version;
     }
 }
