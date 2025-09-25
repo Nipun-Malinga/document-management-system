@@ -102,10 +102,6 @@ public class Document {
     }
 
     public void removeSharedUser(Long userId) {
-        getSharedDocuments().forEach(sharedDocument -> {
-            if (sharedDocument.getSharedUser().getId().equals(userId)) {
-                sharedDocuments.remove(sharedDocument);
-            }
-        });
+        getSharedDocuments().removeIf(shDoc -> shDoc .getSharedUser().getId().equals(userId));
     }
 }

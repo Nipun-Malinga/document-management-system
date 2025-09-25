@@ -26,8 +26,7 @@ public class SharedDocumentAuthService {
         return document.getSharedUsers()
                 .stream()
                 .anyMatch(user ->
-                        Objects.equals(user.getUserId(), userId) &&
-                                user.getPermission() == Permission.READ_ONLY);
+                        Objects.equals(user.getUserId(), userId) && user.isReadOnlyUser());
     }
 
     private boolean isOwner(Long userId, Document document) {
