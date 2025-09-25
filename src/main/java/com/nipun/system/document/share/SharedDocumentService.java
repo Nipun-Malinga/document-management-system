@@ -9,7 +9,6 @@ import com.nipun.system.document.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.AuthorizedOptions;
 import com.nipun.system.document.websocket.DocumentWebSocketService;
@@ -38,6 +37,7 @@ public class SharedDocumentService {
     private final DocumentMapper documentMapper;
     private final ContentMapper contentMapper;
     private final SharedDocumentMapper sharedDocumentMapper;
+    private final SharedDocumentAuthService sharedDocumentAuthService;
 
     @Transactional
     public SharedDocumentDto shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
@@ -71,8 +71,8 @@ public class SharedDocumentService {
                         documentId,
                         sharedUserId,
                         new AuthorizedOptions(
-                                document.isUnauthorizedUser(sharedUserId),
-                                document.isReadOnlyUser(sharedUserId))
+                                sharedDocumentAuthService.isUnauthorizedUser(sharedUserId, document),
+                                sharedDocumentAuthService.isReadOnlyUser(sharedUserId, document))
         );
 
         return sharedDocumentMapper.toSharedDocumentDto(sharedDocument);
@@ -109,7 +109,7 @@ public class SharedDocumentService {
         var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(UnauthorizedDocumentException::new);
 
-        if(document.isUnauthorizedUser(userId))
+        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         return contentMapper.toDto(document.getContent());
@@ -122,14 +122,9 @@ public class SharedDocumentService {
         var document =  documentRepository.findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(UnauthorizedDocumentException::new);
 
-        if (document.isUnauthorizedUser(userId))
-            throw new UnauthorizedDocumentException();
-
-        if (document.isReadOnlyUser(userId))
-            throw new ReadOnlyDocumentException();
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         var user = userRepository.findById(userId).orElseThrow();
-
 
         if(document.isContentNull())
             document.addContent(content.getContent());

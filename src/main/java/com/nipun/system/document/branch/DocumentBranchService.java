@@ -6,6 +6,7 @@ import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.*;
+import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.document.version.DocumentVersion;
 import com.nipun.system.document.version.DocumentVersionContent;
@@ -33,6 +34,7 @@ public class DocumentBranchService {
     private final DocumentBranchMapper documentBranchMapper;
     private final DocumentVersionMapper documentVersionMapper;
     private final DiffService diffService;
+    private final SharedDocumentAuthService sharedDocumentAuthService;
 
     @Transactional
     public DocumentBranchDto createBranch(UUID documentId, UUID versionId, String branchName) {
@@ -46,11 +48,7 @@ public class DocumentBranchService {
 
         var document = version.getDocument();
 
-        if(document.isUnauthorizedUser(userId))
-            throw new UnauthorizedDocumentException();
-
-        if(document.isReadOnlyUser(userId))
-            throw new ReadOnlyDocumentException();
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         var fetchedBranch = documentBranchRepository.findByBranchName(branchName).orElse(null);
 
@@ -85,7 +83,7 @@ public class DocumentBranchService {
 
         var document = branch.getDocument();
 
-        if(document.isUnauthorizedUser(userId))
+        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         return new ContentDto(branch.getBranchContent());
@@ -105,11 +103,7 @@ public class DocumentBranchService {
 
         var document = branch.getVersion().getDocument();
 
-        if(document.isUnauthorizedUser(userId))
-            throw new UnauthorizedDocumentException();
-
-        if(document.isReadOnlyUser(userId))
-            throw new ReadOnlyDocumentException();
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         branch.setBranchContent(content);
 
@@ -138,7 +132,7 @@ public class DocumentBranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        if(document.isUnauthorizedUser(userId))
+        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
@@ -173,11 +167,7 @@ public class DocumentBranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
-        if(document.isUnauthorizedUser(userId))
-            throw new UnauthorizedDocumentException();
-
-        if(document.isReadOnlyUser(userId))
-            throw new ReadOnlyDocumentException();
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         documentBranchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
@@ -196,7 +186,7 @@ public class DocumentBranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
-        if(document.isUnauthorizedUser(userId))
+        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         PageRequest pageRequest =  PageRequest.of(pageNumber, size);
@@ -232,11 +222,7 @@ public class DocumentBranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
-        if(document.isUnauthorizedUser(userId))
-            throw new UnauthorizedDocumentException();
-
-        if(document.isReadOnlyUser(userId))
-            throw new ReadOnlyDocumentException();
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         var branch = documentBranchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
@@ -259,11 +245,7 @@ public class DocumentBranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentBranchNotFoundException::new);
 
-        if(document.isUnauthorizedUser(userId))
-            throw new UnauthorizedDocumentException();
-
-        if(document.isReadOnlyUser(userId))
-            throw new ReadOnlyDocumentException();
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         var branch = document
                 .getDocumentBranches()

@@ -7,8 +7,8 @@ import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.dtos.version.DiffResponse;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
-import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,6 +34,8 @@ public class DocumentVersionService {
     private final DocumentVersionRepository documentVersionRepository;
     private final DocumentVersionMapper documentVersionMapper;
     private final DiffService diffService;
+    private final SharedDocumentAuthService sharedDocumentAuthService;
+
 
     public PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
         var userId = UserIdUtils.getUserIdFromContext();
@@ -42,7 +44,7 @@ public class DocumentVersionService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        if(document.isUnauthorizedUser(userId))
+        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
@@ -74,7 +76,9 @@ public class DocumentVersionService {
                 .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
-        if(documentVersion.getDocument().isUnauthorizedUser(userId))
+        var document = documentVersion.getDocument();
+
+        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         return new ContentDto(documentVersion.getVersionContent());
@@ -89,7 +93,9 @@ public class DocumentVersionService {
                 .findByVersionNumberAndDocumentPublicId(base, documentId)
                 .orElseThrow(DocumentVersionNotFoundException::new);
 
-        if(baseVersion.getDocument().isUnauthorizedUser(userId))
+        var document = baseVersion.getDocument();
+
+        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         var comparedWithVersion = documentVersionRepository
@@ -111,11 +117,7 @@ public class DocumentVersionService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        if(document.isUnauthorizedUser(userId))
-            throw new UnauthorizedDocumentException();
-
-        if(document.isReadOnlyUser(userId))
-            throw new ReadOnlyDocumentException();
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         var version = documentVersionRepository
                 .findFirstByDocumentIdOrderByTimestampDesc(document.getId())
@@ -140,12 +142,7 @@ public class DocumentVersionService {
 
         var userId = UserIdUtils.getUserIdFromContext();
 
-        if(document.isUnauthorizedUser(userId))
-            throw new UnauthorizedDocumentException();
-
-        if(document.isReadOnlyUser(userId)) {
-            throw new ReadOnlyDocumentException();
-        }
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         document.getContent().setContent(documentVersion.getContent().getContent());
 

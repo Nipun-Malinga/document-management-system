@@ -2,7 +2,6 @@ package com.nipun.system.document;
 
 import com.nipun.system.document.branch.DocumentBranch;
 import com.nipun.system.document.dtos.DocumentSharedDocumentDto;
-import com.nipun.system.document.share.Permission;
 import com.nipun.system.document.share.SharedDocument;
 import com.nipun.system.document.version.DocumentVersion;
 import com.nipun.system.document.version.DocumentVersionContent;
@@ -14,7 +13,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -119,18 +121,6 @@ public class Document {
         documentVersions.add(createVersion(user));
     }
 
-    public boolean isUnauthorizedUser(Long userId) {
-        return !isOwner(userId) &&  !isSharedUser(userId);
-    }
-
-    public boolean isReadOnlyUser(Long userId) {
-        return getSharedUsers()
-                .stream()
-                .anyMatch(user ->
-                        Objects.equals(user.getUserId(), userId) &&
-                                user.getPermission() == Permission.READ_ONLY);
-    }
-
     public void removeSharedUser(Long userId) {
         getSharedDocuments().forEach(sharedDocument -> {
             if (sharedDocument.getSharedUser().getId().equals(userId)) {
@@ -141,16 +131,6 @@ public class Document {
 
     public String getDocumentContent() {
         return getContent().getContent();
-    }
-
-    private boolean isOwner(Long userId) {
-        return Objects.equals(this.getOwner().getId(), userId);
-    }
-
-    private boolean isSharedUser(Long userId) {
-        return this.getSharedUsers()
-                .stream()
-                .anyMatch(user -> Objects.equals(user.getUserId(), userId));
     }
 
     private DocumentVersion createVersion(User user) {

@@ -3,6 +3,7 @@ package com.nipun.system.document.websocket;
 import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.cache.DocumentCacheService;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.shared.entities.WebsocketPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class DocumentWebSocketService {
 
     private final DocumentRepository documentRepository;
     private final DocumentCacheService documentCacheService;
+    private final SharedDocumentAuthService sharedDocumentAuthService;
 
     public boolean isUnauthorizedUser(Long userId, UUID documentId) {
         var userIdCacheKey = userId.toString();
@@ -34,8 +36,8 @@ public class DocumentWebSocketService {
             userPermissions = new ConcurrentHashMap<>();
         }
 
-        var isUnauthorized = document.isUnauthorizedUser(userId);
-        var isReadOnlyUser= document.isReadOnlyUser(userId);
+        var isUnauthorized = sharedDocumentAuthService.isUnauthorizedUser(userId, document);
+        var isReadOnlyUser = sharedDocumentAuthService.isReadOnlyUser(userId, document);
 
         userPermissions.put(userIdCacheKey, new AuthorizedOptions(isUnauthorized, isReadOnlyUser));
 
