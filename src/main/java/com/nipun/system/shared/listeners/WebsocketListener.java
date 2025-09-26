@@ -1,6 +1,6 @@
 package com.nipun.system.shared.listeners;
 
-import com.nipun.system.document.websocket.DocumentWebSocketService;
+import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
 import com.nipun.system.shared.services.WebsocketService;
 import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
 import com.nipun.system.user.websocket.UserWebsocketService;
@@ -15,7 +15,7 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 @Component
 public class WebsocketListener {
     
-    private final DocumentWebSocketService documentWebSocketService;
+    private final DocumentWebSocketServiceImpl documentWebSocketService;
     private final UserWebsocketService userWebsocketService;
     private final WebsocketService websocketService;
 

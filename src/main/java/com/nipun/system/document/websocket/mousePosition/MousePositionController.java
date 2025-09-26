@@ -1,7 +1,7 @@
 package com.nipun.system.document.websocket.mousePosition;
 
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.DocumentWebSocketService;
+import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Controller
 public class MousePositionController {
 
-    private final DocumentWebSocketService documentWebSocketService;
+    private final DocumentWebSocketServiceImpl documentWebSocketService;
     private final MousePositionService mousePositionService;
 
     @MessageMapping("/document/{documentId}/accept-mouse-positions")

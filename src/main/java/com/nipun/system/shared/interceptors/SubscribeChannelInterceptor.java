@@ -2,7 +2,7 @@ package com.nipun.system.shared.interceptors;
 
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.shared.utils.UserIdUtils;
-import com.nipun.system.document.websocket.DocumentWebSocketService;
+import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.messaging.Message;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Component
 public class SubscribeChannelInterceptor implements ChannelInterceptor {
 
-    private final DocumentWebSocketService documentWebSocketService;
+    private final DocumentWebSocketServiceImpl documentWebSocketService;
 
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {

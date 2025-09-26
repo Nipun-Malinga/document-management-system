@@ -8,17 +8,22 @@ import com.nipun.system.shared.entities.WebsocketPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Service
-public class DocumentWebSocketService {
+public class DocumentWebSocketServiceImpl implements DocumentWebsocketService {
 
     private final DocumentRepository documentRepository;
+
     private final DocumentCacheService documentCacheService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
+    @Override
     public boolean isUnauthorizedUser(Long userId, UUID documentId) {
         var userIdCacheKey = userId.toString();
 
@@ -46,6 +51,7 @@ public class DocumentWebSocketService {
         return isUnauthorized;
     }
 
+    @Override
     public boolean isReadOnlyUser(Long userId, UUID documentId) {
         var userIdKey = userId.toString();
 
@@ -57,6 +63,7 @@ public class DocumentWebSocketService {
                userPermissions.get(userIdKey).isReadOnlyUser();
     }
 
+    @Override
     public void setDocumentStatus(UUID documentId, String status) {
         documentCacheService.putDocumentCurrentStatus(documentId, status);
     }
@@ -77,6 +84,7 @@ public class DocumentWebSocketService {
         return content;
     }
 
+    @Override
     public void saveDocumentState(UUID documentId) {
 
         var currentState = documentCacheService.getDocumentCurrentStatus(documentId);
@@ -91,6 +99,7 @@ public class DocumentWebSocketService {
         documentRepository.save(document);
     }
 
+    @Override
     public void addConnectedUserToCache(UUID documentId, String sessionId, Long userId) {
 
         if(documentCacheService.getDocumentConnectedUsers(sessionId) == null)
@@ -109,6 +118,7 @@ public class DocumentWebSocketService {
                 .putDocumentConnectedSession(documentId, connectedUsers);
     }
 
+    @Override
     public UUID removeDisconnectedUserFromCache(String sessionId) {
 
         var user = documentCacheService.getDocumentConnectedUsers(sessionId);
@@ -129,6 +139,7 @@ public class DocumentWebSocketService {
         return null;
     }
 
+    @Override
     public ConnectedUsers getConnectedUsers(UUID documentId) {
 
         var connectedUsers = documentCacheService
@@ -143,6 +154,7 @@ public class DocumentWebSocketService {
      * <p style="color:green">Broadcasts the connected users.</p>
      * <p style="color:green">Saves the current change if there are no users.</p>
     */
+    @Override
     public WebsocketPayload<Set<Long>> getConnectedUsers(String sessionId) {
         var documentId = removeDisconnectedUserFromCache(sessionId);
         var connectedUsers = getConnectedUsers(documentId);
@@ -158,6 +170,7 @@ public class DocumentWebSocketService {
         return null;
     }
 
+    @Override
     public void updateDocumentPermissionDetails(UUID documentId, Long userId, AuthorizedOptions authorizedOptions) {
 
         var userIdCacheKey = userId.toString();
@@ -171,6 +184,7 @@ public class DocumentWebSocketService {
         }
     }
 
+    @Override
     public void removeDocumentPermissionDetailsFromCache(UUID documentId, Long userId) {
 
         var userIdCacheKey = userId.toString();

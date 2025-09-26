@@ -1,7 +1,7 @@
 package com.nipun.system.document.websocket.selectedTextPosition;
 
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.DocumentWebSocketService;
+import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Controller
 public class SelectedTextPositionController {
 
-    private final DocumentWebSocketService documentWebSocketService;
+    private final DocumentWebSocketServiceImpl documentWebSocketService;
     private final SelectedTextPositionService selectedTextPositionService;
 
     @MessageMapping("/document/{documentId}/accept-selected-positions")

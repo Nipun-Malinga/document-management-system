@@ -24,7 +24,7 @@ import java.util.UUID;
 @Controller
 public class DocumentWebsocketController {
 
-    private final DocumentWebSocketService documentWebSocketService;
+    private final DocumentWebSocketServiceImpl documentWebSocketService;
     private final WebsocketService websocketService;
 
     @SendTo("/document/{documentId}/broadcastStatus")
