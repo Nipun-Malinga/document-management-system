@@ -1,6 +1,6 @@
 package com.nipun.system.shared.listeners;
 
-import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
+import com.nipun.system.document.websocket.DocumentWebsocketService;
 import com.nipun.system.shared.services.WebsocketService;
 import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
 import com.nipun.system.user.websocket.UserWebsocketService;
@@ -14,34 +14,38 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 @RequiredArgsConstructor
 @Component
 public class WebsocketListener {
-    
-    private final DocumentWebSocketServiceImpl documentWebSocketService;
+
+    private final DocumentWebsocketService documentWebsocketService;
     private final UserWebsocketService userWebsocketService;
     private final WebsocketService websocketService;
 
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
-        var simpSessionId = (String) event.getMessage().getHeaders().get("simpSessionId");
-        var userStatusPayload = userWebsocketService.broadcastConnectedUser(simpSessionId);
-
-        websocketService.broadcastPayload(userStatusPayload.getEndpoint(), userStatusPayload.getPayload());
+        var simpSessionId = extractSessionId(event);
+        broadcastConnectedUsers(simpSessionId);
     }
 
     @EventListener
     public void handleSessionUnsubscribe(SessionUnsubscribeEvent event) {
-        var simpSessionId = (String) event.getMessage().getHeaders().get("simpSessionId");
-
+        var simpSessionId = extractSessionId(event);
         broadcastDocumentConnectedUserPayload(simpSessionId);
     }
 
     @EventListener
     public void handleSessionDisconnect(SessionDisconnectEvent event) {
-        var simpSessionId = (String) event.getMessage().getHeaders().get("simpSessionId");
-
+        var simpSessionId = extractSessionId(event);
         broadcastDocumentConnectedUserPayload(simpSessionId);
+        removeDisconnectedUsers(simpSessionId);
+    }
 
+    private void broadcastConnectedUsers(String sessionId) {
+        var userStatusPayload = userWebsocketService.broadcastConnectedUser(sessionId);
+        websocketService.broadcastPayload(userStatusPayload.getEndpoint(), userStatusPayload.getPayload());
+    }
+
+    private void removeDisconnectedUsers(String sessionId) {
         try {
-            var userStatusPayload = userWebsocketService.removeConnectedUser(simpSessionId);
+            var userStatusPayload = userWebsocketService.removeConnectedUser(sessionId);
 
             websocketService.broadcastPayload(userStatusPayload.getEndpoint(), userStatusPayload.getPayload());
         } catch (UserIdNotFoundInSessionException exception) {
@@ -50,10 +54,23 @@ public class WebsocketListener {
     }
 
     private void broadcastDocumentConnectedUserPayload(String sessionId) {
-        var connectedUsersPayload = documentWebSocketService
+        var connectedUsersPayload = documentWebsocketService
                 .getConnectedUsers(sessionId);
 
         if(connectedUsersPayload != null)
             websocketService.broadcastPayload(connectedUsersPayload.getEndpoint(), connectedUsersPayload.getPayload());
+    }
+
+    private String extractSessionId(Object event) {
+        if (event instanceof SessionConnectEvent e) {
+            return (String) e.getMessage().getHeaders().get("simpSessionId");
+        }
+        if (event instanceof SessionUnsubscribeEvent e) {
+            return (String) e.getMessage().getHeaders().get("simpSessionId");
+        }
+        if (event instanceof SessionDisconnectEvent e) {
+            return (String) e.getMessage().getHeaders().get("simpSessionId");
+        }
+        return null;
     }
 }
