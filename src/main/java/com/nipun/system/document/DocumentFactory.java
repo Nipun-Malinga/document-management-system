@@ -1,10 +1,12 @@
 package com.nipun.system.document;
 
 import com.nipun.system.user.User;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Component
 public class DocumentFactory {
     public static Document createNewDocument(User user, String title) {
         var document = new Document();

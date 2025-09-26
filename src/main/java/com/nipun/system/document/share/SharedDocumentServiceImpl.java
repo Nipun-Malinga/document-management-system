@@ -33,6 +33,8 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
     private final DocumentMapper documentMapper;
     private final SharedDocumentMapper sharedDocumentMapper;
 
+    private final SharedDocumentFactory sharedDocumentFactory;
+
     @Transactional
     @Override
     public SharedDocumentDto shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
@@ -51,12 +53,11 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
                 .orElse(null);
 
         if(sharedDocument == null) {
-            sharedDocument = new SharedDocument();
-            sharedDocument.addSharingData(sharedUser, document, permission);
-
+            sharedDocument = sharedDocumentFactory.createNewSharedDocument(sharedUser, document);
             document.addSharedDocument(sharedDocument);
-        } else
-            sharedDocument.setPermission(permission);
+        }
+
+        sharedDocument.setPermission(permission);
 
         document.setUpdatedAt(LocalDateTime.now());
 

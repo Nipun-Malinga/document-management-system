@@ -33,12 +33,6 @@ public class SharedDocument {
     @Column(name = "permission")
     private Permission permission;
 
-    public void addSharingData(User sharedUser, Document document, Permission permission) {
-        this.setSharedUser(sharedUser);
-        this.setDocument(document);
-        this.setPermission(permission);
-    }
-
     public boolean isReadOnlyUser() {
         return getPermission().equals(Permission.READ_ONLY);
     }
