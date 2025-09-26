@@ -1,7 +1,5 @@
 package com.nipun.system.document.share;
 
-import com.nipun.system.document.dtos.ContentDto;
-import com.nipun.system.document.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.dtos.share.ShareDocumentRequest;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
@@ -53,29 +51,6 @@ public class SharedDocumentController {
     ) {
         var paginatedDocuments = sharedDocumentService.getAllSharedDocumentsWithUser(pageNumber, pageSize);
         return ResponseEntity.ok(paginatedDocuments);
-    }
-
-    @GetMapping("/{id}/share/access")
-    @Operation(summary = "Shared document", description = "Access the shared document content")
-    public ResponseEntity<ContentDto> accessSharedDocument(
-            @PathVariable(name = "id")
-            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
-            UUID documentId
-    ) {
-        var contentDto = sharedDocumentService.accessSharedDocument(documentId);
-        return ResponseEntity.ok(contentDto);
-    }
-
-    @PatchMapping("/{id}/share/update")
-    @Operation(summary = "Update shared document", description = "Update shared document content")
-    public ResponseEntity<ContentDto> updateSharedDocument(
-            @PathVariable(name = "id")
-            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
-            UUID documentId,
-            @RequestBody @Valid UpdateContentRequest request
-    ) {
-        var contentDto = sharedDocumentService.updateSharedDocument(documentId, request);
-        return ResponseEntity.ok(contentDto);
     }
 
     @PostMapping("/{id}/share/remove")

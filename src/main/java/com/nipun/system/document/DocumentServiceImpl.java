@@ -4,6 +4,8 @@ import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.*;
 import com.nipun.system.document.dtos.common.PaginatedData;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.document.version.DocumentVersionFactory;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
@@ -30,6 +32,7 @@ public class DocumentServiceImpl implements DocumentService{
     private final DiffService diffService;
 
     private final DocumentVersionFactory versionFactory;
+    private final SharedDocumentAuthService sharedDocumentAuthService;
 
     @Transactional
     @Override
@@ -53,9 +56,11 @@ public class DocumentServiceImpl implements DocumentService{
 
         var userId = UserIdUtils.getUserIdFromContext();
 
-        var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, userId)
+        var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
+
+        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+            throw new UnauthorizedDocumentException();
 
         return documentMapper.toDto(document);
     }
@@ -119,9 +124,12 @@ public class DocumentServiceImpl implements DocumentService{
     @Override
     public ContentDto getContent(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
-        var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, userId)
+
+        var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
+
+        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+            throw new UnauthorizedDocumentException();
 
         return contentMapper.toDto(document.getContent());
     }
@@ -134,9 +142,10 @@ public class DocumentServiceImpl implements DocumentService{
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, userId)
+        var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
+
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         if(document.getDocumentContent() == null)
             document.addContent(request.getContent());

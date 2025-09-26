@@ -1,5 +1,6 @@
 package com.nipun.system.user;
 
+import com.nipun.system.user.dtos.RegisterUserRequest;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,8 @@ class UserServiceTest {
     @InjectMocks
     private UserServiceImpl userService;
 
+    RegisterUserRequest userRequest = new RegisterUserRequest();
+
     @Test
     void registerUserShouldRegisterUserSuccessfully() {
         var user = new User();
@@ -30,10 +33,14 @@ class UserServiceTest {
         user.setEmail("testuser@gmail.com");
         user.setPassword("test1234567");
 
+
+
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        var savedUser =  userService.registerUser(user);
+
+
+        var savedUser =  userService.registerUser(userRequest);
 
         assertNotNull(savedUser);
         assertEquals(savedUser, user);
@@ -50,7 +57,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
 
         EmailAlreadyRegisteredException exception = assertThrows(EmailAlreadyRegisteredException.class, () ->
-                userService.registerUser(user)
+                userService.registerUser(userRequest)
         );
 
         assertEquals(

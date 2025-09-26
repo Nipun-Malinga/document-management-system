@@ -69,7 +69,7 @@ class UserControllerTest {
 
         when(userMapper.toEntity(any(RegisterUserRequest.class))).thenReturn(user);
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
-        when(userService.registerUser(any(User.class))).thenReturn(user);
+        when(userService.registerUser(any(RegisterUserRequest.class))).thenReturn(userDto);
         when(userMapper.toDto(any(User.class))).thenReturn(userDto);
 
         mockMvc.perform(post("/users/register")
@@ -97,11 +97,13 @@ class UserControllerTest {
         user.setPassword(request.getPassword());
         user.setRole(Role.USER);
 
+        var userRequest = new RegisterUserRequest();
+
         var jwt = jwtService.generateAccessToken(user);
 
         when(userMapper.toEntity(any(RegisterUserRequest.class))).thenReturn(user);
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
-        when(userService.registerUser(user))
+        when(userService.registerUser(userRequest))
                 .thenThrow(new EmailAlreadyRegisteredException(
                         "Email: " + user.getEmail() + " is already registered in system."
                 ));
