@@ -3,7 +3,7 @@ package com.nipun.system.shared.listeners;
 import com.nipun.system.document.websocket.DocumentWebsocketService;
 import com.nipun.system.shared.services.WebsocketService;
 import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
-import com.nipun.system.user.websocket.UserWebsocketService;
+import com.nipun.system.user.websocket.UserWebsocketServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 public class WebsocketListener {
 
     private final DocumentWebsocketService documentWebsocketService;
-    private final UserWebsocketService userWebsocketService;
+    private final UserWebsocketServiceImpl userWebsocketService;
     private final WebsocketService websocketService;
 
     @EventListener

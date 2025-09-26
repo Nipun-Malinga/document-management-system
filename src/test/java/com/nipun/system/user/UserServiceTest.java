@@ -21,7 +21,7 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Test
     void registerUserShouldRegisterUserSuccessfully() {

@@ -31,7 +31,7 @@ class UserControllerTest {
     ObjectMapper objectMapper;
 
     @MockitoBean
-    UserService userService;
+    UserServiceImpl userService;
 
     @MockitoBean
     private UserMapper userMapper;
