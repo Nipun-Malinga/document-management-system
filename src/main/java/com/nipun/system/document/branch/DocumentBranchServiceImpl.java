@@ -4,7 +4,7 @@ import com.nipun.system.document.DocumentRepository;
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
-import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.document.version.*;

@@ -1,7 +1,7 @@
 package com.nipun.system.document.version;
 
 import com.nipun.system.document.dtos.ContentDto;
-import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.dtos.version.DiffResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

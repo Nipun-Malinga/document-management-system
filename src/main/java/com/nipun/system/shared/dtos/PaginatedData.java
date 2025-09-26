@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos.common;
+package com.nipun.system.shared.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

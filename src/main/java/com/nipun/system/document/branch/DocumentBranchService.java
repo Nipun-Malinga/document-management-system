@@ -2,7 +2,7 @@ package com.nipun.system.document.branch;
 
 import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
-import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.shared.dtos.PaginatedData;
 
 import java.util.UUID;
 

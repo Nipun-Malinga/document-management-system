@@ -1,7 +1,7 @@
 package com.nipun.system.document;
 
 import com.nipun.system.document.dtos.*;
-import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

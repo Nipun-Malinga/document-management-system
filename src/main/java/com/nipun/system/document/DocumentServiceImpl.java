@@ -2,7 +2,7 @@ package com.nipun.system.document;
 
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.dtos.*;
-import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.SharedDocumentAuthService;

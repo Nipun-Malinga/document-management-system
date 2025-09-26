@@ -4,7 +4,7 @@ import com.nipun.system.document.dtos.ContentDto;
 import com.nipun.system.document.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.branch.CreateBranchRequest;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
-import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.exceptions.BranchTitleAlreadyExistsException;
 import com.nipun.system.document.exceptions.DocumentBranchNotFoundException;
 import com.nipun.system.shared.dtos.ErrorResponse;

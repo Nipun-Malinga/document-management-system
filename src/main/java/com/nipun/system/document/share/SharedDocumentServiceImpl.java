@@ -2,7 +2,7 @@ package com.nipun.system.document.share;
 
 import com.nipun.system.document.DocumentMapper;
 import com.nipun.system.document.DocumentRepository;
-import com.nipun.system.document.dtos.common.PaginatedData;
+import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
