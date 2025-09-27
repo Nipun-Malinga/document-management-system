@@ -1,6 +1,6 @@
 package com.nipun.system.document.version;
 
-import com.nipun.system.document.dtos.ContentDto;
+import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.dtos.version.DiffResponse;
 
@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface DocumentVersionService {
     PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size);
 
-    ContentDto getVersionContent(UUID versionNumber, UUID documentId);
+    ContentResponse getVersionContent(UUID versionNumber, UUID documentId);
 
     DiffResponse getVersionDiffs(UUID documentId, UUID base, UUID compare);
 

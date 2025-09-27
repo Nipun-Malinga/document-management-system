@@ -1,6 +1,6 @@
-package com.nipun.system.document;
+package com.nipun.system.document.base;
 
-import com.nipun.system.document.dtos.*;
+import com.nipun.system.document.base.dtos.DocumentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -8,5 +8,5 @@ import org.mapstruct.Mapping;
 public interface DocumentMapper {
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "id", source = "publicId")
-    DocumentDto toDto(Document document);
+    DocumentResponse toDto(Document document);
 }

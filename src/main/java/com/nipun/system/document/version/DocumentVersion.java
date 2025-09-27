@@ -1,6 +1,6 @@
 package com.nipun.system.document.version;
 
-import com.nipun.system.document.Document;
+import com.nipun.system.document.base.Document;
 import com.nipun.system.document.branch.DocumentBranch;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;

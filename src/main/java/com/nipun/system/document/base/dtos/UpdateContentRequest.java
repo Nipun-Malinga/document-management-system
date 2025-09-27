@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos;
+package com.nipun.system.document.base.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

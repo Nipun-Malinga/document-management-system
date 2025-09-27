@@ -1,6 +1,6 @@
 package com.nipun.system.document.branch;
 
-import com.nipun.system.document.Document;
+import com.nipun.system.document.base.Document;
 import com.nipun.system.document.version.DocumentVersion;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

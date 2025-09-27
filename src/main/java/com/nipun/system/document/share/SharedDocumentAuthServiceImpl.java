@@ -1,6 +1,6 @@
 package com.nipun.system.document.share;
 
-import com.nipun.system.document.Document;
+import com.nipun.system.document.base.Document;
 import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
-package com.nipun.system.document;
+package com.nipun.system.document.base;
 
-import com.nipun.system.document.dtos.ContentDto;
-import com.nipun.system.document.dtos.UpdateContentRequest;
+import com.nipun.system.document.base.dtos.ContentResponse;
+import com.nipun.system.document.base.dtos.UpdateContentRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -9,5 +9,5 @@ import org.mapstruct.Mapping;
 public interface ContentMapper {
     @Mapping(target = "content", source = "content")
     Content toEntity(UpdateContentRequest request);
-    ContentDto toDto(Content content);
+    ContentResponse toDto(Content content);
 }

@@ -1,11 +1,11 @@
 package com.nipun.system.document.version;
 
-import com.nipun.system.document.DocumentRepository;
+import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.diff.DiffService;
-import com.nipun.system.document.dtos.ContentDto;
+import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.dtos.version.DiffResponse;
-import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.SharedDocumentAuthService;
@@ -73,7 +73,7 @@ public class DocumentVersionServiceImpl implements DocumentVersionService{
 
     @Cacheable(value = "document_version_contents", key = "#documentId + ':' + #versionNumber")
     @Override
-    public ContentDto getVersionContent(UUID versionNumber, UUID documentId) {
+    public ContentResponse getVersionContent(UUID versionNumber, UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var documentVersion = documentVersionRepository
@@ -85,7 +85,7 @@ public class DocumentVersionServiceImpl implements DocumentVersionService{
         if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
-        return new ContentDto(documentVersion.getVersionContent());
+        return new ContentResponse(documentVersion.getVersionContent());
     }
 
     @Cacheable(value = "document_version_diffs", key = "#documentId + ':' + #base + ':' + #compare")

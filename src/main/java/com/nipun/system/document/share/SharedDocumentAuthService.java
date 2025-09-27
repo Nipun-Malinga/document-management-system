@@ -1,6 +1,6 @@
 package com.nipun.system.document.share;
 
-import com.nipun.system.document.Document;
+import com.nipun.system.document.base.Document;
 
 public interface SharedDocumentAuthService {
     void checkUserCanWrite(Long userId, Document document);

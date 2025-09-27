@@ -1,8 +1,9 @@
 package com.nipun.system.document.branch;
 
-import com.nipun.system.document.DocumentRepository;
+import com.nipun.system.document.base.DocumentRepository;
+import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.diff.DiffService;
-import com.nipun.system.document.dtos.ContentDto;
+import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.exceptions.*;
@@ -72,7 +73,7 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
     @Cacheable(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
     @Override
-    public ContentDto getBranchContent(UUID documentId, UUID branchId) {
+    public ContentResponse getBranchContent(UUID documentId, UUID branchId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var branch = documentBranchRepository
@@ -84,12 +85,12 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
         if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
-        return new ContentDto(branch.getBranchContent());
+        return new ContentResponse(branch.getBranchContent());
     }
 
     @CachePut(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
     @Override
-    public ContentDto updateBranchContent(
+    public ContentResponse updateBranchContent(
             UUID documentId,
             UUID branchId,
             String content
@@ -112,7 +113,7 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         documentVersionRepository.save(version);
 
-        return new ContentDto(branch.getBranchContent());
+        return new ContentResponse(branch.getBranchContent());
     }
 
     @Override

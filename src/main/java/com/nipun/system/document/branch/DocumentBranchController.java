@@ -1,7 +1,7 @@
 package com.nipun.system.document.branch;
 
-import com.nipun.system.document.dtos.ContentDto;
-import com.nipun.system.document.dtos.UpdateContentRequest;
+import com.nipun.system.document.base.dtos.ContentResponse;
+import com.nipun.system.document.base.dtos.UpdateContentRequest;
 import com.nipun.system.document.dtos.branch.CreateBranchRequest;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.shared.dtos.PaginatedData;
@@ -43,7 +43,7 @@ public class DocumentBranchController {
 
     @GetMapping("/{documentId}/branches/{branchId}")
     @Operation(summary = "Get content", description = "Get document branch content")
-    public ResponseEntity<ContentDto> getBranchContent(
+    public ResponseEntity<ContentResponse> getBranchContent(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
@@ -57,7 +57,7 @@ public class DocumentBranchController {
 
     @PutMapping("/{documentId}/branches/{branchId}")
     @Operation(summary = "Update branch content", description = "Update document branch content")
-    public ResponseEntity<ContentDto> updateBranchContent(
+    public ResponseEntity<ContentResponse> updateBranchContent(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
@@ -67,7 +67,7 @@ public class DocumentBranchController {
             @RequestBody UpdateContentRequest request
     ) {
         var content = documentBranchService.updateBranchContent(documentId, branchId, request.getContent());
-        return ResponseEntity.ok(new ContentDto(content.getContent()));
+        return ResponseEntity.ok(new ContentResponse(content.getContent()));
     }
 
     @GetMapping("/{documentId}/branches")

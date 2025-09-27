@@ -1,4 +1,4 @@
-package com.nipun.system.document.exceptions;
+package com.nipun.system.document.base.exceptions;
 
 public class DocumentNotFoundException extends RuntimeException {
     public DocumentNotFoundException() {

@@ -1,9 +1,9 @@
 package com.nipun.system.document.share;
 
-import com.nipun.system.document.DocumentMapper;
-import com.nipun.system.document.DocumentRepository;
+import com.nipun.system.document.base.DocumentMapper;
+import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
-import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
 import com.nipun.system.document.websocket.authentication.AuthorizedOptions;

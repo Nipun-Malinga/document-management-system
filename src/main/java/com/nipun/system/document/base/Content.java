@@ -1,4 +1,4 @@
-package com.nipun.system.document;
+package com.nipun.system.document.base;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

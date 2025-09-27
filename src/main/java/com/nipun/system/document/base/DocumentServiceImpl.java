@@ -1,9 +1,9 @@
-package com.nipun.system.document;
+package com.nipun.system.document.base;
 
+import com.nipun.system.document.base.dtos.*;
 import com.nipun.system.document.diff.DiffService;
-import com.nipun.system.document.dtos.*;
 import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.document.version.DocumentVersionFactory;
@@ -36,7 +36,7 @@ public class DocumentServiceImpl implements DocumentService{
 
     @Transactional
     @Override
-    public DocumentDto createDocument(
+    public DocumentResponse createDocument(
             CreateDocumentRequest request
     ) {
         var userId = UserIdUtils.getUserIdFromContext();
@@ -52,7 +52,7 @@ public class DocumentServiceImpl implements DocumentService{
 
     @Cacheable(value = "documents", key = "#documentId")
     @Override
-    public DocumentDto getDocument(UUID documentId) {
+    public DocumentResponse getDocument(UUID documentId) {
 
         var userId = UserIdUtils.getUserIdFromContext();
 
@@ -93,7 +93,7 @@ public class DocumentServiceImpl implements DocumentService{
     @CachePut(value = "documents", key = "#documentId")
     @Transactional
     @Override
-    public DocumentDto updateTitle(UUID documentId, UpdateTitleRequest request) {
+    public DocumentResponse updateTitle(UUID documentId, UpdateTitleRequest request) {
 
         var userId = UserIdUtils.getUserIdFromContext();
 
@@ -122,7 +122,7 @@ public class DocumentServiceImpl implements DocumentService{
 
     @Cacheable(value = "document_contents", key = "#documentId")
     @Override
-    public ContentDto getContent(UUID documentId) {
+    public ContentResponse getContent(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository.findByPublicId(documentId)
@@ -137,7 +137,7 @@ public class DocumentServiceImpl implements DocumentService{
     @CachePut(value = "document_contents", key = "#documentId")
     @Transactional
     @Override
-    public ContentDto updateContent(UUID documentId, UpdateContentRequest request) {
+    public ContentResponse updateContent(UUID documentId, UpdateContentRequest request) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var user = userRepository.findById(userId).orElseThrow();

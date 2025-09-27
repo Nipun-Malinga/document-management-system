@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos;
+package com.nipun.system.document.base.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @Data
-public class DocumentDto {
+public class DocumentResponse {
 
     private UUID id;
 

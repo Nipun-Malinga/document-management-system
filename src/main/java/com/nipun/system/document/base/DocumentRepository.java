@@ -1,4 +1,4 @@
-package com.nipun.system.document;
+package com.nipun.system.document.base;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

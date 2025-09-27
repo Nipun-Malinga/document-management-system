@@ -1,6 +1,6 @@
 package com.nipun.system.document.version;
 
-import com.nipun.system.document.dtos.ContentDto;
+import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.dtos.version.DiffResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +40,7 @@ public class DocumentVersionController {
 
     @GetMapping("/{id}/versions/{versionNumber}")
     @Operation(summary = "Get document version content", description = "Get document version content by document ID and version ID")
-    public ResponseEntity<ContentDto> getDocumentVersionContent(
+    public ResponseEntity<ContentResponse> getDocumentVersionContent(
             @PathVariable(name = "id")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,

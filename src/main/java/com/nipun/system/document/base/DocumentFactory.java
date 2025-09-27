@@ -1,4 +1,4 @@
-package com.nipun.system.document;
+package com.nipun.system.document.base;
 
 import com.nipun.system.user.User;
 import org.springframework.stereotype.Component;

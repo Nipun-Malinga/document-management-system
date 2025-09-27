@@ -1,6 +1,6 @@
 package com.nipun.system.document.branch;
 
-import com.nipun.system.document.dtos.ContentDto;
+import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.shared.dtos.PaginatedData;
 
@@ -9,9 +9,9 @@ import java.util.UUID;
 public  interface DocumentBranchService {
     DocumentBranchDto createBranch(UUID documentId, UUID versionId, String branchName);
 
-    ContentDto getBranchContent(UUID documentId, UUID branchId);
+    ContentResponse getBranchContent(UUID documentId, UUID branchId);
 
-    ContentDto updateBranchContent(UUID documentId, UUID branchId, String content);
+    ContentResponse updateBranchContent(UUID documentId, UUID branchId, String content);
 
     PaginatedData getAllBranches(UUID documentId, int pageNumber, int size);
 

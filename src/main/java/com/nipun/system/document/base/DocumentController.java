@@ -1,6 +1,6 @@
-package com.nipun.system.document;
+package com.nipun.system.document.base;
 
-import com.nipun.system.document.dtos.*;
+import com.nipun.system.document.base.dtos.*;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +23,7 @@ public class DocumentController {
 
     @PostMapping
     @Operation(summary = "Create document", description = "Creates new document in the system")
-    public ResponseEntity<DocumentDto> createDocument(
+    public ResponseEntity<DocumentResponse> createDocument(
             @RequestBody @Valid CreateDocumentRequest request,
             UriComponentsBuilder uriBuilder
     ) {
@@ -37,7 +37,7 @@ public class DocumentController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get document", description = "Get document by ID")
-    public ResponseEntity<DocumentDto> getDocument(
+    public ResponseEntity<DocumentResponse> getDocument(
             @PathVariable(name = "id")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
@@ -62,7 +62,7 @@ public class DocumentController {
 
     @PutMapping("/{id}/title")
     @Operation(summary = "Update document title", description = "Updates the document title")
-    public ResponseEntity<DocumentDto> updateDocumentTitle(
+    public ResponseEntity<DocumentResponse> updateDocumentTitle(
             @PathVariable(name = "id")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
@@ -85,7 +85,7 @@ public class DocumentController {
 
     @PatchMapping("/{id}/content")
     @Operation(summary = "Update document content", description = "Updates the content in the system")
-    public ResponseEntity<ContentDto> updateDocumentContent(
+    public ResponseEntity<ContentResponse> updateDocumentContent(
             @PathVariable(name = "id")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
@@ -97,7 +97,7 @@ public class DocumentController {
 
     @GetMapping("/{id}/content")
     @Operation(summary = "Get document content", description = "Gets document content")
-    public ResponseEntity<ContentDto> getDocumentContent(
+    public ResponseEntity<ContentResponse> getDocumentContent(
         @PathVariable(name = "id")
         @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
         UUID documentId
