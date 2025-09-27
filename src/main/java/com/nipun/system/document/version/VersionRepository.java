@@ -20,7 +20,7 @@ public interface VersionRepository extends JpaRepository<Version, Long> {
   @EntityGraph(attributePaths = {"content", "document", "document.sharedDocuments"})
   Optional<Version> findByVersionNumberAndDocumentPublicId(UUID versionNumber, UUID documentId);
 
-  @EntityGraph(attributePaths = {"content", "documentBranches"})
+  @EntityGraph(attributePaths = {"content", "branches"})
   Optional<Version> findFirstByDocumentIdOrderByTimestampDesc(Long documentId);
 
   @Modifying
