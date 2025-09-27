@@ -1,4 +1,4 @@
-package com.nipun.system.document.websocket.selectedTextPosition;
+package com.nipun.system.document.websocket.textposition;
 
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.authentication.AuthenticationService;
@@ -14,15 +14,15 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
-public class SelectedTextPositionController {
+public class TextPositionController {
 
     private final AuthenticationService authenticationService;
-    private final SelectedTextPositionService selectedTextPositionService;
+    private final TextPositionService textPositionService;
 
     @MessageMapping("/document/{documentId}/accept-selected-positions")
     public void acceptUserTextSelectPositions(
             @DestinationVariable UUID documentId,
-            @Payload SelectedTextPosition selectedTextPosition,
+            @Payload TextPosition textPosition,
             Principal principal
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
@@ -30,6 +30,6 @@ public class SelectedTextPositionController {
         if(authenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
-        selectedTextPositionService.broadcastUserSelectPositions(selectedTextPosition, userId, documentId);
+        textPositionService.broadcastUserSelectPositions(textPosition, userId, documentId);
     }
 }

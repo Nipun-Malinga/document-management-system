@@ -1,4 +1,4 @@
-package com.nipun.system.document.websocket.mousePosition;
+package com.nipun.system.document.websocket.mouseposition;
 
 import com.nipun.system.shared.services.WebsocketService;
 import lombok.AllArgsConstructor;
