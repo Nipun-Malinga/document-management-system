@@ -1,4 +1,4 @@
-package com.nipun.system.document.exceptions;
+package com.nipun.system.document.branch.exceptions;
 
 public class BranchTitleAlreadyExistsException extends RuntimeException {
     public BranchTitleAlreadyExistsException() {

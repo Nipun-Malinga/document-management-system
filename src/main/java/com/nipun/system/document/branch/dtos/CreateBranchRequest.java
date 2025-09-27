@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos.branch;
+package com.nipun.system.document.branch.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

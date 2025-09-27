@@ -2,11 +2,11 @@ package com.nipun.system.document.branch;
 
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.base.dtos.UpdateContentRequest;
-import com.nipun.system.document.dtos.branch.CreateBranchRequest;
-import com.nipun.system.document.dtos.branch.DocumentBranchDto;
+import com.nipun.system.document.branch.dtos.CreateBranchRequest;
+import com.nipun.system.document.branch.dtos.BranchResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.exceptions.BranchTitleAlreadyExistsException;
-import com.nipun.system.document.exceptions.DocumentBranchNotFoundException;
+import com.nipun.system.document.branch.exceptions.BranchTitleAlreadyExistsException;
+import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,13 +22,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/documents")
 @Tag(name = "Document Branches", description = "Manage document branches in the system")
-public class DocumentBranchController {
+public class BranchController {
 
-    private final DocumentBranchService documentBranchService;
+    private final BranchService branchService;
 
     @PostMapping("/{documentId}/branches/versions/{versionId}")
     @Operation(summary = "Create branch", description = "Creates new document branch in the system")
-    public ResponseEntity<DocumentBranchDto> createBranch(
+    public ResponseEntity<BranchResponse> createBranch(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
@@ -37,7 +37,7 @@ public class DocumentBranchController {
             UUID versionId,
             @RequestBody CreateBranchRequest request
     ) {
-        var branchDto = documentBranchService.createBranch(documentId, versionId, request.getBranchName());
+        var branchDto = branchService.createBranch(documentId, versionId, request.getBranchName());
         return ResponseEntity.ok(branchDto);
     }
 
@@ -51,7 +51,7 @@ public class DocumentBranchController {
             @Parameter(description = "Document branch ID", example = "8d5177f7-bc39-42b0-84bc-3a945be383c4")
             UUID branchId
     ) {
-        var branchContentDto = documentBranchService.getBranchContent(documentId, branchId);
+        var branchContentDto = branchService.getBranchContent(documentId, branchId);
         return ResponseEntity.ok(branchContentDto);
     }
 
@@ -66,7 +66,7 @@ public class DocumentBranchController {
             UUID branchId,
             @RequestBody UpdateContentRequest request
     ) {
-        var content = documentBranchService.updateBranchContent(documentId, branchId, request.getContent());
+        var content = branchService.updateBranchContent(documentId, branchId, request.getContent());
         return ResponseEntity.ok(new ContentResponse(content.getContent()));
     }
 
@@ -83,7 +83,7 @@ public class DocumentBranchController {
             @Parameter(description = "Required page size")
             int pageSize
     ) {
-        var paginatedBranches = documentBranchService.getAllBranches(documentId, pageNumber, pageSize);
+        var paginatedBranches = branchService.getAllBranches(documentId, pageNumber, pageSize);
         return ResponseEntity.ok(paginatedBranches);
     }
 
@@ -103,7 +103,7 @@ public class DocumentBranchController {
             @Parameter(description = "Required page size")
             int pageSize
     ) {
-        var paginatedVersionDtoList = documentBranchService
+        var paginatedVersionDtoList = branchService
                 .getAllBranchVersions(documentId, branchId, pageNumber, pageSize);
         return ResponseEntity.ok(paginatedVersionDtoList);
     }
@@ -118,7 +118,7 @@ public class DocumentBranchController {
             @Parameter(description = "Document branch ID", example = "8d5177f7-bc39-42b0-84bc-3a945be383c4")
             UUID branchId
     ) {
-        documentBranchService.deleteBranch(documentId, branchId);
+        branchService.deleteBranch(documentId, branchId);
         return ResponseEntity.noContent().build();
     }
 
@@ -132,7 +132,7 @@ public class DocumentBranchController {
             @Parameter(description = "Document branch ID", example = "8d5177f7-bc39-42b0-84bc-3a945be383c4")
             UUID branchId
     ) {
-        documentBranchService.mergeToMainBranch(documentId, branchId);
+        branchService.mergeToMainBranch(documentId, branchId);
         return ResponseEntity.ok().build();
     }
 
@@ -149,13 +149,13 @@ public class DocumentBranchController {
             @Parameter(description = "Merge branch id", example = "3a5c4c09-2a79-4db4-85b1-8d7176125429")
             UUID mergeBranchId
     ) {
-        documentBranchService.mergeSpecificBranches(documentId, branchId, mergeBranchId);
+        branchService.mergeSpecificBranches(documentId, branchId, mergeBranchId);
         return ResponseEntity.ok().build();
     }
 
-    @ExceptionHandler(DocumentBranchNotFoundException.class)
+    @ExceptionHandler(BranchNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBranchNotFoundException(
-            DocumentBranchNotFoundException exception
+            BranchNotFoundException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)

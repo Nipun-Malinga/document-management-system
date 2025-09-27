@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "document_branches")
-public class DocumentBranch {
+public class Branch {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +44,7 @@ public class DocumentBranch {
             fetch = FetchType.LAZY
     )
     @JoinColumn(name = "content_id")
-    private DocumentBranchContent content;
+    private BranchContent content;
 
     @Column(name = "timestamp")
     private LocalDateTime timestamp;

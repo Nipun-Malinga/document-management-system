@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Component
-public class DocumentBranchFactory {
+public class BranchFactory {
 
-    public DocumentBranch createNewBranch(Version version, String branchName, DocumentBranchContent content, Document document) {
-        var branch = new DocumentBranch();
+    public Branch createNewBranch(Version version, String branchName, BranchContent content, Document document) {
+        var branch = new Branch();
 
         branch.setDocument(document);
         branch.setVersion(version);

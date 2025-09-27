@@ -1,15 +1,15 @@
 package com.nipun.system.document.branch;
 
-import com.nipun.system.document.dtos.branch.DocumentBranchDto;
+import com.nipun.system.document.branch.dtos.BranchResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "Spring")
-public interface DocumentBranchMapper {
+public interface BranchMapper {
 
     @Mapping(target = "branchId", source = "publicId")
     @Mapping(target = "documentId", source = "document.publicId")
     @Mapping(target = "versionNumber", source = "version.versionNumber")
     @Mapping(target = "branchName", source = "branchName")
-    DocumentBranchDto toDto(DocumentBranch branch);
+    BranchResponse toDto(Branch branch);
 }

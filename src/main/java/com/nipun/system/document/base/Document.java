@@ -1,6 +1,6 @@
 package com.nipun.system.document.base;
 
-import com.nipun.system.document.branch.DocumentBranch;
+import com.nipun.system.document.branch.Branch;
 import com.nipun.system.document.share.SharedDocument;
 import com.nipun.system.document.version.Version;
 import com.nipun.system.user.User;
@@ -72,7 +72,7 @@ public class Document {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private Set<DocumentBranch> documentBranches = new HashSet<>();
+    private Set<Branch> branches = new HashSet<>();
 
     public void addContent(String content) {
         getContent().setContent(content);

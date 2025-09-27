@@ -1,7 +1,7 @@
 package com.nipun.system.document.version;
 
 import com.nipun.system.document.base.Document;
-import com.nipun.system.document.branch.DocumentBranch;
+import com.nipun.system.document.branch.Branch;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -55,14 +55,14 @@ public class Version {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private Set<DocumentBranch> documentBranches = new HashSet<>();
+    private Set<Branch> branches = new HashSet<>();
 
     @ManyToOne(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
             fetch = FetchType.LAZY
     )
     @JoinColumn(name = "branch_id")
-    private DocumentBranch branch;
+    private Branch branch;
 
     public String getVersionContent() {
         return content.getContent();

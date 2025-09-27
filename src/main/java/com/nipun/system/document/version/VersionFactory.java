@@ -1,7 +1,7 @@
 package com.nipun.system.document.version;
 
 import com.nipun.system.document.base.Document;
-import com.nipun.system.document.branch.DocumentBranch;
+import com.nipun.system.document.branch.Branch;
 import com.nipun.system.user.User;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,7 @@ public class VersionFactory {
             Document document,
             User author,
             String content,
-            DocumentBranch branch
+            Branch branch
     ) {
         var versionContent = new VersionContent();
         versionContent.setContent(content);

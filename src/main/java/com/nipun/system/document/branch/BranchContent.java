@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "document_branch_content")
-public class DocumentBranchContent {
+public class BranchContent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

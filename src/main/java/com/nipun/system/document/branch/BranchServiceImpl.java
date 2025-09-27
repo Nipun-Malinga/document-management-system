@@ -2,14 +2,15 @@ package com.nipun.system.document.branch;
 
 import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.branch.exceptions.BranchTitleAlreadyExistsException;
+import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.diff.exceptions.PatchFailedException;
-import com.nipun.system.document.dtos.branch.DocumentBranchDto;
+import com.nipun.system.document.branch.dtos.BranchResponse;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.document.version.*;
 import com.nipun.system.shared.utils.UserIdUtils;
@@ -26,25 +27,25 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Service
-public class DocumentBranchServiceImpl implements DocumentBranchService{
+public class BranchServiceImpl implements BranchService {
 
     private final VersionRepository versionRepository;
-    private final DocumentBranchRepository documentBranchRepository;
+    private final BranchRepository branchRepository;
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
 
-    private final DocumentBranchMapper documentBranchMapper;
+    private final BranchMapper branchMapper;
     private final VersionMapper versionMapper;
 
     private final DiffService diffService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
-    private final DocumentBranchFactory branchFactory;
+    private final BranchFactory branchFactory;
     private final VersionFactory versionFactory;
 
     @Transactional
     @Override
-    public DocumentBranchDto createBranch(UUID documentId, UUID versionId, String branchName) {
+    public BranchResponse createBranch(UUID documentId, UUID versionId, String branchName) {
 
         var userId = UserIdUtils.getUserIdFromContext();
         var user = userRepository.findById(userId).orElseThrow();
@@ -58,12 +59,12 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
-        var fetchedBranch = documentBranchRepository.findByBranchName(branchName).orElse(null);
+        var fetchedBranch = branchRepository.findByBranchName(branchName).orElse(null);
 
         if(fetchedBranch != null && fetchedBranch.isBranchTitleExistsAlready(branchName))
             throw new BranchTitleAlreadyExistsException();
 
-        var branchContent = new DocumentBranchContent();
+        var branchContent = new BranchContent();
         branchContent.setContent(versionContent);
 
         var newBranch = branchFactory.createNewBranch(version, branchName, branchContent, document);
@@ -71,7 +72,7 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         versionRepository.save(newVersion);
 
-        return documentBranchMapper.toDto(newBranch);
+        return branchMapper.toDto(newBranch);
     }
 
     @Cacheable(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
@@ -79,9 +80,9 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
     public ContentResponse getBranchContent(UUID documentId, UUID branchId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
-        var branch = documentBranchRepository
+        var branch = branchRepository
                 .findByPublicIdAndVersionDocumentPublicId(branchId, documentId)
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         var document = branch.getDocument();
 
@@ -100,9 +101,9 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
     ) {
         var userId = UserIdUtils.getUserIdFromContext();
 
-        var branch = documentBranchRepository
+        var branch = branchRepository
                 .findByPublicIdAndVersionDocumentPublicId(branchId, documentId)
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         var document = branch.getVersion().getDocument();
 
@@ -136,12 +137,12 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        var branches = documentBranchRepository
+        var branches = branchRepository
                 .findAllByDocumentId(document.getId(), pageRequest);
 
         var branchDtoList = branches.getContent()
                 .stream()
-                .map(documentBranchMapper::toDto)
+                .map(branchMapper::toDto)
                 .toList();
 
         return new PaginatedData(
@@ -165,13 +166,13 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         var document = documentRepository
                 .findByPublicId(documentId)
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
-        documentBranchRepository
+        branchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
-                .ifPresent(documentBranchRepository::delete);
+                .ifPresent(branchRepository::delete);
     }
 
     @Override
@@ -185,7 +186,7 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         var document = documentRepository
                 .findByPublicId(documentId)
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
@@ -222,13 +223,13 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         var document = documentRepository
                 .findByPublicId(documentId)
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
-        var branch = documentBranchRepository
+        var branch = branchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         document.getContent().setContent(
                 diffService.patchDocument(document.getDocumentContent(), branch.getBranchContent())
@@ -246,25 +247,25 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         var document = documentRepository
                 .findByPublicId(documentId)
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
         var branch = document
-                .getDocumentBranches()
+                .getBranches()
                 .stream()
                 .filter(item ->
                         item.getPublicId().equals(branchId))
                 .findFirst()
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         var mergeBranch = document
-                .getDocumentBranches()
+                .getBranches()
                 .stream()
                 .filter(item ->
                         item.getPublicId().equals(mergeBranchId))
                 .findFirst()
-                .orElseThrow(DocumentBranchNotFoundException::new);
+                .orElseThrow(BranchNotFoundException::new);
 
         var patchedContent = diffService
                 .patchDocument(branch.getBranchContent(), mergeBranch.getBranchContent());
