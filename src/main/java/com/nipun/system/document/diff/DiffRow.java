@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos.version;
+package com.nipun.system.document.diff;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class DiffRowDto {
+public class DiffRow {
     private String operation;
     private String text;
 }

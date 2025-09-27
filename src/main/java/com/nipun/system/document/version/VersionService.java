@@ -2,7 +2,7 @@ package com.nipun.system.document.version;
 
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.dtos.version.DiffResponse;
+import com.nipun.system.document.diff.dtos.DiffResponse;
 
 import java.util.UUID;
 

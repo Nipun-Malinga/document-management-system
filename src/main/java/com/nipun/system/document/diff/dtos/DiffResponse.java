@@ -1,5 +1,6 @@
-package com.nipun.system.document.dtos.version;
+package com.nipun.system.document.diff.dtos;
 
+import com.nipun.system.document.diff.DiffRow;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,5 +12,5 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 public class DiffResponse {
-    private Map<String, List<DiffRowDto>> diffs;
+    private Map<String, List<DiffRow>> diffs;
 }

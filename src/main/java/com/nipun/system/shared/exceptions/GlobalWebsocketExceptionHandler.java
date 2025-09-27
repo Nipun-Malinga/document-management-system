@@ -2,7 +2,7 @@ package com.nipun.system.shared.exceptions;
 
 import com.nipun.system.auth.exceptions.BadCredentialsException;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.exceptions.*;
+import com.nipun.system.document.diff.exceptions.PatchFailedException;
 import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;

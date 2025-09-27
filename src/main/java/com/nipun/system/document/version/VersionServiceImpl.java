@@ -4,7 +4,7 @@ import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.dtos.version.DiffResponse;
+import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;

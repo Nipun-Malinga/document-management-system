@@ -1,7 +1,6 @@
 package com.nipun.system.document.diff;
 
-import com.nipun.system.document.dtos.version.DiffRowDto;
-import com.nipun.system.document.exceptions.PatchFailedException;
+import com.nipun.system.document.diff.exceptions.PatchFailedException;
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,7 @@ public class DiffServiceImpl implements DiffService {
     private final DiffMatchPatch dmp = new DiffMatchPatch();
 
     @Override
-    public List<DiffRowDto> getVersionDiffs(String baseVersionContent, String compareVersionContent) {
+    public List<DiffRow> getVersionDiffs(String baseVersionContent, String compareVersionContent) {
         if(baseVersionContent == null || compareVersionContent == null)
             throw new IllegalArgumentException("Document contents cannot be null");
 
@@ -22,7 +21,7 @@ public class DiffServiceImpl implements DiffService {
         dmp.diffCleanupSemantic(diffs);
 
         return diffs.stream()
-                .map(diff -> new DiffRowDto(diff.operation.toString(), diff.text))
+                .map(diff -> new DiffRow(diff.operation.toString(), diff.text))
                 .toList();
     }
 

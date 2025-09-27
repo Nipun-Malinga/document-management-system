@@ -1,4 +1,4 @@
-package com.nipun.system.document.exceptions;
+package com.nipun.system.document.diff.exceptions;
 
 public class PatchFailedException extends RuntimeException {
     public PatchFailedException(String message) {

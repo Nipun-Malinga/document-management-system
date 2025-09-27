@@ -4,6 +4,7 @@ import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.base.dtos.ContentResponse;
+import com.nipun.system.document.diff.exceptions.PatchFailedException;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;
