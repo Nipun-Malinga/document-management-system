@@ -129,6 +129,8 @@ public class VersionServiceImpl implements VersionService {
 
         document.setDocumentContent(version.getVersionContent());
 
+        document.removeVersion(version);
+
         documentRepository.save(document);
 
         versionRepository.delete(version);

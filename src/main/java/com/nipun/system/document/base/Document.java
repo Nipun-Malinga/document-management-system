@@ -97,6 +97,8 @@ public class Document {
         versions.add(version);
     }
 
+    public void removeVersion(Version version) {versions.remove(version);}
+
     public void addSharedDocument(SharedDocument document) {
         sharedDocuments.add(document);
     }
