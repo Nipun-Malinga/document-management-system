@@ -1,4 +1,4 @@
-package com.nipun.system.document.exceptions;
+package com.nipun.system.document.share.exceptions;
 
 public class UnauthorizedDocumentException extends RuntimeException {
   public UnauthorizedDocumentException() {

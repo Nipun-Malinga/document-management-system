@@ -2,8 +2,8 @@ package com.nipun.system.document.websocket;
 
 import com.nipun.system.document.dtos.BroadcastContentDto;
 import com.nipun.system.document.dtos.BroadcastDocumentStatusDto;
-import com.nipun.system.document.exceptions.ReadOnlyDocumentException;
-import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
+import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
 import com.nipun.system.document.websocket.connection.DocumentWebsocketConnectionService;
 import com.nipun.system.document.websocket.state.DocumentWebsocketStateService;

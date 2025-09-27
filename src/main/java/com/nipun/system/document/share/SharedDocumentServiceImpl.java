@@ -2,9 +2,9 @@ package com.nipun.system.document.share;
 
 import com.nipun.system.document.base.DocumentMapper;
 import com.nipun.system.document.base.DocumentRepository;
-import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
 import com.nipun.system.document.websocket.authentication.AuthorizedOptions;
 import com.nipun.system.shared.dtos.PaginatedData;
@@ -37,7 +37,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
 
     @Transactional
     @Override
-    public SharedDocumentDto shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
+    public SharedDocumentResponse shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository

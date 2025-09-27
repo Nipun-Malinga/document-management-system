@@ -5,6 +5,7 @@ import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
+import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.share.SharedDocumentAuthService;

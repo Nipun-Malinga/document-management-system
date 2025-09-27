@@ -1,6 +1,6 @@
 package com.nipun.system.document.share;
 
-import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -9,5 +9,5 @@ public interface SharedDocumentMapper {
     @Mapping(target = "documentId", source = "document.publicId")
     @Mapping(target = "userId", source = "sharedUser.id")
     @Mapping(target = "permission", source = "permission")
-    SharedDocumentDto toSharedDocumentDto(SharedDocument document);
+    SharedDocumentResponse toSharedDocumentDto(SharedDocument document);
 }

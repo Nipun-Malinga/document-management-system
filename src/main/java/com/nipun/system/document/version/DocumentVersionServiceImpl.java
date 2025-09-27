@@ -7,7 +7,7 @@ import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.dtos.version.DiffResponse;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
-import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.AllArgsConstructor;

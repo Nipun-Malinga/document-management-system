@@ -1,12 +1,12 @@
 package com.nipun.system.document.share;
 
 import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 
 import java.util.UUID;
 
 public interface SharedDocumentService {
-    SharedDocumentDto shareDocument(Long sharedUserId, UUID documentId, Permission permission);
+    SharedDocumentResponse shareDocument(Long sharedUserId, UUID documentId, Permission permission);
 
     PaginatedData getAllSharedDocumentsWithUser(int pageNumber, int size);
 

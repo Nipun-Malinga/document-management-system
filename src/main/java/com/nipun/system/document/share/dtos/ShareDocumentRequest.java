@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos.share;
+package com.nipun.system.document.share.dtos;
 
 import com.nipun.system.document.share.Permission;
 import io.swagger.v3.oas.annotations.media.Schema;

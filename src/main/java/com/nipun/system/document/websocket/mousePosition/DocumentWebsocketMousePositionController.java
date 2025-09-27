@@ -1,6 +1,6 @@
 package com.nipun.system.document.websocket.mousePosition;
 
-import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;

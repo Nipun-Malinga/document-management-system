@@ -1,8 +1,8 @@
 package com.nipun.system.document.share;
 
 import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.dtos.share.ShareDocumentRequest;
-import com.nipun.system.document.dtos.share.SharedDocumentDto;
+import com.nipun.system.document.share.dtos.ShareDocumentRequest;
+import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +23,7 @@ public class SharedDocumentController {
 
     @PostMapping("/{id}/share/{userId}")
     @Operation(summary = "Share document", description = "Share document among user")
-    public ResponseEntity<SharedDocumentDto> shareDocument(
+    public ResponseEntity<SharedDocumentResponse> shareDocument(
             @PathVariable(name = "id")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
