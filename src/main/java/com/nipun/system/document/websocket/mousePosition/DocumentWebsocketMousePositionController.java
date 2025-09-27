@@ -1,7 +1,7 @@
 package com.nipun.system.document.websocket.mousePosition;
 
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
+import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -14,10 +14,10 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
-public class MousePositionController {
+public class DocumentWebsocketMousePositionController {
 
-    private final DocumentWebSocketServiceImpl documentWebSocketService;
-    private final MousePositionService mousePositionService;
+    private final DocumentWebsocketAuthenticationService documentWebsocketAuthenticationService;
+    private final DocumentWebsocketMousePositionService documentWebsocketMousePositionService;
 
     @MessageMapping("/document/{documentId}/accept-mouse-positions")
     public void broadcastUserMousePositions(
@@ -27,9 +27,9 @@ public class MousePositionController {
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-        if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
+        if(documentWebsocketAuthenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
-        mousePositionService.broadcastUserMousePositions(position, userId, documentId);
+        documentWebsocketMousePositionService.broadcastUserMousePositions(position, userId, documentId);
     }
 }

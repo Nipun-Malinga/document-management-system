@@ -1,4 +1,4 @@
-package com.nipun.system.document.websocket;
+package com.nipun.system.document.websocket.authentication;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

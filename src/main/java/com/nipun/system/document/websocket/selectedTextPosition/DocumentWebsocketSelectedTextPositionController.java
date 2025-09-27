@@ -1,7 +1,7 @@
 package com.nipun.system.document.websocket.selectedTextPosition;
 
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
+import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -14,10 +14,10 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
-public class SelectedTextPositionController {
+public class DocumentWebsocketSelectedTextPositionController {
 
-    private final DocumentWebSocketServiceImpl documentWebSocketService;
-    private final SelectedTextPositionService selectedTextPositionService;
+    private final DocumentWebsocketAuthenticationService documentWebsocketAuthenticationService;
+    private final DocumentWebsocketSelectedTextPositionService documentWebsocketSelectedTextPositionService;
 
     @MessageMapping("/document/{documentId}/accept-selected-positions")
     public void acceptUserTextSelectPositions(
@@ -27,9 +27,9 @@ public class SelectedTextPositionController {
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-        if(documentWebSocketService.isUnauthorizedUser(userId, documentId))
+        if(documentWebsocketAuthenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
-        selectedTextPositionService.broadcastUserSelectPositions(selectedTextPosition, userId, documentId);
+        documentWebsocketSelectedTextPositionService.broadcastUserSelectPositions(selectedTextPosition, userId, documentId);
     }
 }

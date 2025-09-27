@@ -1,8 +1,8 @@
 package com.nipun.system.shared.interceptors;
 
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
 import com.nipun.system.shared.utils.UserIdUtils;
-import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.messaging.Message;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Component
 public class SubscribeChannelInterceptor implements ChannelInterceptor {
 
-    private final DocumentWebSocketServiceImpl documentWebSocketService;
+    private final DocumentWebsocketAuthenticationService authenticationService;
 
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {
@@ -35,7 +35,7 @@ public class SubscribeChannelInterceptor implements ChannelInterceptor {
 
                 var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-                if (userId == null || documentWebSocketService.isUnauthorizedUser(userId, documentId)) {
+                if (userId == null || authenticationService.isUnauthorizedUser(userId, documentId)) {
                     throw new UnauthorizedDocumentException();
                 }
             }

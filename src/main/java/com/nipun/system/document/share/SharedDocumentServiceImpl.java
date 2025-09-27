@@ -2,12 +2,12 @@ package com.nipun.system.document.share;
 
 import com.nipun.system.document.DocumentMapper;
 import com.nipun.system.document.DocumentRepository;
-import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.dtos.share.SharedDocumentDto;
 import com.nipun.system.document.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.AuthorizedOptions;
-import com.nipun.system.document.websocket.DocumentWebSocketServiceImpl;
+import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
+import com.nipun.system.document.websocket.authentication.AuthorizedOptions;
+import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
@@ -27,7 +27,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
     private final UserRepository userRepository;
     private final SharedDocumentRepository sharedDocumentRepository;
 
-    private final DocumentWebSocketServiceImpl documentWebSocketService;
+    private final DocumentWebsocketAuthenticationService documentWebsocketAuthenticationService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
     private final DocumentMapper documentMapper;
@@ -63,7 +63,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
 
         documentRepository.save(document);
 
-        documentWebSocketService.updateDocumentPermissionDetails(
+        documentWebsocketAuthenticationService.updateDocumentPermissionDetails(
                         documentId,
                         sharedUserId,
                         new AuthorizedOptions(
@@ -107,7 +107,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
                 .orElseThrow(UnauthorizedDocumentException::new);
 
-        documentWebSocketService.removeDocumentPermissionDetailsFromCache(documentId, userId);
+        documentWebsocketAuthenticationService.removeDocumentPermissionDetailsFromCache(documentId, userId);
 
         sharedDocumentRepository.delete(sharedDocument);
     }
@@ -122,7 +122,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
 
         document.removeSharedUser(sharedUerId);
 
-        documentWebSocketService.removeDocumentPermissionDetailsFromCache(documentId, sharedUerId);
+        documentWebsocketAuthenticationService.removeDocumentPermissionDetailsFromCache(documentId, sharedUerId);
 
         documentRepository.save(document);
     }

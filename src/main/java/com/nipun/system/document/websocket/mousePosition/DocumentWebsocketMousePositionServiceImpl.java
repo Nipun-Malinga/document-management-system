@@ -8,17 +8,17 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Service
-public class MousePositionService {
+public class DocumentWebsocketMousePositionServiceImpl implements DocumentWebsocketMousePositionService {
 
     private final WebsocketService websocketService;
 
+    @Override
     public void broadcastUserMousePositions(
             MousePosition request,
             Long userId,
             UUID documentId
     ) {
-        websocketService
-                .broadcastPayload(
-                        "/document/" + documentId + "/user/" + userId +"/accept-mouse-positions", request);
+        var endpoint = "/document/" + documentId + "/user/" + userId +"/accept-mouse-positions";
+        websocketService.broadcastPayload(endpoint, request);
     }
 }

@@ -8,17 +8,17 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class SelectedTextPositionService {
+public class DocumentWebsocketSelectedTextPositionServiceImpl implements DocumentWebsocketSelectedTextPositionService {
 
     private final WebsocketService websocketService;
 
+    @Override
     public void broadcastUserSelectPositions(
             SelectedTextPosition selectedTextPosition,
             Long userId,
             UUID documentId
     ) {
-        websocketService
-                .broadcastPayload(
-                        "/document/" + documentId + "/user/" + userId +"/accept-selected-positions", selectedTextPosition);
+        var endpoint = "/document/" + documentId + "/user/" + userId +"/accept-selected-positions";
+        websocketService.broadcastPayload(endpoint, selectedTextPosition);
     }
 }

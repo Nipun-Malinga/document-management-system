@@ -2,8 +2,8 @@ package com.nipun.system.document.cache;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nipun.system.document.websocket.AuthorizedOptions;
-import com.nipun.system.document.websocket.ConnectedUser;
+import com.nipun.system.document.websocket.authentication.AuthorizedOptions;
+import com.nipun.system.document.websocket.connection.ConnectedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
