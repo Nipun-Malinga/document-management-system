@@ -1,7 +1,7 @@
 package com.nipun.system.document.branch;
 
 import com.nipun.system.document.base.Document;
-import com.nipun.system.document.version.DocumentVersion;
+import com.nipun.system.document.version.Version;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,7 +36,7 @@ public class DocumentBranch {
 
     @ManyToOne(cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "version_id")
-    private DocumentVersion version;
+    private Version version;
 
     @OneToOne(
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},

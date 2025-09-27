@@ -20,7 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "document_version")
-public class DocumentVersion {
+public class Version {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +40,7 @@ public class DocumentVersion {
             fetch = FetchType.LAZY
     )
     @JoinColumn(name = "version_content_id")
-    private DocumentVersionContent content;
+    private VersionContent content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author")

@@ -1,4 +1,4 @@
-package com.nipun.system.document.dtos.version;
+package com.nipun.system.document.version.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Data
-public class DocumentVersionDto {
+public class VersionResponse {
     private UUID id;
 
     private UUID documentId;

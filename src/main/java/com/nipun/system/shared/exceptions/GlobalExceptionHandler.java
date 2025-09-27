@@ -5,6 +5,7 @@ import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -92,9 +93,9 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(exception.getMessage()));
     }
 
-    @ExceptionHandler(DocumentVersionNotFoundException.class)
+    @ExceptionHandler(VersionNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentVersionNotFoundException(
-            DocumentVersionNotFoundException exception
+            VersionNotFoundException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)

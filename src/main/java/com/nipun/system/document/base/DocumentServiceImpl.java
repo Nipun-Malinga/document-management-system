@@ -6,7 +6,7 @@ import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.SharedDocumentAuthService;
-import com.nipun.system.document.version.DocumentVersionFactory;
+import com.nipun.system.document.version.VersionFactory;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class DocumentServiceImpl implements DocumentService{
 
     private final DiffService diffService;
 
-    private final DocumentVersionFactory versionFactory;
+    private final VersionFactory versionFactory;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
     @Transactional

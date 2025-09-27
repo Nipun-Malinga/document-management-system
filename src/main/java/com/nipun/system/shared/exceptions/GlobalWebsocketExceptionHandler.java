@@ -5,6 +5,7 @@ import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
 import com.nipun.system.user.exceptions.UserNotFoundException;
@@ -75,10 +76,10 @@ public class GlobalWebsocketExceptionHandler {
         return new ErrorResponse(exception.getMessage());
     }
 
-    @MessageExceptionHandler(DocumentVersionNotFoundException.class)
+    @MessageExceptionHandler(VersionNotFoundException.class)
     @SendToUser("/queue/errors")
     public ErrorResponse handleDocumentVersionNotFoundException(
-            DocumentVersionNotFoundException exception
+            VersionNotFoundException exception
     ) {
         return new ErrorResponse(exception.getMessage());
     }

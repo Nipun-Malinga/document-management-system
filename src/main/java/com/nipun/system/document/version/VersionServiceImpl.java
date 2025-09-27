@@ -6,7 +6,7 @@ import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.dtos.version.DiffResponse;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.exceptions.DocumentVersionNotFoundException;
+import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.shared.utils.UserIdUtils;
@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Service
-public class DocumentVersionServiceImpl implements DocumentVersionService{
+public class VersionServiceImpl implements VersionService {
 
     /*
         TODO:
@@ -31,9 +31,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService{
     */
 
     private final DocumentRepository documentRepository;
-    private final DocumentVersionRepository documentVersionRepository;
+    private final VersionRepository versionRepository;
 
-    private final DocumentVersionMapper documentVersionMapper;
+    private final VersionMapper versionMapper;
 
     private final DiffService diffService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
@@ -52,12 +52,12 @@ public class DocumentVersionServiceImpl implements DocumentVersionService{
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        var versions =  documentVersionRepository
+        var versions =  versionRepository
                 .findAllByDocumentId(document.getId(), pageRequest);
 
         var documentDtoList = versions.getContent()
                 .stream()
-                .map(documentVersionMapper::toDto)
+                .map(versionMapper::toDto)
                 .toList();
 
         return new PaginatedData(
@@ -76,9 +76,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService{
     public ContentResponse getVersionContent(UUID versionNumber, UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
-        var documentVersion = documentVersionRepository
+        var documentVersion = versionRepository
                 .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
-                .orElseThrow(DocumentVersionNotFoundException::new);
+                .orElseThrow(VersionNotFoundException::new);
 
         var document = documentVersion.getDocument();
 
@@ -94,18 +94,18 @@ public class DocumentVersionServiceImpl implements DocumentVersionService{
 
         var userId = UserIdUtils.getUserIdFromContext();
 
-        var baseVersion = documentVersionRepository
+        var baseVersion = versionRepository
                 .findByVersionNumberAndDocumentPublicId(base, documentId)
-                .orElseThrow(DocumentVersionNotFoundException::new);
+                .orElseThrow(VersionNotFoundException::new);
 
         var document = baseVersion.getDocument();
 
         if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
-        var comparedWithVersion = documentVersionRepository
+        var comparedWithVersion = versionRepository
                 .findByVersionNumberAndDocumentPublicId(compare, documentId)
-                .orElseThrow(DocumentVersionNotFoundException::new);
+                .orElseThrow(VersionNotFoundException::new);
 
         var diffRowDtoList = diffService.getVersionDiffs(baseVersion.getVersionContent(), comparedWithVersion.getVersionContent());
 
@@ -123,23 +123,23 @@ public class DocumentVersionServiceImpl implements DocumentVersionService{
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
-        var version = documentVersionRepository
+        var version = versionRepository
                 .findFirstByDocumentIdOrderByTimestampDesc(document.getId())
-                .orElseThrow(DocumentVersionNotFoundException::new);
+                .orElseThrow(VersionNotFoundException::new);
 
         document.setDocumentContent(version.getVersionContent());
 
         documentRepository.save(document);
 
-        documentVersionRepository.delete(version);
+        versionRepository.delete(version);
     }
 
     @Transactional
     @Override
     public void restoreToDocumentSpecificVersion(UUID versionNumber, UUID documentId) {
-        var version = documentVersionRepository
+        var version = versionRepository
                 .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
-                .orElseThrow(DocumentVersionNotFoundException::new);
+                .orElseThrow(VersionNotFoundException::new);
 
         var document = documentRepository
                 .findById(version.getDocument().getId())
@@ -153,6 +153,6 @@ public class DocumentVersionServiceImpl implements DocumentVersionService{
 
         documentRepository.save(document);
 
-        documentVersionRepository.rollbackMainDocToPreviousVersion(document.getId(), version.getTimestamp());
+        versionRepository.rollbackMainDocToPreviousVersion(document.getId(), version.getTimestamp());
     }
 }

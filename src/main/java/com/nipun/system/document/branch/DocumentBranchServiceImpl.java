@@ -6,6 +6,7 @@ import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.dtos.branch.DocumentBranchDto;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.exceptions.*;
 import com.nipun.system.document.share.SharedDocumentAuthService;
@@ -26,19 +27,19 @@ import java.util.UUID;
 @Service
 public class DocumentBranchServiceImpl implements DocumentBranchService{
 
-    private final DocumentVersionRepository documentVersionRepository;
+    private final VersionRepository versionRepository;
     private final DocumentBranchRepository documentBranchRepository;
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
 
     private final DocumentBranchMapper documentBranchMapper;
-    private final DocumentVersionMapper documentVersionMapper;
+    private final VersionMapper versionMapper;
 
     private final DiffService diffService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
     private final DocumentBranchFactory branchFactory;
-    private final DocumentVersionFactory versionFactory;
+    private final VersionFactory versionFactory;
 
     @Transactional
     @Override
@@ -47,9 +48,9 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
         var userId = UserIdUtils.getUserIdFromContext();
         var user = userRepository.findById(userId).orElseThrow();
 
-        var version = documentVersionRepository
+        var version = versionRepository
                 .findByVersionNumberAndDocumentPublicId(versionId, documentId)
-                .orElseThrow(DocumentVersionNotFoundException::new);
+                .orElseThrow(VersionNotFoundException::new);
 
         var versionContent = version.getVersionContent();
         var document = version.getDocument();
@@ -67,7 +68,7 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
         var newBranch = branchFactory.createNewBranch(version, branchName, branchContent, document);
         var newVersion = versionFactory.createNewVersion(document, user, versionContent, newBranch);
 
-        documentVersionRepository.save(newVersion);
+        versionRepository.save(newVersion);
 
         return documentBranchMapper.toDto(newBranch);
     }
@@ -112,7 +113,7 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         var version = versionFactory.createNewVersion(document, user, content, branch);
 
-        documentVersionRepository.save(version);
+        versionRepository.save(version);
 
         return new ContentResponse(branch.getBranchContent());
     }
@@ -190,7 +191,7 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        var versionList =  documentVersionRepository
+        var versionList =  versionRepository
                 .findAllByDocumentPublicIdAndBranchPublicId(
                         documentId,
                         branchId,
@@ -199,7 +200,7 @@ public class DocumentBranchServiceImpl implements DocumentBranchService{
 
         var versionDtoList = versionList.getContent()
                 .stream()
-                .map(documentVersionMapper::toDto)
+                .map(versionMapper::toDto)
                 .toList();
 
         return new PaginatedData(

@@ -9,13 +9,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Component
-public class DocumentVersionFactory {
+public class VersionFactory {
 
-    public DocumentVersion createNewVersion(
+    public Version createNewVersion(
             Document document,
             User author
     ) {
-        var versionContent = new DocumentVersionContent();
+        var versionContent = new VersionContent();
 
         if(document.getDocumentContent() != null)
             versionContent.setContent(document.getDocumentContent());
@@ -23,13 +23,13 @@ public class DocumentVersionFactory {
         return createNewVersion(document, author, versionContent);
     }
 
-    public DocumentVersion createNewVersion(
+    public Version createNewVersion(
             Document document,
             User author,
             String content,
             DocumentBranch branch
     ) {
-        var versionContent = new DocumentVersionContent();
+        var versionContent = new VersionContent();
         versionContent.setContent(content);
 
         var version = createNewVersion(document, author, versionContent);
@@ -38,12 +38,12 @@ public class DocumentVersionFactory {
         return version;
     }
 
-    private DocumentVersion createNewVersion(
+    private Version createNewVersion(
             Document document,
             User author,
-            DocumentVersionContent content
+            VersionContent content
     ) {
-        var version = new DocumentVersion();
+        var version = new Version();
 
         version.setDocument(document);
         version.setVersionNumber(UUID.randomUUID());

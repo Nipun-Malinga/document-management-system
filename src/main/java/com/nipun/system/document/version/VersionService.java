@@ -6,7 +6,7 @@ import com.nipun.system.document.dtos.version.DiffResponse;
 
 import java.util.UUID;
 
-public interface DocumentVersionService {
+public interface VersionService {
     PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size);
 
     ContentResponse getVersionContent(UUID versionNumber, UUID documentId);

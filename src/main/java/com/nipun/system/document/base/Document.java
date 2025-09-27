@@ -2,7 +2,7 @@ package com.nipun.system.document.base;
 
 import com.nipun.system.document.branch.DocumentBranch;
 import com.nipun.system.document.share.SharedDocument;
-import com.nipun.system.document.version.DocumentVersion;
+import com.nipun.system.document.version.Version;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -64,7 +64,7 @@ public class Document {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private Set<DocumentVersion> documentVersions = new HashSet<>();
+    private Set<Version> versions = new HashSet<>();
 
     @OneToMany(
             mappedBy = "document",
@@ -93,8 +93,8 @@ public class Document {
         return this;
     }
 
-    public void addDocumentVersion(DocumentVersion version) {
-        documentVersions.add(version);
+    public void addDocumentVersion(Version version) {
+        versions.add(version);
     }
 
     public void addSharedDocument(SharedDocument document) {

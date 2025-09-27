@@ -12,20 +12,20 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface DocumentVersionRepository extends JpaRepository<DocumentVersion, Long> {
+public interface VersionRepository extends JpaRepository<Version, Long> {
 
-  @Query("select v from DocumentVersion v where v.document.id = :documentId and v.branch is null")
-  Page<DocumentVersion> findAllByDocumentId(@Param("documentId") Long documentId, Pageable pageable);
+  @Query("select v from Version v where v.document.id = :documentId and v.branch is null")
+  Page<Version> findAllByDocumentId(@Param("documentId") Long documentId, Pageable pageable);
 
   @EntityGraph(attributePaths = {"content", "document", "document.sharedDocuments"})
-  Optional<DocumentVersion> findByVersionNumberAndDocumentPublicId(UUID versionNumber, UUID documentId);
+  Optional<Version> findByVersionNumberAndDocumentPublicId(UUID versionNumber, UUID documentId);
 
   @EntityGraph(attributePaths = {"content", "documentBranches"})
-  Optional<DocumentVersion> findFirstByDocumentIdOrderByTimestampDesc(Long documentId);
+  Optional<Version> findFirstByDocumentIdOrderByTimestampDesc(Long documentId);
 
   @Modifying
-  @Query("delete from DocumentVersion d where  d.timestamp > :timestamp and d.document.id = :documentId and d.branch is null")
+  @Query("delete from Version d where  d.timestamp > :timestamp and d.document.id = :documentId and d.branch is null")
   void rollbackMainDocToPreviousVersion(@Param("documentId") Long documentId, @Param("timestamp") LocalDateTime timestamp);
 
-  Page<DocumentVersion> findAllByDocumentPublicIdAndBranchPublicId(UUID documentId, UUID branchId, Pageable pageable);
+  Page<Version> findAllByDocumentPublicIdAndBranchPublicId(UUID documentId, UUID branchId, Pageable pageable);
 }

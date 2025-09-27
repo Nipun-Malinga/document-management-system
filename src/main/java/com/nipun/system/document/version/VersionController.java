@@ -16,9 +16,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/documents")
 @Tag(name = "Document Versions", description = "Manage document versions in the system")
-public class DocumentVersionController {
+public class VersionController {
 
-    private final DocumentVersionService documentVersionService;
+    private final VersionService versionService;
 
     @GetMapping("/{id}/versions")
     @Operation(summary = "Get all document versions", description = "Get all document versions by document ID")
@@ -33,7 +33,7 @@ public class DocumentVersionController {
             @Parameter(description = "Required page size")
             int pageSize
     ) {
-        var paginatedVersions = documentVersionService
+        var paginatedVersions = versionService
                 .getAllDocumentVersions(documentId, pageNumber, pageSize);
         return ResponseEntity.ok(paginatedVersions);
     }
@@ -47,7 +47,7 @@ public class DocumentVersionController {
             @Parameter(description = "Document version ID", example = "d361bae1-01ee-4392-811c-57b9593c2460")
             @PathVariable(name = "versionNumber") UUID versionNumber
     ) {
-        var versionContentDto = documentVersionService.getVersionContent(versionNumber, documentId);
+        var versionContentDto = versionService.getVersionContent(versionNumber, documentId);
         return ResponseEntity.ok(versionContentDto);
     }
 
@@ -64,7 +64,7 @@ public class DocumentVersionController {
             @Parameter(description = "Comparing version ID", example = "be0ff390-f94a-42d1-922a-893feae4aa0a")
             UUID compare
     ) {
-        var diffResponseDto = documentVersionService.getVersionDiffs(documentId, base, compare);
+        var diffResponseDto = versionService.getVersionDiffs(documentId, base, compare);
         return ResponseEntity.ok(diffResponseDto);
     }
 
@@ -75,7 +75,7 @@ public class DocumentVersionController {
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
     ) {
-        documentVersionService.restoreToPreviousVersion(documentId);
+        versionService.restoreToPreviousVersion(documentId);
         return ResponseEntity.noContent().build();
     }
 
@@ -89,7 +89,7 @@ public class DocumentVersionController {
             @Parameter(description = "Document version ID", example = "d361bae1-01ee-4392-811c-57b9593c2460")
             UUID versionNumber
     ) {
-        documentVersionService.restoreToDocumentSpecificVersion(versionNumber, documentId);
+        versionService.restoreToDocumentSpecificVersion(versionNumber, documentId);
         return ResponseEntity.noContent().build();
     }
 }
