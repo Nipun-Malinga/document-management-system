@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class DocumentWebsocketSelectedTextPositionServiceImpl implements DocumentWebsocketSelectedTextPositionService {
+public class SelectedTextPositionServiceImpl implements SelectedTextPositionService {
 
     private final WebsocketService websocketService;
 

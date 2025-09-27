@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Service
-public class DocumentWebsocketAuthenticationServiceImpl implements DocumentWebsocketAuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService {
     private final DocumentRepository documentRepository;
 
 

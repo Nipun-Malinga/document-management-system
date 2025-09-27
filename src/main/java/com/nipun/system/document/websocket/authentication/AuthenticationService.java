@@ -2,7 +2,7 @@ package com.nipun.system.document.websocket.authentication;
 
 import java.util.UUID;
 
-public interface DocumentWebsocketAuthenticationService {
+public interface AuthenticationService {
     boolean isUnauthorizedUser(Long userId, UUID documentId);
 
     boolean isReadOnlyUser(Long userId, UUID documentId);

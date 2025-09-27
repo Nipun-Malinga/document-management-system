@@ -1,12 +1,12 @@
 package com.nipun.system.document.websocket;
 
-import com.nipun.system.document.dtos.BroadcastContentDto;
-import com.nipun.system.document.dtos.BroadcastDocumentStatusDto;
+import com.nipun.system.document.websocket.dtos.BroadcastContentResponse;
+import com.nipun.system.document.websocket.dtos.DocumentStatusRequest;
 import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.authentication.DocumentWebsocketAuthenticationService;
-import com.nipun.system.document.websocket.connection.DocumentWebsocketConnectionService;
-import com.nipun.system.document.websocket.state.DocumentWebsocketStateService;
+import com.nipun.system.document.websocket.authentication.AuthenticationService;
+import com.nipun.system.document.websocket.connection.ConnectionService;
+import com.nipun.system.document.websocket.state.StateService;
 import com.nipun.system.shared.services.WebsocketService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
@@ -25,53 +25,53 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
-public class DocumentWebsocketController {
+public class WebsocketController {
 
-    private final DocumentWebsocketAuthenticationService documentWebsocketAuthenticationService;
-    private final DocumentWebsocketStateService documentWebsocketStateService;
-    private final DocumentWebsocketConnectionService documentWebsocketConnectionService;
+    private final AuthenticationService authenticationService;
+    private final StateService stateService;
+    private final ConnectionService connectionService;
     private final WebsocketService websocketService;
 
     @SendTo("/document/{documentId}/broadcastStatus")
     @MessageMapping("/document/{documentId}/accept-changes")
-    public BroadcastContentDto broadcastDocumentCurrentState(
+    public BroadcastContentResponse broadcastDocumentCurrentState(
             @DestinationVariable UUID documentId,
-            @Payload BroadcastDocumentStatusDto statusDto,
+            @Payload DocumentStatusRequest statusDto,
             Principal principal
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-        if(documentWebsocketAuthenticationService.isUnauthorizedUser(userId, documentId))
+        if(authenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
-        if(documentWebsocketAuthenticationService.isReadOnlyUser(userId, documentId))
+        if(authenticationService.isReadOnlyUser(userId, documentId))
             throw new ReadOnlyDocumentException();
 
-        documentWebsocketStateService.setDocumentStatus(documentId, statusDto.getContent());
+        stateService.setDocumentStatus(documentId, statusDto.getContent());
 
-        return new BroadcastContentDto(documentId, statusDto.getContent());
+        return new BroadcastContentResponse(documentId, statusDto.getContent());
     }
 
     @SubscribeMapping("/document/{documentId}/broadcastStatus")
-    public BroadcastContentDto getCurrentState(
+    public BroadcastContentResponse getCurrentState(
             @DestinationVariable UUID documentId,
             Principal principal,
             SimpMessageHeaderAccessor headerAccessor
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-        if(documentWebsocketAuthenticationService.isUnauthorizedUser(userId, documentId))
+        if(authenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
-        documentWebsocketConnectionService.addConnectedUserToCache(documentId, headerAccessor.getSessionId(), userId);
+        connectionService.addConnectedUserToCache(documentId, headerAccessor.getSessionId(), userId);
 
         websocketService.broadcastPayload(
                 "/document/" + documentId + "/broadcastUsers",
-                documentWebsocketConnectionService.getConnectedUsers(documentId).getUsers()
+                connectionService.getConnectedUsers(documentId).getUsers()
         );
 
-        return new BroadcastContentDto(
-                documentId, documentWebsocketStateService.getDocumentStatusFromCache(documentId));
+        return new BroadcastContentResponse(
+                documentId, stateService.getDocumentStatusFromCache(documentId));
     }
 
     @SubscribeMapping("/document/{documentId}/broadcastUsers")
@@ -81,10 +81,10 @@ public class DocumentWebsocketController {
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-        if(documentWebsocketAuthenticationService.isUnauthorizedUser(userId, documentId))
+        if(authenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
-        var connectedUsers = documentWebsocketConnectionService.getConnectedUsers(documentId);
+        var connectedUsers = connectionService.getConnectedUsers(documentId);
         return connectedUsers == null ? new HashSet<>() : connectedUsers.getUsers();
     }
 }

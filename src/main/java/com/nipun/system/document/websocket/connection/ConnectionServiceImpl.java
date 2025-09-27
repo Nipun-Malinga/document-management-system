@@ -1,7 +1,7 @@
 package com.nipun.system.document.websocket.connection;
 
 import com.nipun.system.document.cache.DocumentCacheService;
-import com.nipun.system.document.websocket.state.DocumentWebsocketStateService;
+import com.nipun.system.document.websocket.state.StateService;
 import com.nipun.system.shared.entities.WebsocketPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,9 +12,9 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class DocumentWebsocketConnectionServiceImpl implements DocumentWebsocketConnectionService {
+public class ConnectionServiceImpl implements ConnectionService {
     private final DocumentCacheService documentCacheService;
-    private final DocumentWebsocketStateService documentWebsocketStateService;
+    private final StateService stateService;
 
     @Override
     public void addConnectedUserToCache(UUID documentId, String sessionId, Long userId) {
@@ -78,7 +78,7 @@ public class DocumentWebsocketConnectionServiceImpl implements DocumentWebsocket
 
         if(connectedUsers != null) {
             if(connectedUsers.getUsers().isEmpty())
-                documentWebsocketStateService.saveDocumentState(documentId);
+                stateService.saveDocumentState(documentId);
 
             return new WebsocketPayload<>("/document/" + documentId + "/broadcastUsers",
                     connectedUsers.getUsers());

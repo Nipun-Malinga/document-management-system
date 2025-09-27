@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class DocumentWebsocketStateServiceImpl implements DocumentWebsocketStateService {
+public class StateServiceImpl implements StateService {
 
     private final DocumentRepository documentRepository;
 

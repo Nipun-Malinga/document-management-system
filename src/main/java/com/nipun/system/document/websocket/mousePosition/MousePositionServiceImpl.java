@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Service
-public class DocumentWebsocketMousePositionServiceImpl implements DocumentWebsocketMousePositionService {
+public class MousePositionServiceImpl implements MousePositionService {
 
     private final WebsocketService websocketService;
 
