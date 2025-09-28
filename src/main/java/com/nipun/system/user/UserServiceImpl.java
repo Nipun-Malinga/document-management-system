@@ -20,12 +20,13 @@ public class UserServiceImpl implements UserService {
     public UserDto registerUser(
             RegisterUserRequest request
     ) {
+        if (request == null)
+            throw new IllegalArgumentException("Register request cannot be null");
+
         var user = userMapper.toEntity(request);
 
-        if(userRepository.existsByEmail(user.getEmail()))
-            throw new EmailAlreadyRegisteredException(
-                    "Email: " + user.getEmail()  + " is already registered in system."
-            );
+        if (userRepository.existsByEmail(user.getEmail()))
+            throw new EmailAlreadyRegisteredException("Email: " + user.getEmail() + " is already registered in system.");
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
@@ -34,22 +35,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUser(Long id) {
-        var user = userRepository.findById(id).orElse(null);
+    public User findUser(Long userId) {
 
-        if(user == null)
-            throw new UserNotFoundException();
+        if (userId == null)
+            throw new IllegalArgumentException("User ID cannot be null");
+
+        var user = userRepository.findById(userId).orElse(null);
+
+        if (user == null)
+            throw new UserNotFoundException("User not found with user id: " + userId);
 
         return user;
     }
 
-    @Cacheable(value = "users", key = "#email")
+    @Cacheable(value = "users", key = "#userEmail")
     @Override
-    public UserDto findUser(String email) {
-        var user = userRepository.findByEmail(email).orElse(null);
+    public UserDto findUser(String userEmail) {
+        if (userEmail == null)
+            throw new IllegalArgumentException("User email cannot be null");
+
+        var user = userRepository.findByEmail(userEmail).orElse(null);
 
         if (user == null)
-            throw new UserNotFoundException();
+            throw new UserNotFoundException("User not found with user email: " + userEmail);
 
         return userMapper.toDto(user);
     }

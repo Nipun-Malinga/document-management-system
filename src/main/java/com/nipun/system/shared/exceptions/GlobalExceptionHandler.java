@@ -32,8 +32,8 @@ public class GlobalExceptionHandler {
                 .getBindingResult()
                 .getFieldErrors()
                 .forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage())
-        );
+                        errors.put(error.getField(), error.getDefaultMessage())
+                );
 
         return ResponseEntity.badRequest().body(new ErrorResponse(errors));
     }
@@ -46,10 +46,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundException() {
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(
+            UserNotFoundException exception
+    ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("User not found"));
+                .body(new ErrorResponse(exception.getMessage()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
