@@ -4,7 +4,6 @@ import com.nipun.system.auth.dtos.UserLoginRequest;
 import com.nipun.system.shared.config.JwtConfig;
 import com.nipun.system.shared.dtos.JwtResponseDto;
 import com.nipun.system.shared.services.JwtService;
-import com.nipun.system.user.UserMapper;
 import com.nipun.system.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Auth Controller", description = "Manage authentication in the system")
 public class AuthController {
 
-    private final UserMapper userMapper;
     private final AuthService authService;
     private final JwtService jwtService;
     private final JwtConfig jwtConfig;
@@ -35,12 +33,12 @@ public class AuthController {
             @RequestBody @Valid UserLoginRequest request,
             HttpServletResponse response
     ) {
-        var user = authService.login(userMapper.toEntity(request));
+        var user = authService.login(request);
 
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
-        var cookie =  new Cookie("refreshToken", refreshToken.toString());
+        var cookie = new Cookie("refreshToken", refreshToken.toString());
         cookie.setMaxAge(Math.toIntExact(jwtConfig.getRefreshTokenExpiration()));
         cookie.setPath("/auth/refresh");
         cookie.setHttpOnly(true);
@@ -59,7 +57,7 @@ public class AuthController {
     ) {
         var jwt = jwtService.parseToken(refreshToken);
 
-        if(jwt == null || jwt.isExpired()) {
+        if (jwt == null || jwt.isExpired()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
