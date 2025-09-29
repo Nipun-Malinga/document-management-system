@@ -9,10 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BranchRepository extends JpaRepository<Branch, Long> {
+    @EntityGraph(attributePaths = {"content"})
     Optional<Branch> findByPublicIdAndDocumentId(UUID branchId, Long documentId);
 
     Boolean existsByBranchNameAndDocumentId(String branchName, Long documentId);
 
-    @EntityGraph(attributePaths = {"document", "version"})
+    @EntityGraph(attributePaths = {"document"})
     Page<Branch> findAllByDocumentId(Long documentId, Pageable pageable);
 }

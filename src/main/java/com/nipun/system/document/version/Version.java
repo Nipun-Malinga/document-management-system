@@ -33,7 +33,7 @@ public class Version {
                     CascadeType.MERGE,
                     CascadeType.REMOVE
             },
-            fetch = FetchType.EAGER
+            fetch = FetchType.LAZY
     )
     @JoinColumn(name = "branch_id")
     private Branch branch;
