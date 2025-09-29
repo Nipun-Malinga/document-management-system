@@ -16,6 +16,7 @@ import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +44,7 @@ public class VersionServiceImpl implements VersionService {
     private final BranchRepository branchRepository;
 
 
+    @Transactional
     @Override
     public VersionResponse createNewVersion(
             UUID documentId,
@@ -72,6 +74,7 @@ public class VersionServiceImpl implements VersionService {
         return versionMapper.toDto(version);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
         var userId = UserIdUtils.getUserIdFromContext();
@@ -99,7 +102,8 @@ public class VersionServiceImpl implements VersionService {
         );
     }
 
-    @Cacheable(value = "document_version_contents", key = "#documentId + ':' + #versionId")
+    @Cacheable(value = "document_version_contents", key = "{#documentId, #versionId}")
+    @Transactional(readOnly = true)
     @Override
     public ContentResponse getVersionContent(UUID documentId, UUID versionId) {
         var document = documentRepository
@@ -121,6 +125,7 @@ public class VersionServiceImpl implements VersionService {
         return new ContentResponse(version.getVersionContent());
     }
 
+    @CacheEvict(value = "document_version_contents", key = "{#documentId, #versionId}")
     @Transactional
     @Override
     public void mergeVersionToBranch(UUID documentId, UUID branchId, UUID versionId) {
@@ -150,7 +155,8 @@ public class VersionServiceImpl implements VersionService {
         branchRepository.save(branch);
     }
 
-    @Cacheable(value = "document_version_diffs", key = "#documentId + ':' + #base + ':' + #compare")
+    @Cacheable(value = "document_version_diffs", key = "{#documentId, #base, #compare}")
+    @Transactional(readOnly = true)
     @Override
     public DiffResponse getVersionDiffs(UUID documentId, UUID base, UUID compare) {
         var document = documentRepository.findByPublicId(documentId)

@@ -64,6 +64,7 @@ public class BranchServiceImpl implements BranchService {
         return branchMapper.toDto(branchRepository.save(newBranch));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public PaginatedData getAllBranches(UUID documentId, int pageNumber, int size) {
         var userId = UserIdUtils.getUserIdFromContext();
@@ -96,7 +97,8 @@ public class BranchServiceImpl implements BranchService {
         );
     }
 
-    @Cacheable(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
+    @Cacheable(value = "document_branch_contents", key = "{#documentId, #branchId}")
+    @Transactional(readOnly = true)
     @Override
     public ContentResponse getBranchContent(UUID documentId, UUID branchId) {
         var userId = UserIdUtils.getUserIdFromContext();
@@ -116,7 +118,8 @@ public class BranchServiceImpl implements BranchService {
         return new ContentResponse(branch.getBranchContent());
     }
 
-    @CachePut(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
+    @CachePut(value = "document_branch_contents", key = "{#documentId, #branchId}")
+    @Transactional
     @Override
     public ContentResponse updateBranchContent(UUID documentId, UUID branchId, String content) {
         var userId = UserIdUtils.getUserIdFromContext();
@@ -140,14 +143,15 @@ public class BranchServiceImpl implements BranchService {
         return new ContentResponse(branch.getBranchContent());
     }
 
-    @CacheEvict(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
+    @CacheEvict(value = "document_branch_contents", key = "{#documentId, #branchId}")
+    @Transactional
     @Override
     public void deleteBranch(UUID documentId, UUID branchId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
-                .orElseThrow(BranchNotFoundException::new);
+                .orElseThrow(DocumentNotFoundException::new);
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
@@ -156,14 +160,15 @@ public class BranchServiceImpl implements BranchService {
                 .ifPresent(branchRepository::delete);
     }
 
-    @CacheEvict(value = "document_branch_contents", key = "#documentId + ':' + #branchId")
+    @CacheEvict(value = "document_branch_contents", key = "{#documentId, #branchId}")
+    @Transactional
     @Override
     public void mergeBranches(UUID documentId, UUID branchId, UUID mergeBranchId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
-                .orElseThrow(BranchNotFoundException::new);
+                .orElseThrow(DocumentNotFoundException::new);
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 

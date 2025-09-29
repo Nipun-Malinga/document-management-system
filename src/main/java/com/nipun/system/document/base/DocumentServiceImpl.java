@@ -47,7 +47,8 @@ public class DocumentServiceImpl implements DocumentService {
         return documentMapper.toDto(document);
     }
 
-    @Cacheable(value = "documents", key = "#documentId")
+    @Cacheable(value = "documents", key = "{#documentId}")
+    @Transactional(readOnly = true)
     @Override
     public DocumentResponse getDocument(UUID documentId) {
 
@@ -62,6 +63,7 @@ public class DocumentServiceImpl implements DocumentService {
         return documentMapper.toDto(document);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public PaginatedData getAllDocuments(int pageNumber, int size) {
         var userId = UserIdUtils.getUserIdFromContext();
@@ -87,7 +89,7 @@ public class DocumentServiceImpl implements DocumentService {
         );
     }
 
-    @CachePut(value = "documents", key = "#documentId")
+    @CachePut(value = "documents", key = "{#documentId}")
     @Transactional
     @Override
     public DocumentResponse updateTitle(UUID documentId, UpdateTitleRequest request) {
@@ -103,7 +105,7 @@ public class DocumentServiceImpl implements DocumentService {
         return documentMapper.toDto(documentRepository.save(document));
     }
 
-    @CacheEvict(value = "documents", key = "#documentId")
+    @CacheEvict(value = "documents", key = "{#documentId}")
     @Transactional
     @Override
     public void deleteDocument(UUID documentId) {
