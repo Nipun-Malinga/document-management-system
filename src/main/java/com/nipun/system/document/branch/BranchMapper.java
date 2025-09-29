@@ -7,9 +7,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "Spring")
 public interface BranchMapper {
 
-    @Mapping(target = "branchId", source = "publicId")
+    @Mapping(target = "id", source = "publicId")
     @Mapping(target = "documentId", source = "document.publicId")
-    @Mapping(target = "versionNumber", source = "version.versionNumber")
+    @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "branchName", source = "branchName")
     BranchResponse toDto(Branch branch);
 }

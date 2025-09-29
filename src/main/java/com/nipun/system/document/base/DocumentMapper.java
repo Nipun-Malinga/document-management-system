@@ -6,7 +6,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface DocumentMapper {
-    @Mapping(target = "ownerId", source = "owner.id")
+    
     @Mapping(target = "id", source = "publicId")
+    @Mapping(target = "ownerId", source = "owner.id")
+    @Mapping(target = "status", source = "status")
     DocumentResponse toDto(Document document);
 }

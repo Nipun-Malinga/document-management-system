@@ -1,16 +1,19 @@
 package com.nipun.system.document.branch;
 
+import com.nipun.system.document.Status;
 import com.nipun.system.document.base.Document;
+import com.nipun.system.document.content.Content;
 import com.nipun.system.document.version.Version;
+import com.nipun.system.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,27 +37,42 @@ public class Branch {
     @JoinColumn(name = "document_id")
     private Document document;
 
-    @ManyToOne(cascade = {CascadeType.REMOVE}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "version_id")
-    private Version version;
-
     @OneToOne(
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.REMOVE
+            },
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
     @JoinColumn(name = "content_id")
-    private BranchContent content;
+    private Content content;
 
-    @Column(name = "timestamp")
-    private LocalDateTime timestamp;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
-    public boolean isBranchTitleExistsAlready(String branchName) {
-        return this.branchName.equalsIgnoreCase(branchName);
-    }
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
+
+    @OneToMany(
+            mappedBy = "branch",
+            cascade = {CascadeType.REMOVE},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private Set<Version> versions = new HashSet<>();
 
     public String getBranchContent() {
-        return content.getContent();
+        return this.content.getContent();
     }
 
     public void setBranchContent(String content) {

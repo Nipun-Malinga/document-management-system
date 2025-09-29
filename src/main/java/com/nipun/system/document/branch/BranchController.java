@@ -2,12 +2,12 @@ package com.nipun.system.document.branch;
 
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.base.dtos.UpdateContentRequest;
-import com.nipun.system.document.branch.dtos.CreateBranchRequest;
 import com.nipun.system.document.branch.dtos.BranchResponse;
-import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.branch.exceptions.BranchTitleAlreadyExistsException;
+import com.nipun.system.document.branch.dtos.CreateBranchRequest;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
+import com.nipun.system.document.branch.exceptions.BranchTitleAlreadyExistsException;
 import com.nipun.system.shared.dtos.ErrorResponse;
+import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,18 +26,18 @@ public class BranchController {
 
     private final BranchService branchService;
 
-    @PostMapping("/{documentId}/branches/versions/{versionId}")
+    @PostMapping("/{documentId}/branches/{branchId}")
     @Operation(summary = "Create branch", description = "Creates new document branch in the system")
     public ResponseEntity<BranchResponse> createBranch(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
-            @PathVariable(name = "versionId")
-            @Parameter(description = "Document version ID", example = "d361bae1-01ee-4392-811c-57b9593c2460")
-            UUID versionId,
+            @PathVariable(name = "branchId")
+            @Parameter(description = "Document branch ID", example = "d361bae1-01ee-4392-811c-57b9593c2460")
+            UUID branchId,
             @RequestBody CreateBranchRequest request
     ) {
-        var branchDto = branchService.createBranch(documentId, versionId, request.getBranchName());
+        var branchDto = branchService.createBranch(documentId, branchId, request.getBranchName());
         return ResponseEntity.ok(branchDto);
     }
 
@@ -87,27 +87,6 @@ public class BranchController {
         return ResponseEntity.ok(paginatedBranches);
     }
 
-    @GetMapping("/{documentId}/branches/{branchId}/versions")
-    @Operation(summary = "Get all branch versions", description = "Get all document branch versions")
-    public ResponseEntity<PaginatedData> getAllBranchVersions(
-            @PathVariable(name = "documentId")
-            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
-            UUID documentId,
-            @PathVariable(name = "branchId")
-            @Parameter(description = "Document branch ID", example = "8d5177f7-bc39-42b0-84bc-3a945be383c4")
-            UUID branchId,
-            @RequestParam(name = "page-number", defaultValue = "0")
-            @Parameter(description = "Required page number")
-            int pageNumber,
-            @RequestParam(name = "page-size", defaultValue = "20")
-            @Parameter(description = "Required page size")
-            int pageSize
-    ) {
-        var paginatedVersionDtoList = branchService
-                .getAllBranchVersions(documentId, branchId, pageNumber, pageSize);
-        return ResponseEntity.ok(paginatedVersionDtoList);
-    }
-
     @DeleteMapping("/{documentId}/branches/{branchId}")
     @Operation(summary = "Delete branch", description = "Delete branch from document")
     public ResponseEntity<Void> deleteBranch(
@@ -122,19 +101,6 @@ public class BranchController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{documentId}/branches/{branchId}/merge")
-    @Operation(summary = "Merge to main", description = "Merge current branch to main branch")
-    public ResponseEntity<Void> mergeToMainBranch(
-            @PathVariable(name = "documentId")
-            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
-            UUID documentId,
-            @PathVariable(name = "branchId")
-            @Parameter(description = "Document branch ID", example = "8d5177f7-bc39-42b0-84bc-3a945be383c4")
-            UUID branchId
-    ) {
-        branchService.mergeToMainBranch(documentId, branchId);
-        return ResponseEntity.ok().build();
-    }
 
     @PostMapping("/{documentId}/branches/{branchId}/merge/{mergeBranchId}")
     @Operation(summary = "Merge branch", description = "Merge two specific branches")
@@ -149,7 +115,7 @@ public class BranchController {
             @Parameter(description = "Merge branch id", example = "3a5c4c09-2a79-4db4-85b1-8d7176125429")
             UUID mergeBranchId
     ) {
-        branchService.mergeSpecificBranches(documentId, branchId, mergeBranchId);
+        branchService.mergeBranches(documentId, branchId, mergeBranchId);
         return ResponseEntity.ok().build();
     }
 

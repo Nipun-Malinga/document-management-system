@@ -1,18 +1,16 @@
-package com.nipun.system.document.branch;
+package com.nipun.system.document.content;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "document_branch_content")
-public class BranchContent {
+@Table(name = "document_contents")
+public class Content {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

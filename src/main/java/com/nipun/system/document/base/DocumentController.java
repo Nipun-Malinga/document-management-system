@@ -1,6 +1,8 @@
 package com.nipun.system.document.base;
 
-import com.nipun.system.document.base.dtos.*;
+import com.nipun.system.document.base.dtos.CreateDocumentRequest;
+import com.nipun.system.document.base.dtos.DocumentResponse;
+import com.nipun.system.document.base.dtos.UpdateTitleRequest;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -81,28 +83,5 @@ public class DocumentController {
     ) {
         documentService.deleteDocument(documentId);
         return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{id}/content")
-    @Operation(summary = "Update document content", description = "Updates the content in the system")
-    public ResponseEntity<ContentResponse> updateDocumentContent(
-            @PathVariable(name = "id")
-            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
-            UUID documentId,
-            @RequestBody @Valid UpdateContentRequest request
-    ) {
-        var contentDto = documentService.updateContent(documentId, request);
-        return ResponseEntity.ok(contentDto);
-    }
-
-    @GetMapping("/{id}/content")
-    @Operation(summary = "Get document content", description = "Gets document content")
-    public ResponseEntity<ContentResponse> getDocumentContent(
-        @PathVariable(name = "id")
-        @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
-        UUID documentId
-    ) {
-        var contentDto = documentService.getContent(documentId);
-        return ResponseEntity.ok(contentDto);
     }
 }

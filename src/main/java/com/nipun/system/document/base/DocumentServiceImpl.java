@@ -1,12 +1,12 @@
 package com.nipun.system.document.base;
 
-import com.nipun.system.document.base.dtos.*;
-import com.nipun.system.document.diff.DiffService;
-import com.nipun.system.shared.dtos.PaginatedData;
+import com.nipun.system.document.base.dtos.CreateDocumentRequest;
+import com.nipun.system.document.base.dtos.DocumentResponse;
+import com.nipun.system.document.base.dtos.UpdateTitleRequest;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.SharedDocumentAuthService;
-import com.nipun.system.document.version.VersionFactory;
+import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
@@ -21,17 +21,13 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Service
-public class DocumentServiceImpl implements DocumentService{
+public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
 
     private final DocumentMapper documentMapper;
-    private final ContentMapper contentMapper;
 
-    private final DiffService diffService;
-
-    private final VersionFactory versionFactory;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
     @Transactional
@@ -43,7 +39,8 @@ public class DocumentServiceImpl implements DocumentService{
 
         var user = userRepository.findById(userId).orElseThrow();
 
-        var document = DocumentFactory.createNewDocument(user, request.getTitle());
+        var document = DocumentFactory
+                .createNewDocument(user, request.getTitle(), request.getStatus());
 
         document = documentRepository.save(document);
 
@@ -71,7 +68,7 @@ public class DocumentServiceImpl implements DocumentService{
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        var documents =  documentRepository.findAllByOwnerId(userId, pageRequest);
+        var documents = documentRepository.findAllByOwnerId(userId, pageRequest);
 
         var documentDtoList = documents
                 .getContent()
@@ -101,7 +98,7 @@ public class DocumentServiceImpl implements DocumentService{
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        document = document.updateTitle(request.getTitle());
+        document.setTitle(request.getTitle());
 
         return documentMapper.toDto(documentRepository.save(document));
     }
@@ -118,46 +115,5 @@ public class DocumentServiceImpl implements DocumentService{
                 .orElseThrow(DocumentNotFoundException::new);
 
         documentRepository.delete(document);
-    }
-
-    @Cacheable(value = "document_contents", key = "#documentId")
-    @Override
-    public ContentResponse getContent(UUID documentId) {
-        var userId = UserIdUtils.getUserIdFromContext();
-
-        var document = documentRepository.findByPublicId(documentId)
-                .orElseThrow(DocumentNotFoundException::new);
-
-        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
-            throw new UnauthorizedDocumentException();
-
-        return contentMapper.toDto(document.getContent());
-    }
-
-    @CachePut(value = "document_contents", key = "#documentId")
-    @Transactional
-    @Override
-    public ContentResponse updateContent(UUID documentId, UpdateContentRequest request) {
-        var userId = UserIdUtils.getUserIdFromContext();
-
-        var user = userRepository.findById(userId).orElseThrow();
-
-        var document = documentRepository.findByPublicId(documentId)
-                .orElseThrow(DocumentNotFoundException::new);
-
-        sharedDocumentAuthService.checkUserCanWrite(userId, document);
-
-        if(document.getDocumentContent() == null)
-            document.addContent(request.getContent());
-        else
-            document.addContent(diffService.patchDocument(document.getDocumentContent(), request.getContent()));
-
-        var version = versionFactory.createNewVersion(document, user);
-
-        document.addDocumentVersion(version);
-
-        documentRepository.save(document);
-
-        return contentMapper.toDto(document.getContent());
     }
 }

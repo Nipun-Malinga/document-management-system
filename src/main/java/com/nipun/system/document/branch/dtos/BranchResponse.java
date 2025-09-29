@@ -7,13 +7,11 @@ import java.util.UUID;
 
 @Data
 public class BranchResponse {
-    private UUID branchId;
+    private UUID id;
 
     private UUID documentId;
 
-    private UUID versionNumber;
-
     private String branchName;
 
-    private LocalDateTime timestamp;
+    private LocalDateTime createdAt;
 }

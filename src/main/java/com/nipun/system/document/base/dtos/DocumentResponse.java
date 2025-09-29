@@ -1,6 +1,7 @@
 package com.nipun.system.document.base.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nipun.system.document.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,8 @@ public class DocumentResponse {
     private String title;
 
     private Long ownerId;
+
+    private Status status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;

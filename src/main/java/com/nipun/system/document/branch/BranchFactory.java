@@ -1,7 +1,9 @@
 package com.nipun.system.document.branch;
 
+import com.nipun.system.document.Status;
 import com.nipun.system.document.base.Document;
-import com.nipun.system.document.version.Version;
+import com.nipun.system.document.content.Content;
+import com.nipun.system.user.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -10,16 +12,18 @@ import java.util.UUID;
 @Component
 public class BranchFactory {
 
-    public Branch createNewBranch(Version version, String branchName, BranchContent content, Document document) {
-        var branch = new Branch();
+    public Branch createNewBranch(Document document, String branchName, String content, User owner) {
 
-        branch.setDocument(document);
-        branch.setVersion(version);
-        branch.setContent(content);
-        branch.setBranchName(branchName);
-        branch.setPublicId(UUID.randomUUID());
-        branch.setTimestamp(LocalDateTime.now());
+        var branchContent = Content.builder().content(content).build();
 
-        return branch;
+        return Branch.builder()
+                .publicId(UUID.randomUUID())
+                .branchName(branchName)
+                .document(document)
+                .content(branchContent)
+                .owner(owner)
+                .createdAt(LocalDateTime.now())
+                .status(Status.PUBLIC)
+                .build();
     }
 }
