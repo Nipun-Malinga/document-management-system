@@ -1,7 +1,8 @@
 package com.nipun.system.document.version;
 
-import com.nipun.system.document.base.Document;
+import com.nipun.system.document.Status;
 import com.nipun.system.document.branch.Branch;
+import com.nipun.system.document.content.Content;
 import com.nipun.system.user.User;
 import org.springframework.stereotype.Component;
 
@@ -12,45 +13,23 @@ import java.util.UUID;
 public class VersionFactory {
 
     public Version createNewVersion(
-            Document document,
-            User author
-    ) {
-        var versionContent = new VersionContent();
-
-        if(document.getDocumentContent() != null)
-            versionContent.setContent(document.getDocumentContent());
-
-        return createNewVersion(document, author, versionContent);
-    }
-
-    public Version createNewVersion(
-            Document document,
-            User author,
+            Branch branch,
+            User createdBy,
             String content,
-            Branch branch
+            String title,
+            Status status
+
     ) {
-        var versionContent = new VersionContent();
-        versionContent.setContent(content);
+        var versionContent = Content.builder().content(content).build();
 
-        var version = createNewVersion(document, author, versionContent);
-        version.setBranch(branch);
-
-        return version;
-    }
-
-    private Version createNewVersion(
-            Document document,
-            User author,
-            VersionContent content
-    ) {
-        var version = new Version();
-
-        version.setDocument(document);
-        version.setVersionNumber(UUID.randomUUID());
-        version.setContent(content);
-        version.setAuthor(author);
-        version.setTimestamp(LocalDateTime.now());
-
-        return version;
+        return Version.builder()
+                .publicId(UUID.randomUUID())
+                .branch(branch)
+                .createdBy(createdBy)
+                .content(versionContent)
+                .versionTitle(title)
+                .created_at(LocalDateTime.now())
+                .status(status)
+                .build();
     }
 }

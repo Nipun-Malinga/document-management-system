@@ -1,17 +1,23 @@
 package com.nipun.system.document.version;
 
+import com.nipun.system.document.Status;
 import com.nipun.system.document.base.DocumentRepository;
-import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.base.dtos.ContentResponse;
-import com.nipun.system.shared.dtos.PaginatedData;
-import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.version.exceptions.VersionNotFoundException;
-import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.branch.BranchRepository;
+import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
+import com.nipun.system.document.diff.DiffService;
+import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.document.share.SharedDocumentAuthService;
+import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.version.dtos.VersionResponse;
+import com.nipun.system.document.version.exceptions.VersionNotFoundException;
+import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
+import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +29,6 @@ import java.util.UUID;
 @Service
 public class VersionServiceImpl implements VersionService {
 
-    /*
-        TODO:
-         Combine All THE CONTENT TABLES INTO ONE.
-         CREATE A SEPARATE BRANCH FOR MAIN DOCUMENT AND
-          REPLACE EXISTING VERSION RESTORE FUNCTIONS.
-    */
-
     private final DocumentRepository documentRepository;
     private final VersionRepository versionRepository;
 
@@ -38,30 +37,59 @@ public class VersionServiceImpl implements VersionService {
     private final DiffService diffService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
+    private final VersionFactory versionFactory;
+
+    private final UserRepository userRepository;
+    private final BranchRepository branchRepository;
+
 
     @Override
-    public PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
+    public VersionResponse createNewVersion(
+            UUID documentId,
+            UUID branchId,
+            String title,
+            Status status
+    ) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
-            throw new UnauthorizedDocumentException();
+        sharedDocumentAuthService.checkUserCanWrite(userId, document);
+
+        var user = userRepository.findById(userId).orElseThrow();
+
+        var branch = document.getBranch(branchId);
+
+        if (branch == null)
+            throw new BranchNotFoundException();
+
+        var version = versionFactory.createNewVersion(branch, user, branch.getBranchContent(), title, status);
+
+        version = versionRepository.save(version);
+
+        return versionMapper.toDto(version);
+    }
+
+    @Override
+    public PaginatedData getAllDocumentVersions(UUID documentId, int pageNumber, int size) {
+        var userId = UserIdUtils.getUserIdFromContext();
+
+        var document = documentRepository.findByPublicId(documentId).orElseThrow(DocumentNotFoundException::new);
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        var versions =  versionRepository
-                .findAllByDocumentId(document.getId(), pageRequest);
+        Page<Version> versions = sharedDocumentAuthService.isUnauthorizedUser(userId, document)
+                ? versionRepository.findAllByBranchDocumentIdAndStatusPublic(document.getId(), pageRequest)
+                : versionRepository.findAllByBranchDocumentId(document.getId(), pageRequest);
 
-        var documentDtoList = versions.getContent()
-                .stream()
+        var versionDtoList = versions.stream()
                 .map(versionMapper::toDto)
                 .toList();
 
         return new PaginatedData(
-                documentDtoList,
+                versionDtoList,
                 pageNumber,
                 size,
                 versions.getTotalPages(),
@@ -71,50 +99,31 @@ public class VersionServiceImpl implements VersionService {
         );
     }
 
-    @Cacheable(value = "document_version_contents", key = "#documentId + ':' + #versionNumber")
+    @Cacheable(value = "document_version_contents", key = "#documentId + ':' + #versionId")
     @Override
-    public ContentResponse getVersionContent(UUID versionNumber, UUID documentId) {
-        var userId = UserIdUtils.getUserIdFromContext();
+    public ContentResponse getVersionContent(UUID documentId, UUID versionId) {
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new);
 
-        var documentVersion = versionRepository
-                .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
+        var version = versionRepository
+                .findDocumentBranchVersion(versionId, document.getId())
                 .orElseThrow(VersionNotFoundException::new);
 
-        var document = documentVersion.getDocument();
-
-        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
-            throw new UnauthorizedDocumentException();
-
-        return new ContentResponse(documentVersion.getVersionContent());
-    }
-
-    @Cacheable(value = "document_version_diffs", key = "#documentId + ':' + #base + ':' + #compare")
-    @Override
-    public DiffResponse getVersionDiffs(UUID documentId, UUID base, UUID compare) {
+        if (version.getStatus().equals(Status.PUBLIC))
+            return new ContentResponse(version.getVersionContent());
 
         var userId = UserIdUtils.getUserIdFromContext();
 
-        var baseVersion = versionRepository
-                .findByVersionNumberAndDocumentPublicId(base, documentId)
-                .orElseThrow(VersionNotFoundException::new);
-
-        var document = baseVersion.getDocument();
-
-        if(sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
-        var comparedWithVersion = versionRepository
-                .findByVersionNumberAndDocumentPublicId(compare, documentId)
-                .orElseThrow(VersionNotFoundException::new);
-
-        var diffRowDtoList = diffService.getVersionDiffs(baseVersion.getVersionContent(), comparedWithVersion.getVersionContent());
-
-        return  new DiffResponse(Map.of("diffs", diffRowDtoList));
+        return new ContentResponse(version.getVersionContent());
     }
 
     @Transactional
     @Override
-    public void restoreToPreviousVersion(UUID documentId) {
+    public void mergeVersionToBranch(UUID documentId, UUID branchId, UUID versionId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
@@ -123,38 +132,52 @@ public class VersionServiceImpl implements VersionService {
 
         sharedDocumentAuthService.checkUserCanWrite(userId, document);
 
+        var branch = branchRepository
+                .findByPublicIdAndDocumentId(branchId, document.getId())
+                .orElseThrow(BranchNotFoundException::new);
+
         var version = versionRepository
-                .findFirstByDocumentIdOrderByTimestampDesc(document.getId())
+                .findByPublicIdAndBranchDocumentId(versionId, document.getId())
                 .orElseThrow(VersionNotFoundException::new);
 
-        document.setDocumentContent(version.getVersionContent());
+        var patchedDocument = diffService.patchDocument(
+                branch.getBranchContent(),
+                version.getVersionContent()
+        );
 
-        document.removeVersion(version);
+        branch.setBranchContent(patchedDocument);
 
-        documentRepository.save(document);
-
-        versionRepository.delete(version);
+        branchRepository.save(branch);
     }
 
-    @Transactional
+    @Cacheable(value = "document_version_diffs", key = "#documentId + ':' + #base + ':' + #compare")
     @Override
-    public void restoreToDocumentSpecificVersion(UUID versionNumber, UUID documentId) {
-        var version = versionRepository
-                .findByVersionNumberAndDocumentPublicId(versionNumber, documentId)
+    public DiffResponse getVersionDiffs(UUID documentId, UUID base, UUID compare) {
+        var document = documentRepository.findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new);
+
+        var baseVersion = versionRepository
+                .findDocumentBranchVersion(base, document.getId())
                 .orElseThrow(VersionNotFoundException::new);
 
-        var document = documentRepository
-                .findById(version.getDocument().getId())
-                .orElseThrow(DocumentNotFoundException::new);
+        var compareVersion = versionRepository
+                .findDocumentBranchVersion(compare, document.getId())
+                .orElseThrow(VersionNotFoundException::new);
+
+        if (baseVersion.getStatus().equals(Status.PUBLIC) && compareVersion.getStatus().equals(Status.PUBLIC))
+            return buildDiffResponse(baseVersion, compareVersion);
 
         var userId = UserIdUtils.getUserIdFromContext();
 
-        sharedDocumentAuthService.checkUserCanWrite(userId, document);
+        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+            throw new UnauthorizedDocumentException();
 
-        document.setDocumentContent(version.getVersionContent());
+        return buildDiffResponse(baseVersion, compareVersion);
+    }
 
-        documentRepository.save(document);
-
-        versionRepository.rollbackMainDocToPreviousVersion(document.getId(), version.getTimestamp());
+    private DiffResponse buildDiffResponse(Version base, Version compare) {
+        return new DiffResponse(Map.of(
+                "diffs", diffService.getVersionDiffs(base.getVersionContent(), compare.getVersionContent())
+        ));
     }
 }
