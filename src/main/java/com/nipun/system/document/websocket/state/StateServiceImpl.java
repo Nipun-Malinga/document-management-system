@@ -1,8 +1,8 @@
 package com.nipun.system.document.websocket.state;
 
 import com.nipun.system.document.base.DocumentRepository;
-import com.nipun.system.document.cache.DocumentCacheService;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.cache.DocumentCacheService;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,17 +26,18 @@ public class StateServiceImpl implements StateService {
     public String getDocumentStatusFromCache(UUID documentId) {
         String cachedContent = documentCacheService.getDocumentCurrentStatus(documentId);
         if (cachedContent != null) {
-                return cachedContent;
+            return cachedContent;
         }
 
         var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        var content = document.getDocumentContent() == null ? "" : document.getDocumentContent();
-
-        documentCacheService.putDocumentCurrentStatus(documentId, content);
-
-        return content;
+//        var content = document.getDocumentContent() == null ? "" : document.getDocumentContent();
+//
+//        documentCacheService.putDocumentCurrentStatus(documentId, content);
+//
+//        return content;
+        return null;
     }
 
     @Override
@@ -44,13 +45,13 @@ public class StateServiceImpl implements StateService {
 
         var currentState = documentCacheService.getDocumentCurrentStatus(documentId);
 
-        if(currentState == null) return;
+        if (currentState == null) return;
 
         var document = documentRepository
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        document.addContent(currentState);
+//        document.addContent(currentState);
         documentRepository.save(document);
     }
 }

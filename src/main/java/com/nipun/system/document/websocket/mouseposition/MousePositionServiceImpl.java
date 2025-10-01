@@ -1,6 +1,6 @@
 package com.nipun.system.document.websocket.mouseposition;
 
-import com.nipun.system.shared.services.WebsocketService;
+import com.nipun.system.shared.utils.WebsocketUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +10,7 @@ import java.util.UUID;
 @Service
 public class MousePositionServiceImpl implements MousePositionService {
 
-    private final WebsocketService websocketService;
+    private final WebsocketUtils websocketUtils;
 
     @Override
     public void broadcastUserMousePositions(
@@ -18,7 +18,7 @@ public class MousePositionServiceImpl implements MousePositionService {
             Long userId,
             UUID documentId
     ) {
-        var endpoint = "/document/" + documentId + "/user/" + userId +"/accept-mouse-positions";
-        websocketService.broadcastPayload(endpoint, request);
+        var endpoint = "/document/" + documentId + "/user/" + userId + "/accept-mouse-positions";
+        websocketUtils.broadcastPayload(endpoint, request);
     }
 }

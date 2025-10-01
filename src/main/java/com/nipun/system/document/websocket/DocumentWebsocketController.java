@@ -1,14 +1,14 @@
 package com.nipun.system.document.websocket;
 
-import com.nipun.system.document.websocket.dtos.BroadcastContentResponse;
-import com.nipun.system.document.websocket.dtos.DocumentStatusRequest;
 import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.authentication.AuthenticationService;
 import com.nipun.system.document.websocket.connection.ConnectionService;
+import com.nipun.system.document.websocket.dtos.BroadcastContentResponse;
+import com.nipun.system.document.websocket.dtos.DocumentStatusRequest;
 import com.nipun.system.document.websocket.state.StateService;
-import com.nipun.system.shared.services.WebsocketService;
 import com.nipun.system.shared.utils.UserIdUtils;
+import com.nipun.system.shared.utils.WebsocketUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -25,12 +25,12 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
-public class WebsocketController {
+public class DocumentWebsocketController {
 
     private final AuthenticationService authenticationService;
     private final StateService stateService;
     private final ConnectionService connectionService;
-    private final WebsocketService websocketService;
+    private final WebsocketUtils websocketUtils;
 
     @SendTo("/document/{documentId}/broadcastStatus")
     @MessageMapping("/document/{documentId}/accept-changes")
@@ -41,10 +41,10 @@ public class WebsocketController {
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-        if(authenticationService.isUnauthorizedUser(userId, documentId))
+        if (authenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
-        if(authenticationService.isReadOnlyUser(userId, documentId))
+        if (authenticationService.isReadOnlyUser(userId, documentId))
             throw new ReadOnlyDocumentException();
 
         stateService.setDocumentStatus(documentId, statusDto.getContent());
@@ -60,12 +60,12 @@ public class WebsocketController {
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-        if(authenticationService.isUnauthorizedUser(userId, documentId))
+        if (authenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
         connectionService.addConnectedUserToCache(documentId, headerAccessor.getSessionId(), userId);
 
-        websocketService.broadcastPayload(
+        websocketUtils.broadcastPayload(
                 "/document/" + documentId + "/broadcastUsers",
                 connectionService.getConnectedUsers(documentId).getUsers()
         );
@@ -81,7 +81,7 @@ public class WebsocketController {
     ) {
         var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-        if(authenticationService.isUnauthorizedUser(userId, documentId))
+        if (authenticationService.isUnauthorizedUser(userId, documentId))
             throw new UnauthorizedDocumentException();
 
         var connectedUsers = connectionService.getConnectedUsers(documentId);

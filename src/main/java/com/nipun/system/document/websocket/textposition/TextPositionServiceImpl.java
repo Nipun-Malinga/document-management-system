@@ -1,6 +1,6 @@
 package com.nipun.system.document.websocket.textposition;
 
-import com.nipun.system.shared.services.WebsocketService;
+import com.nipun.system.shared.utils.WebsocketUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +10,7 @@ import java.util.UUID;
 @Service
 public class TextPositionServiceImpl implements TextPositionService {
 
-    private final WebsocketService websocketService;
+    private final WebsocketUtils websocketUtils;
 
     @Override
     public void broadcastUserSelectPositions(
@@ -18,7 +18,7 @@ public class TextPositionServiceImpl implements TextPositionService {
             Long userId,
             UUID documentId
     ) {
-        var endpoint = "/document/" + documentId + "/user/" + userId +"/accept-selected-positions";
-        websocketService.broadcastPayload(endpoint, textPosition);
+        var endpoint = "/document/" + documentId + "/user/" + userId + "/accept-selected-positions";
+        websocketUtils.broadcastPayload(endpoint, textPosition);
     }
 }
