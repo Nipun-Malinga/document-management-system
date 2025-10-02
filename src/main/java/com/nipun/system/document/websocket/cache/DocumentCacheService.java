@@ -1,4 +1,4 @@
-package com.nipun.system.document.cache;
+package com.nipun.system.document.websocket.cache;
 
 import com.nipun.system.document.websocket.authentication.AuthorizedOptions;
 import com.nipun.system.document.websocket.connection.ConnectedUser;
@@ -15,7 +15,7 @@ public interface DocumentCacheService {
 
     String getDocumentCurrentStatus(UUID documentId);
 
-    void putDocumentCurrentStatus(UUID documentId,  String status);
+    void putDocumentCurrentStatus(UUID documentId, String status);
 
     Set<Long> getDocumentConnectedSessions(UUID documentId);
 

@@ -1,6 +1,6 @@
 package com.nipun.system.document.websocket.connection;
 
-import com.nipun.system.document.cache.DocumentCacheService;
+import com.nipun.system.document.websocket.cache.DocumentCacheService;
 import com.nipun.system.document.websocket.state.StateService;
 import com.nipun.system.shared.entities.WebsocketPayload;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +19,14 @@ public class ConnectionServiceImpl implements ConnectionService {
     @Override
     public void addConnectedUserToCache(UUID documentId, String sessionId, Long userId) {
 
-        if(documentCacheService.getDocumentConnectedUsers(sessionId) == null)
+        if (documentCacheService.getDocumentConnectedUsers(sessionId) == null)
             documentCacheService.putDocumentConnectedUsers(
                     sessionId, new ConnectedUser(userId, documentId));
 
         Set<Long> connectedUsers = documentCacheService
                 .getDocumentConnectedSessions(documentId);
 
-        if(connectedUsers == null)
+        if (connectedUsers == null)
             connectedUsers = new HashSet<>();
 
         connectedUsers.add(userId);
@@ -42,11 +42,11 @@ public class ConnectionServiceImpl implements ConnectionService {
 
         documentCacheService.removeDocumentConnectedSession(sessionId);
 
-        if(user != null) {
+        if (user != null) {
             Set<Long> connectedUsers = documentCacheService
                     .getDocumentConnectedSessions(user.getDocumentId());
 
-            if(connectedUsers != null)
+            if (connectedUsers != null)
                 connectedUsers.remove(user.getUserId());
 
             documentCacheService.putDocumentConnectedSession(user.getDocumentId(), connectedUsers);
@@ -62,7 +62,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         var connectedUsers = documentCacheService
                 .getDocumentConnectedSessions(documentId);
 
-        if(connectedUsers == null) return null;
+        if (connectedUsers == null) return null;
 
         return new ConnectedUsers(documentId, connectedUsers);
     }
@@ -76,8 +76,8 @@ public class ConnectionServiceImpl implements ConnectionService {
         var documentId = removeDisconnectedUserFromCache(sessionId);
         var connectedUsers = getConnectedUsers(documentId);
 
-        if(connectedUsers != null) {
-            if(connectedUsers.getUsers().isEmpty())
+        if (connectedUsers != null) {
+            if (connectedUsers.getUsers().isEmpty())
                 stateService.saveDocumentState(documentId);
 
             return new WebsocketPayload<>("/document/" + documentId + "/broadcastUsers",

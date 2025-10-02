@@ -1,9 +1,9 @@
 package com.nipun.system.document.websocket.authentication;
 
 import com.nipun.system.document.base.DocumentRepository;
-import com.nipun.system.document.cache.DocumentCacheService;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.share.SharedDocumentAuthService;
+import com.nipun.system.document.websocket.cache.DocumentCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.nipun.system.document.websocket;
+package com.nipun.system.document.websocket.base;
 
 import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
