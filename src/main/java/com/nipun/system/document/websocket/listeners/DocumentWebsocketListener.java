@@ -18,20 +18,10 @@ public class DocumentWebsocketListener {
     @EventListener
     public void handleSessionUnsubscribe(SessionUnsubscribeEvent event) {
         var sessionId = websocketUtils.extractSessionId(event);
-        broadcastDocumentConnectedUserPayload(sessionId);
     }
 
     @EventListener
     public void handleSessionDisconnect(SessionDisconnectEvent event) {
         var sessionId = websocketUtils.extractSessionId(event);
-        broadcastDocumentConnectedUserPayload(sessionId);
-    }
-
-    private void broadcastDocumentConnectedUserPayload(String sessionId) {
-        var connectedUsersPayload = connectionService
-                .getConnectedUsers(sessionId);
-
-        if (connectedUsersPayload != null)
-            websocketUtils.broadcastPayload(connectedUsersPayload.getEndpoint(), connectedUsersPayload.getPayload());
     }
 }

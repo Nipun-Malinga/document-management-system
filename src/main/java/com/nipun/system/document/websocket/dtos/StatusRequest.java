@@ -5,6 +5,6 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class DocumentStatusRequest {
+public class StatusRequest {
     private String content;
 }
