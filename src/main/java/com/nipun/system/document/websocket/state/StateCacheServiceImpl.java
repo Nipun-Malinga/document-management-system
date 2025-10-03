@@ -12,14 +12,14 @@ import java.util.UUID;
 @Service
 public class StateCacheServiceImpl implements StateCacheService {
 
-    private static final String STATUS = "DOCUMENT_STATUS_CACHE";
+    private static final String STATE = "DOCUMENT_BRANCH_STATE_CACHE";
 
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
 
     @Override
     public void setDocumentState(UUID documentId, UUID branchId, String content) {
-        var cache = cacheManager.getCache(STATUS);
+        var cache = cacheManager.getCache(STATE);
 
         if (cache == null)
             return;
@@ -29,7 +29,7 @@ public class StateCacheServiceImpl implements StateCacheService {
 
     @Override
     public String getDocumentState(UUID documentId, UUID branchId) {
-        var cache = cacheManager.getCache(STATUS);
+        var cache = cacheManager.getCache(STATE);
 
         if (cache == null)
             return null;

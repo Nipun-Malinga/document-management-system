@@ -2,6 +2,7 @@ package com.nipun.system.shared.exceptions;
 
 import com.nipun.system.auth.exceptions.BadCredentialsException;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.diff.exceptions.PatchFailedException;
 import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
@@ -64,6 +65,14 @@ public class GlobalWebsocketExceptionHandler {
     @SendToUser("/queue/errors")
     public ErrorResponse handleDocumentNotFoundException(
             DocumentNotFoundException exception
+    ) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @MessageExceptionHandler(BranchNotFoundException.class)
+    @SendToUser("/queue/errors")
+    public ErrorResponse handleBranchNotFoundException(
+            BranchNotFoundException exception
     ) {
         return new ErrorResponse(exception.getMessage());
     }

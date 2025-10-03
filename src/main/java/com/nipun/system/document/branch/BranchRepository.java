@@ -12,6 +12,7 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
     @EntityGraph(attributePaths = {"content"})
     Optional<Branch> findByPublicIdAndDocumentId(UUID branchId, Long documentId);
 
+    @EntityGraph(attributePaths = {"content"})
     Optional<Branch> findByPublicIdAndDocumentPublicId(UUID branchId, UUID documentId);
 
     Boolean existsByBranchNameAndDocumentId(String branchName, Long documentId);
