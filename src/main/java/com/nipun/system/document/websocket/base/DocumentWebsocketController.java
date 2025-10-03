@@ -1,10 +1,10 @@
 package com.nipun.system.document.websocket.base;
 
-import com.nipun.system.document.websocket.authentication.AuthenticationService;
 import com.nipun.system.document.websocket.connection.ConnectionService;
 import com.nipun.system.document.websocket.dtos.StatusRequest;
 import com.nipun.system.document.websocket.dtos.StatusResponse;
 import com.nipun.system.document.websocket.state.StateService;
+import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.shared.utils.WebsocketUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -23,33 +23,37 @@ import java.util.UUID;
 @Controller
 public class DocumentWebsocketController {
 
-    private final AuthenticationService authenticationService;
     private final StateService stateService;
     private final ConnectionService connectionService;
     private final WebsocketUtils websocketUtils;
 
-    @SendTo("/document/{documentId}/broadcastStatus")
-    @MessageMapping("/document/{documentId}/accept-changes")
+    @SendTo("/document/{documentId}/branch/{branchId}/broadcastStatus")
+    @MessageMapping("/document/{documentId}/branch/{branchId}/accept-changes")
     public StatusResponse broadcastDocumentCurrentState(
-            @DestinationVariable UUID documentId,
-            @Payload StatusRequest statusDto,
+            @DestinationVariable("documentId") UUID documentId,
+            @DestinationVariable("branchId") UUID branchId,
+            @Payload StatusRequest request,
             Principal principal
     ) {
-        return null;
+        var status = stateService.setDocumentState(documentId, branchId,
+                UserIdUtils.getUserIdFromPrincipal(principal), request.getContent());
+        return new StatusResponse(status);
     }
 
-    @SubscribeMapping("/document/{documentId}/broadcastStatus")
+    @SubscribeMapping("/document/{documentId}/branch/{branchId}/broadcastStatus")
     public StatusResponse getCurrentState(
-            @DestinationVariable UUID documentId,
+            @DestinationVariable("documentId") UUID documentId,
+            @DestinationVariable("branchId") UUID branchId,
             Principal principal,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        return null;
+        var state = stateService.getDocumentState(documentId, branchId, UserIdUtils.getUserIdFromPrincipal(principal));
+        return new StatusResponse(state);
     }
 
     @SubscribeMapping("/document/{documentId}/broadcastUsers")
     public Set<Long> getConnectedUsers(
-            @DestinationVariable UUID documentId,
+            @DestinationVariable("documentId") UUID documentId,
             Principal principal
     ) {
         return null;
