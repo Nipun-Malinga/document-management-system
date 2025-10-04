@@ -1,4 +1,4 @@
-package com.nipun.system.document.websocket.textposition;
+package com.nipun.system.document.websocket.positions.textposition;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
