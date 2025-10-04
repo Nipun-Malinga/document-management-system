@@ -75,5 +75,7 @@ public class PermissionCacheImpl implements PermissionCacheService {
             return;
 
         permissions.remove(userId.toString());
+
+        cache.put(documentId, permissions);
     }
 }

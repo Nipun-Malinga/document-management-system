@@ -26,6 +26,11 @@ public class PermissionServiceImpl implements PermissionService {
         return getPermissions(documentId, userId).isReadOnlyUser();
     }
 
+    @Override
+    public void removeUserPermissions(UUID documentId, Long userId) {
+        permissionCacheService.removePermission(documentId, userId);
+    }
+
     private Permissions getPermissions(UUID documentId, Long userId) {
         var permissions = permissionCacheService.getUserPermissions(documentId, userId);
 

@@ -2,11 +2,10 @@ package com.nipun.system.document.share;
 
 import com.nipun.system.document.base.DocumentMapper;
 import com.nipun.system.document.base.DocumentRepository;
-import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.authentication.AuthenticationService;
-import com.nipun.system.document.websocket.authentication.AuthorizedOptions;
+import com.nipun.system.document.websocket.permissions.PermissionService;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
@@ -21,14 +20,13 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Service
-public class SharedDocumentServiceImpl implements SharedDocumentService{
+public class SharedDocumentServiceImpl implements SharedDocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final SharedDocumentRepository sharedDocumentRepository;
 
-    private final AuthenticationService authenticationService;
-    private final SharedDocumentAuthService sharedDocumentAuthService;
+    private final PermissionService permissionService;
 
     private final DocumentMapper documentMapper;
     private final SharedDocumentMapper sharedDocumentMapper;
@@ -52,7 +50,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
                 .findByDocumentIdAndSharedUserId(document.getId(), sharedUser.getId())
                 .orElse(null);
 
-        if(sharedDocument == null) {
+        if (sharedDocument == null) {
             sharedDocument = sharedDocumentFactory.createNewSharedDocument(sharedUser, document);
             document.addSharedDocument(sharedDocument);
         }
@@ -63,13 +61,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
 
         documentRepository.save(document);
 
-        authenticationService.updateDocumentPermissionDetails(
-                        documentId,
-                        sharedUserId,
-                        new AuthorizedOptions(
-                                sharedDocumentAuthService.isUnauthorizedUser(sharedUserId, document),
-                                sharedDocumentAuthService.isReadOnlyUser(sharedUserId, document))
-        );
+        permissionService.removeUserPermissions(documentId, sharedUserId);
 
         return sharedDocumentMapper.toSharedDocumentDto(sharedDocument);
     }
@@ -80,7 +72,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        var documentPage =  documentRepository.findAllSharedDocumentsWithUser(userId, pageRequest);
+        var documentPage = documentRepository.findAllSharedDocumentsWithUser(userId, pageRequest);
 
         var documentDtoList = documentPage
                 .getContent()
@@ -89,14 +81,14 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
                 .toList();
 
         return new PaginatedData(
-                        documentDtoList,
-                        pageNumber,
-                        size,
-                        documentPage.getTotalPages(),
-                        documentPage.getTotalElements(),
-                        documentPage.hasNext(),
-                        documentPage.hasPrevious()
-                );
+                documentDtoList,
+                pageNumber,
+                size,
+                documentPage.getTotalPages(),
+                documentPage.getTotalElements(),
+                documentPage.hasNext(),
+                documentPage.hasPrevious()
+        );
     }
 
     @Override
@@ -107,23 +99,21 @@ public class SharedDocumentServiceImpl implements SharedDocumentService{
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
                 .orElseThrow(UnauthorizedDocumentException::new);
 
-        authenticationService.removeDocumentPermissionDetailsFromCache(documentId, userId);
-
+        permissionService.removeUserPermissions(documentId, userId);
         sharedDocumentRepository.delete(sharedDocument);
     }
 
     @Override
-    public void removeDocumentAccess(UUID documentId, Long sharedUerId) {
+    public void removeDocumentAccess(UUID documentId, Long sharedUserId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        document.removeSharedUser(sharedUerId);
+        document.removeSharedUser(sharedUserId);
 
-        authenticationService.removeDocumentPermissionDetailsFromCache(documentId, sharedUerId);
-
+        permissionService.removeUserPermissions(documentId, sharedUserId);
         documentRepository.save(document);
     }
 }
