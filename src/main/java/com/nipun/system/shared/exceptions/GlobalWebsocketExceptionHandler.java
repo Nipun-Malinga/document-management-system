@@ -8,7 +8,6 @@ import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.shared.dtos.ErrorResponse;
-import com.nipun.system.user.exceptions.UserIdNotFoundInSessionException;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -99,12 +98,5 @@ public class GlobalWebsocketExceptionHandler {
             PatchFailedException exception
     ) {
         return new ErrorResponse(exception.getMessage());
-    }
-
-    @MessageExceptionHandler(UserIdNotFoundInSessionException.class)
-    public void handleUserIdNotFoundInSessionException(
-            UserIdNotFoundInSessionException exception
-    ) {
-        System.out.println(exception.getMessage());
     }
 }
