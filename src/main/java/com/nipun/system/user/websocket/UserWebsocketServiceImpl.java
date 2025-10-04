@@ -2,7 +2,6 @@ package com.nipun.system.user.websocket;
 
 import com.nipun.system.shared.entities.WebsocketPayload;
 import com.nipun.system.shared.utils.UserIdUtils;
-import com.nipun.system.user.cache.UserRedisCacheServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Service
 public class UserWebsocketServiceImpl implements UserWebsocketService {
-    private final UserRedisCacheServiceImpl userRedisCacheService;
+    private final UserCacheServiceImpl userRedisCacheService;
 
     @Override
     public void addConnectedSessionToCache(String sessionId, Principal principal) {

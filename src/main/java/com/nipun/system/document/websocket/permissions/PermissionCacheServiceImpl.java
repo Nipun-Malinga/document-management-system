@@ -3,6 +3,7 @@ package com.nipun.system.document.websocket.permissions;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +13,12 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class PermissionCacheImpl implements PermissionCacheService {
+public class PermissionCacheServiceImpl implements PermissionCacheService {
 
-    private static final String USER_PERMISSION = "DOCUMENT_USER_PERMISSION_CACHE";
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    @Value("${cache.names.document.websocket.permission}")
+    private String USER_PERMISSION;
 
     @Override
     public void setUserPermissions(UUID documentId, Long userId, Permissions options) {

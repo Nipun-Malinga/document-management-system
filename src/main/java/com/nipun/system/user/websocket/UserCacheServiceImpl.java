@@ -1,23 +1,24 @@
-package com.nipun.system.user.cache;
+package com.nipun.system.user.websocket;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
-public class UserRedisCacheServiceImpl implements UserCacheService{
+public class UserCacheServiceImpl implements UserCacheService {
 
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
-
-    private static final String SESSIONS = "CONNECTED_SESSION_CACHE";
-    private static final String USERS = "CONNECTED_USERS_CACHE";
-
+    @Value("${cache.names.user.websocket.user-connection.users}")
+    private String USERS;
+    @Value("${cache.names.user.websocket.user-connection.sessions}")
+    private String SESSIONS;
 
     @Override
     public Long getConnectedUserIdFromSession(String sessionId) {
@@ -29,7 +30,8 @@ public class UserRedisCacheServiceImpl implements UserCacheService{
 
         if (userId == null) return null;
 
-        return objectMapper.convertValue(userId, new TypeReference<>() {});
+        return objectMapper.convertValue(userId, new TypeReference<>() {
+        });
     }
 
     @Override
@@ -58,9 +60,10 @@ public class UserRedisCacheServiceImpl implements UserCacheService{
 
         var users = cache.get("users", Object.class);
 
-        if (users == null)  return null;
+        if (users == null) return null;
 
-        return objectMapper.convertValue(users, new TypeReference<>() {});
+        return objectMapper.convertValue(users, new TypeReference<>() {
+        });
     }
 
     @Override

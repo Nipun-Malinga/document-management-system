@@ -21,3 +21,18 @@ security:
     secretKey: ${JWT_SECRET_KEY}
     accessTokenExpiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
     refreshTokenExpiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+cache:
+  names:
+    document:
+      websocket:
+        branch-connection:
+          users: DOCUMENT_BRANCH_CONNECTED_USERS_CACHE
+          sessions: DOCUMENT_BRANCH_CONNECTED_SESSIONS_CACHE
+        permission: DOCUMENT_USER_PERMISSION_CACHE
+        state: DOCUMENT_BRANCH_STATE_CACHE
+    user:
+      websocket:
+        user-connection:
+          users: CONNECTED_USERS_CACHE
+          sessions: CONNECTED_USERS_CACHE

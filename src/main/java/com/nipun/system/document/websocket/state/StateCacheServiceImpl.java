@@ -3,6 +3,7 @@ package com.nipun.system.document.websocket.state;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +13,10 @@ import java.util.UUID;
 @Service
 public class StateCacheServiceImpl implements StateCacheService {
 
-    private static final String STATE = "DOCUMENT_BRANCH_STATE_CACHE";
-
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    @Value("${cache.names.document.websocket.state}")
+    private String STATE;
 
     @Override
     public void setDocumentState(UUID documentId, UUID branchId, String content) {

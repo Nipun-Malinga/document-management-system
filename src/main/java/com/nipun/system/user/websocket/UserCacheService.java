@@ -1,4 +1,4 @@
-package com.nipun.system.user.cache;
+package com.nipun.system.user.websocket;
 
 import java.util.Set;
 

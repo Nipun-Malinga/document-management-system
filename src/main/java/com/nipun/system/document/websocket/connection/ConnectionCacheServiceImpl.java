@@ -3,6 +3,7 @@ package com.nipun.system.document.websocket.connection;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +13,12 @@ import java.util.*;
 @Service
 public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
-    private static final String DOCUMENT_BRANCH_USERS = "DOCUMENT_BRANCH_CONNECTED_USERS_CACHE";
-    private static final String DOCUMENT_BRANCH_SESSIONS = "DOCUMENT_BRANCH_CONNECTED_SESSIONS_CACHE";
-
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    @Value("${cache.names.document.websocket.branch-connection.users}")
+    private String DOCUMENT_BRANCH_USERS;
+    @Value("${cache.names.document.websocket.branch-connection.sessions}")
+    private String DOCUMENT_BRANCH_SESSIONS;
 
     @Override
     public void setConnectedUser(UUID documentId, UUID branchId, Long userId) {
