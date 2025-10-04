@@ -1,7 +1,7 @@
 package com.nipun.system.shared.interceptors;
 
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.authentication.AuthenticationService;
+import com.nipun.system.document.websocket.permissions.PermissionService;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Component
 public class SubscribeChannelInterceptor implements ChannelInterceptor {
 
-    private final AuthenticationService authenticationService;
+    private final PermissionService permissionService;
 
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {
@@ -35,7 +35,7 @@ public class SubscribeChannelInterceptor implements ChannelInterceptor {
 
                 var userId = UserIdUtils.getUserIdFromPrincipal(principal);
 
-                if (userId == null || authenticationService.isUnauthorizedUser(userId, documentId)) {
+                if (userId == null || permissionService.isUnauthorizedUser(documentId, userId)) {
                     throw new UnauthorizedDocumentException();
                 }
             }

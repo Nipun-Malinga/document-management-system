@@ -5,7 +5,6 @@ import com.nipun.system.document.websocket.dtos.StatusRequest;
 import com.nipun.system.document.websocket.dtos.StatusResponse;
 import com.nipun.system.document.websocket.state.StateService;
 import com.nipun.system.shared.utils.UserIdUtils;
-import com.nipun.system.shared.utils.WebsocketUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -25,7 +24,7 @@ public class DocumentWebsocketController {
 
     private final StateService stateService;
     private final ConnectionService connectionService;
-    private final WebsocketUtils websocketUtils;
+
 
     @SendTo("/document/{documentId}/branch/{branchId}/broadcastStatus")
     @MessageMapping("/document/{documentId}/branch/{branchId}/accept-changes")
@@ -47,15 +46,28 @@ public class DocumentWebsocketController {
             Principal principal,
             SimpMessageHeaderAccessor headerAccessor
     ) {
+        connectionService.registerConnectedUser(
+                documentId, branchId,
+                headerAccessor.getSessionId(), UserIdUtils.getUserIdFromPrincipal(principal));
+
+
         var state = stateService.getDocumentState(documentId, branchId, UserIdUtils.getUserIdFromPrincipal(principal));
         return new StatusResponse(state);
     }
 
-    @SubscribeMapping("/document/{documentId}/broadcastUsers")
+    @SubscribeMapping("/document/{documentId}/users")
     public Set<Long> getConnectedUsers(
             @DestinationVariable("documentId") UUID documentId,
             Principal principal
     ) {
         return null;
+    }
+
+    @SubscribeMapping("/document/{documentId}/branch/{branchId}/users")
+    public Set<Long> getConnectedUsers(
+            @DestinationVariable("documentId") UUID documentId,
+            @DestinationVariable("branchId") UUID branchId
+    ) {
+        return connectionService.getConnectedUsers(documentId, branchId);
     }
 }

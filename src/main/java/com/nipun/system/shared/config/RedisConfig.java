@@ -1,7 +1,6 @@
 package com.nipun.system.shared.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.cache.Cache;
@@ -54,8 +53,8 @@ public class RedisConfig {
     @Bean
     public ApplicationRunner clearSelectedCache(CacheManager cacheManager) {
         return _ -> {
-            clearCache(cacheManager.getCache("DOCUMENT_SESSION_CACHE"));
-            clearCache(cacheManager.getCache("DOCUMENT_CONNECTED_USERS_CACHE"));
+            clearCache(cacheManager.getCache("DOCUMENT_BRANCH_CONNECTED_SESSIONS_CACHE"));
+            clearCache(cacheManager.getCache("DOCUMENT_BRANCH_CONNECTED_USERS_CACHE"));
             clearCache(cacheManager.getCache("CONNECTED_USERS_CACHE"));
             clearCache(cacheManager.getCache("CONNECTED_SESSION_CACHE"));
         };
