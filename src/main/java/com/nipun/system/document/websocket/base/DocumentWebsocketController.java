@@ -1,9 +1,9 @@
 package com.nipun.system.document.websocket.base;
 
 import com.nipun.system.document.websocket.connection.ConnectionService;
-import com.nipun.system.document.websocket.dtos.StatusRequest;
-import com.nipun.system.document.websocket.dtos.StatusResponse;
 import com.nipun.system.document.websocket.state.StateService;
+import com.nipun.system.document.websocket.state.dtos.StatusRequest;
+import com.nipun.system.document.websocket.state.dtos.StatusResponse;
 import com.nipun.system.shared.utils.UserIdUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -57,10 +57,9 @@ public class DocumentWebsocketController {
 
     @SubscribeMapping("/document/{documentId}/users")
     public Set<Long> getConnectedUsers(
-            @DestinationVariable("documentId") UUID documentId,
-            Principal principal
+            @DestinationVariable("documentId") UUID documentId
     ) {
-        return null;
+        return connectionService.getAllConnectedUsers(documentId);
     }
 
     @SubscribeMapping("/document/{documentId}/branch/{branchId}/users")

@@ -4,14 +4,20 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface ConnectionCacheService {
-    void setConnectedUser(UUID documentId, UUID branchId, Long userId);
+    void setDocumentAllConnectedUsers(UUID documentId, UUID branchId, Long userId);
 
-    Set<Long> getConnectedUsers(UUID documentId, UUID branchId);
+    Set<Long> getDocumentAllConnectedUsers(UUID documentId);
 
-    void setConnectedSession(UUID documentId, UUID branchId, String sessionId, Long userId);
+    void removeDocumentDisconnectedUser(UUID documentId, UUID branchId, Long userId);
 
-    void removeDisconnectedUser(ConnectedUser user);
+    void setBranchConnectedUser(UUID documentId, UUID branchId, Long userId);
 
-    ConnectedUser removeDisconnectedSession(String sessionId);
+    Set<Long> getBranchConnectedUsers(UUID documentId, UUID branchId);
+
+    void setBranchConnectedSession(UUID documentId, UUID branchId, String sessionId, Long userId);
+
+    void removeBranchDisconnectedUser(ConnectedUser user);
+
+    ConnectedUser removeBranchDisconnectedSession(String sessionId);
 
 }

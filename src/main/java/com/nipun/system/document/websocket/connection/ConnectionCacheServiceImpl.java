@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -15,20 +17,116 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @Value("${cache.names.document.websocket.branch-connection.users}")
     private String DOCUMENT_BRANCH_USERS;
     @Value("${cache.names.document.websocket.branch-connection.sessions}")
     private String DOCUMENT_BRANCH_SESSIONS;
+    @Value("${cache.names.document.websocket.full-connection}")
+    private String DOCUMENT_ALL_USERS;
+    @Value("${cache.names.document.websocket.cache-ttl}")
+    private int CACHE_EXPIRE_TTL;
 
     @Override
-    public void setConnectedUser(UUID documentId, UUID branchId, Long userId) {
-        var cache = cacheManager.getCache(DOCUMENT_BRANCH_USERS);
+    public void setDocumentAllConnectedUsers(UUID documentId, UUID branchId, Long userId) {
+        var cache = cacheManager.getCache(DOCUMENT_ALL_USERS);
 
         if (cache == null)
             return;
 
         var users = objectMapper.convertValue(
-                cache.get(getCacheKey(documentId, branchId), Object.class),
+                cache.get(documentId, Object.class),
+                new TypeReference<Map<String, Set<Long>>>() {
+                }
+        );
+
+        if (users == null)
+            users = new HashMap<>();
+
+        var connections = users.get(branchId.toString());
+
+        if (connections == null)
+            connections = new HashSet<>();
+
+        connections.add(userId);
+
+        users.put(branchId.toString(), connections);
+
+        cache.put(documentId, users);
+
+        refreshTTL(DOCUMENT_ALL_USERS, documentId.toString());
+    }
+
+    @Override
+    public Set<Long> getDocumentAllConnectedUsers(UUID documentId) {
+        var cache = cacheManager.getCache(DOCUMENT_ALL_USERS);
+
+        if (cache == null)
+            return new HashSet<>();
+
+        var branches = objectMapper.convertValue(
+                cache.get(documentId, Object.class),
+                new TypeReference<Map<String, Set<Long>>>() {
+                }
+        );
+
+        if (branches == null)
+            return new HashSet<>();
+
+        Set<Long> users = new HashSet<>();
+
+        for (var branch : branches.entrySet()) {
+            users.addAll(branch.getValue());
+        }
+
+        refreshTTL(DOCUMENT_ALL_USERS, documentId.toString());
+
+        return users;
+    }
+
+    @Override
+    public void removeDocumentDisconnectedUser(UUID documentId, UUID branchId, Long userId) {
+        var cache = cacheManager.getCache(DOCUMENT_ALL_USERS);
+
+        if (cache == null)
+            return;
+
+        var branches = objectMapper.convertValue(
+                cache.get(documentId, Object.class),
+                new TypeReference<Map<String, Set<Long>>>() {
+                }
+        );
+
+        if (branches == null)
+            return;
+
+        var branch = branches.get(branchId.toString());
+
+        if (branch == null) {
+            return;
+        }
+
+        branch.remove(userId);
+
+        branches.put(branchId.toString(), branch);
+
+        cache.put(documentId, branches);
+
+        refreshTTL(DOCUMENT_ALL_USERS, documentId.toString());
+    }
+
+    @Override
+    public void setBranchConnectedUser(UUID documentId, UUID branchId, Long userId) {
+        var cache = cacheManager.getCache(DOCUMENT_BRANCH_USERS);
+
+        if (cache == null)
+            return;
+
+        var cacheKey = getCacheKey(documentId, branchId);
+
+        var users = objectMapper.convertValue(
+                cache.get(cacheKey, Object.class),
                 new TypeReference<Set<Long>>() {
                 }
         );
@@ -38,18 +136,22 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
         users.add(userId);
 
-        cache.put(getCacheKey(documentId, branchId), users);
+        cache.put(cacheKey, users);
+
+        refreshTTL(DOCUMENT_BRANCH_USERS, cacheKey);
     }
 
     @Override
-    public Set<Long> getConnectedUsers(UUID documentId, UUID branchId) {
+    public Set<Long> getBranchConnectedUsers(UUID documentId, UUID branchId) {
         var cache = cacheManager.getCache(DOCUMENT_BRANCH_USERS);
 
         if (cache == null)
             return new HashSet<>();
 
+        var cacheKey = getCacheKey(documentId, branchId);
+
         var users = objectMapper.convertValue(
-                cache.get(getCacheKey(documentId, branchId), Object.class),
+                cache.get(cacheKey, Object.class),
                 new TypeReference<Set<Long>>() {
                 }
         );
@@ -57,11 +159,13 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
         if (users == null)
             return new HashSet<>();
 
+        refreshTTL(DOCUMENT_BRANCH_USERS, cacheKey);
+
         return users;
     }
 
     @Override
-    public void setConnectedSession(UUID documentId, UUID branchId, String sessionId, Long userId) {
+    public void setBranchConnectedSession(UUID documentId, UUID branchId, String sessionId, Long userId) {
         var cache = cacheManager.getCache(DOCUMENT_BRANCH_SESSIONS);
 
         if (cache == null)
@@ -83,17 +187,21 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
         sessions.put(sessionId, connectedUser);
 
         cache.put("sessions", sessions);
+
+        refreshTTL(DOCUMENT_BRANCH_SESSIONS, "sessions");
     }
 
     @Override
-    public void removeDisconnectedUser(ConnectedUser user) {
+    public void removeBranchDisconnectedUser(ConnectedUser user) {
         var cache = cacheManager.getCache(DOCUMENT_BRANCH_USERS);
 
         if (cache == null)
             return;
 
+        var cacheKey = getCacheKey(user.getDocumentId(), user.getBranchId());
+
         var users = objectMapper.convertValue(
-                cache.get(getCacheKey(user.getDocumentId(), user.getBranchId()), Object.class),
+                cache.get(cacheKey, Object.class),
                 new TypeReference<Set<Long>>() {
                 }
         );
@@ -103,11 +211,13 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
         users.removeIf(userId -> Objects.equals(userId, user.getUserId()));
 
-        cache.put(getCacheKey(user.getDocumentId(), user.getBranchId()), users);
+        cache.put(cacheKey, users);
+
+        refreshTTL(DOCUMENT_BRANCH_USERS, cacheKey);
     }
 
     @Override
-    public ConnectedUser removeDisconnectedSession(String sessionId) {
+    public ConnectedUser removeBranchDisconnectedSession(String sessionId) {
         var cache = cacheManager.getCache(DOCUMENT_BRANCH_SESSIONS);
 
         if (cache == null)
@@ -119,10 +229,12 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
                 }
         );
 
+        refreshTTL(DOCUMENT_BRANCH_SESSIONS, "sessions");
+
         if (sessions != null && sessions.containsKey(sessionId)) {
             var user = sessions.get(sessionId);
 
-            removeDisconnectedUser(user);
+            removeBranchDisconnectedUser(user);
             sessions.remove(sessionId);
 
             cache.put("sessions", sessions);
@@ -135,5 +247,10 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
     private String getCacheKey(UUID documentId, UUID branchId) {
         return documentId + ":" + branchId;
+    }
+
+    private void refreshTTL(String cacheName, String key) {
+        String redisKey = cacheName + "::" + key;
+        redisTemplate.expire(redisKey, CACHE_EXPIRE_TTL, TimeUnit.MINUTES);
     }
 }

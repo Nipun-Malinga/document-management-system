@@ -24,34 +24,47 @@ public class ConnectionServiceImpl implements ConnectionService {
         if (permissionService.isUnauthorizedUser(documentId, userId))
             throw new UnauthorizedDocumentException();
 
-        cacheService.setConnectedSession(documentId, branchId, sessionId, userId);
-        cacheService.setConnectedUser(documentId, branchId, userId);
+        cacheService.setBranchConnectedSession(documentId, branchId, sessionId, userId);
+        cacheService.setBranchConnectedUser(documentId, branchId, userId);
+        cacheService.setDocumentAllConnectedUsers(documentId, branchId, userId);
 
         messagingTemplate.convertAndSend(
                 "/document/" + documentId + "/branch/" + branchId + "/users",
                 getConnectedUsers(documentId, branchId)
+        );
+
+        messagingTemplate.convertAndSend(
+                "/document/" + documentId + "/users",
+                getAllConnectedUsers(documentId)
         );
     }
 
     @Override
     public void removeDisconnectedSession(String sessionId) {
 
-        var user = cacheService.removeDisconnectedSession(sessionId);
+        var user = cacheService.removeBranchDisconnectedSession(sessionId);
 
-        if (user != null)
+        if (user != null) {
+            cacheService.removeDocumentDisconnectedUser(user.getDocumentId(), user.getBranchId(), user.getUserId());
             messagingTemplate.convertAndSend(
                     "/document/" + user.getDocumentId() + "/branch/" + user.getBranchId() + "/users",
                     getConnectedUsers(user.getDocumentId(), user.getBranchId())
             );
+
+            messagingTemplate.convertAndSend(
+                    "/document/" + user.getDocumentId() + "/users",
+                    getAllConnectedUsers(user.getDocumentId())
+            );
+        }
     }
 
     @Override
     public Set<Long> getAllConnectedUsers(UUID documentId) {
-        return Set.of();
+        return cacheService.getDocumentAllConnectedUsers(documentId);
     }
 
     @Override
     public Set<Long> getConnectedUsers(UUID documentId, UUID branchId) {
-        return cacheService.getConnectedUsers(documentId, branchId);
+        return cacheService.getBranchConnectedUsers(documentId, branchId);
     }
 }

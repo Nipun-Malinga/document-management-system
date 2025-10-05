@@ -26,13 +26,16 @@ cache:
   names:
     document:
       websocket:
+        full-connection: DOCUMENT_CONNECTED_USERS_CACHE
         branch-connection:
           users: DOCUMENT_BRANCH_CONNECTED_USERS_CACHE
           sessions: DOCUMENT_BRANCH_CONNECTED_SESSIONS_CACHE
         permission: DOCUMENT_USER_PERMISSION_CACHE
         state: DOCUMENT_BRANCH_STATE_CACHE
+        cache-ttl: 120
     user:
       websocket:
         user-connection:
           users: CONNECTED_USERS_CACHE
           sessions: CONNECTED_USERS_CACHE
+        cache-ttl: 120

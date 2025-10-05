@@ -12,14 +12,18 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
 @Configuration
 public class RedisConfig {
 
+    @Value("${cache.names.document.websocket.full-connection}")
+    private String DOCUMENT_ALL_USERS;
     @Value("${cache.names.user.websocket.user-connection.users}")
     private String USERS;
     @Value("${cache.names.user.websocket.user-connection.sessions}")
@@ -61,12 +65,22 @@ public class RedisConfig {
     }
 
     @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return template;
+    }
+
+    @Bean
     public ApplicationRunner clearSelectedCache(CacheManager cacheManager) {
         return _ -> {
             clearCache(cacheManager.getCache(USERS));
             clearCache(cacheManager.getCache(SESSIONS));
             clearCache(cacheManager.getCache(DOCUMENT_BRANCH_USERS));
             clearCache(cacheManager.getCache(DOCUMENT_BRANCH_SESSIONS));
+            clearCache(cacheManager.getCache(DOCUMENT_ALL_USERS));
         };
     }
 

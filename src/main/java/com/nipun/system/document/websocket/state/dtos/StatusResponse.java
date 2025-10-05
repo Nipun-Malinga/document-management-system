@@ -1,4 +1,4 @@
-package com.nipun.system.document.websocket.dtos;
+package com.nipun.system.document.websocket.state.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
