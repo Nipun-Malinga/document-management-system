@@ -7,12 +7,14 @@ import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.permissions.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class StateServiceImpl implements StateService {
+
     private final BranchRepository branchRepository;
     private final StateCacheService stateCacheService;
     private final PermissionService permissionService;
@@ -30,6 +32,7 @@ public class StateServiceImpl implements StateService {
         return content;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public String getDocumentState(UUID documentId, UUID branchId, Long userId) {
         if (permissionService.isUnauthorizedUser(documentId, userId))
@@ -44,8 +47,25 @@ public class StateServiceImpl implements StateService {
                 .findByPublicIdAndDocumentPublicId(branchId, documentId)
                 .orElseThrow(BranchNotFoundException::new);
 
-        stateCacheService.setDocumentState(documentId, branchId, branch.getBranchContent());
+        var content = branch.getBranchContent();
 
-        return branch.getBranchContent();
+        stateCacheService.setDocumentState(documentId, branchId, content);
+
+        return content;
+    }
+
+    @Override
+    public void updateDocument(UUID documentId, UUID branchId) {
+        var state = stateCacheService.getDocumentState(documentId, branchId);
+
+        if (state == null) return;
+
+        var branch = branchRepository
+                .findByPublicIdAndDocumentPublicId(branchId, documentId)
+                .orElseThrow();
+
+        branch.setBranchContent(state);
+
+        branchRepository.save(branch);
     }
 }

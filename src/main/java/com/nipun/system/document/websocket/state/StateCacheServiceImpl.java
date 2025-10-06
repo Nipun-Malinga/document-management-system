@@ -15,6 +15,7 @@ public class StateCacheServiceImpl implements StateCacheService {
 
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+
     @Value("${cache.names.document.websocket.state}")
     private String STATE;
 

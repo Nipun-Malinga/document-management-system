@@ -6,4 +6,6 @@ public interface StateService {
     String setDocumentState(UUID documentId, UUID branchId, Long userId, String content);
 
     String getDocumentState(UUID documentId, UUID branchId, Long userId);
+
+    void updateDocument(UUID documentId, UUID branchId);
 }
