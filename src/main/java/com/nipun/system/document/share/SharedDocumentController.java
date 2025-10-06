@@ -1,8 +1,8 @@
 package com.nipun.system.document.share;
 
-import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.document.share.dtos.ShareDocumentRequest;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
+import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -37,6 +38,17 @@ public class SharedDocumentController {
         var sharedDocumentDto = sharedDocumentService.shareDocument(
                 shareUserId, documentId, request.getPermission());
         return ResponseEntity.ok(sharedDocumentDto);
+    }
+
+    @GetMapping("/{id}/share/users")
+    @Operation(summary = "Get all shared users", description = "Get all shared users with the document")
+    public ResponseEntity<List<SharedDocumentResponse>> getAllSharedUsers(
+            @PathVariable(name = "id")
+            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
+            UUID documentId
+    ) {
+        var sharedUsers = sharedDocumentService.getAllSharedUsers(documentId);
+        return ResponseEntity.ok(sharedUsers);
     }
 
     @GetMapping("/share")

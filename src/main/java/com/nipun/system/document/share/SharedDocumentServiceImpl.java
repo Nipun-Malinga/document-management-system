@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -64,6 +65,17 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
         permissionService.removeUserPermissions(documentId, sharedUserId);
 
         return sharedDocumentMapper.toSharedDocumentDto(sharedDocument);
+    }
+
+    @Override
+    public List<SharedDocumentResponse> getAllSharedUsers(UUID documentId) {
+        var userId = UserIdUtils.getUserIdFromContext();
+
+        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElseThrow(DocumentNotFoundException::new);
+
+        return document.getSharedUsers().stream()
+                .map(user -> new SharedDocumentResponse(documentId, user.getUserId(), user.getPermission()))
+                .toList();
     }
 
     @Override
