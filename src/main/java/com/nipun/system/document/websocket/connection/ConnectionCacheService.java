@@ -16,8 +16,6 @@ public interface ConnectionCacheService {
 
     void setBranchConnectedSession(UUID documentId, UUID branchId, String sessionId, Long userId);
 
-    void removeBranchDisconnectedUser(ConnectedUser user);
-
     ConnectedUser removeBranchDisconnectedSession(String sessionId);
 
 }

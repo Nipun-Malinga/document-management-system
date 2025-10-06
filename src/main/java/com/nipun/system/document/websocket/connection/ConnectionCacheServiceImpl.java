@@ -143,25 +143,23 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
     @Override
     public Set<Long> getBranchConnectedUsers(UUID documentId, UUID branchId) {
-        var cache = cacheManager.getCache(DOCUMENT_BRANCH_USERS);
+        var cache = cacheManager.getCache(DOCUMENT_ALL_USERS);
 
         if (cache == null)
             return new HashSet<>();
 
-        var cacheKey = getCacheKey(documentId, branchId);
-
         var users = objectMapper.convertValue(
-                cache.get(cacheKey, Object.class),
-                new TypeReference<Set<Long>>() {
+                cache.get(documentId.toString(), Object.class),
+                new TypeReference<Map<String, Set<Long>>>() {
                 }
         );
 
-        if (users == null)
-            return new HashSet<>();
+        if (users != null && users.containsKey(branchId.toString()))
+            return users.get(branchId.toString());
 
-        refreshTTL(DOCUMENT_BRANCH_USERS, cacheKey);
+        refreshTTL(DOCUMENT_ALL_USERS, documentId.toString());
 
-        return users;
+        return new HashSet<>();
     }
 
     @Override
@@ -192,31 +190,6 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
     }
 
     @Override
-    public void removeBranchDisconnectedUser(ConnectedUser user) {
-        var cache = cacheManager.getCache(DOCUMENT_BRANCH_USERS);
-
-        if (cache == null)
-            return;
-
-        var cacheKey = getCacheKey(user.getDocumentId(), user.getBranchId());
-
-        var users = objectMapper.convertValue(
-                cache.get(cacheKey, Object.class),
-                new TypeReference<Set<Long>>() {
-                }
-        );
-
-        if (users == null)
-            return;
-
-        users.removeIf(userId -> Objects.equals(userId, user.getUserId()));
-
-        cache.put(cacheKey, users);
-
-        refreshTTL(DOCUMENT_BRANCH_USERS, cacheKey);
-    }
-
-    @Override
     public ConnectedUser removeBranchDisconnectedSession(String sessionId) {
         var cache = cacheManager.getCache(DOCUMENT_BRANCH_SESSIONS);
 
@@ -234,7 +207,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
         if (sessions != null && sessions.containsKey(sessionId)) {
             var user = sessions.get(sessionId);
 
-            removeBranchDisconnectedUser(user);
+            removeDocumentDisconnectedUser(user.getDocumentId(), user.getBranchId(), user.getUserId());
             sessions.remove(sessionId);
 
             cache.put("sessions", sessions);
