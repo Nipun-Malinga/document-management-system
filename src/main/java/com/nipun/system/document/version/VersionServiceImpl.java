@@ -7,6 +7,7 @@ import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.branch.BranchRepository;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.diff.DiffService;
+import com.nipun.system.document.diff.DiffUtils;
 import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
@@ -23,7 +24,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -35,6 +35,8 @@ public class VersionServiceImpl implements VersionService {
 
     private final VersionMapper versionMapper;
 
+    private final DiffUtils diffUtils;
+    
     private final DiffService diffService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
@@ -171,19 +173,13 @@ public class VersionServiceImpl implements VersionService {
                 .orElseThrow(VersionNotFoundException::new);
 
         if (baseVersion.getStatus().equals(Status.PUBLIC) && compareVersion.getStatus().equals(Status.PUBLIC))
-            return buildDiffResponse(baseVersion, compareVersion);
+            return diffUtils.buildDiffResponse(baseVersion.getVersionContent(), compareVersion.getVersionContent());
 
         var userId = UserIdUtils.getUserIdFromContext();
 
         if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
-        return buildDiffResponse(baseVersion, compareVersion);
-    }
-
-    private DiffResponse buildDiffResponse(Version base, Version compare) {
-        return new DiffResponse(Map.of(
-                "diffs", diffService.getVersionDiffs(base.getVersionContent(), compare.getVersionContent())
-        ));
+        return diffUtils.buildDiffResponse(baseVersion.getVersionContent(), compareVersion.getVersionContent());
     }
 }

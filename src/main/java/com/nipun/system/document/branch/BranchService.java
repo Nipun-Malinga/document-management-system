@@ -2,6 +2,7 @@ package com.nipun.system.document.branch;
 
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.branch.dtos.BranchResponse;
+import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 
 import java.util.UUID;
@@ -16,6 +17,8 @@ public interface BranchService {
     ContentResponse updateBranchContent(UUID documentId, UUID branchId, String content);
 
     void deleteBranch(UUID documentId, UUID branchId);
+
+    DiffResponse getBranchDiffs(UUID documentId, UUID base, UUID compare);
 
     void mergeBranches(UUID documentId, UUID branchId, UUID mergeBranchId);
 }

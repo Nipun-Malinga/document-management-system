@@ -6,6 +6,7 @@ import com.nipun.system.document.branch.dtos.BranchResponse;
 import com.nipun.system.document.branch.dtos.CreateBranchRequest;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.branch.exceptions.BranchTitleAlreadyExistsException;
+import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -101,6 +102,22 @@ public class BranchController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{documentId}/branches/diffs")
+    @Operation(summary = "Compare branch Diffs", description = "Compare document branch diffs")
+    public ResponseEntity<DiffResponse> getVersionDiffs(
+            @PathVariable(name = "documentId")
+            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
+            UUID documentId,
+            @RequestParam(name = "base-version")
+            @Parameter(description = "Base Branch ID", example = "d361bae1-01ee-4392-811c-57b9593c2460")
+            UUID base,
+            @RequestParam(name = "compare-version")
+            @Parameter(description = "Comparing Branch ID", example = "be0ff390-f94a-42d1-922a-893feae4aa0a")
+            UUID compare
+    ) {
+        var diffResponseDto = branchService.getBranchDiffs(documentId, base, compare);
+        return ResponseEntity.ok(diffResponseDto);
+    }
 
     @PostMapping("/{documentId}/branches/{branchId}/merge/{mergeBranchId}")
     @Operation(summary = "Merge branch", description = "Merge two specific branches")

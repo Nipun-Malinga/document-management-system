@@ -1,5 +1,6 @@
 package com.nipun.system.document.branch;
 
+import com.nipun.system.document.Status;
 import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
@@ -7,6 +8,8 @@ import com.nipun.system.document.branch.dtos.BranchResponse;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.branch.exceptions.BranchTitleAlreadyExistsException;
 import com.nipun.system.document.diff.DiffService;
+import com.nipun.system.document.diff.DiffUtils;
+import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.document.share.SharedDocumentAuthService;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.shared.dtos.PaginatedData;
@@ -34,6 +37,8 @@ public class BranchServiceImpl implements BranchService {
     private final DocumentRepository documentRepository;
 
     private final BranchMapper branchMapper;
+
+    private final DiffUtils diffUtils;
 
     private final DiffService diffService;
     private final SharedDocumentAuthService sharedDocumentAuthService;
@@ -158,6 +163,33 @@ public class BranchServiceImpl implements BranchService {
         branchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
                 .ifPresent(branchRepository::delete);
+    }
+
+    @Cacheable(value = "document_branch_diffs", key = "{#documentId, #base, #compare}")
+    @Transactional(readOnly = true)
+    @Override
+    public DiffResponse getBranchDiffs(UUID documentId, UUID base, UUID compare) {
+        var document = documentRepository
+                .findByPublicId(documentId)
+                .orElseThrow(DocumentNotFoundException::new);
+
+        var baseBranch = branchRepository
+                .findByPublicIdAndDocumentId(base, document.getId())
+                .orElseThrow(BranchNotFoundException::new);
+
+        var compareBranch = branchRepository
+                .findByPublicIdAndDocumentId(compare, document.getId())
+                .orElseThrow(BranchNotFoundException::new);
+
+        if (baseBranch.getStatus().equals(Status.PUBLIC) && compareBranch.getStatus().equals(Status.PUBLIC))
+            return diffUtils.buildDiffResponse(baseBranch.getBranchContent(), compareBranch.getBranchContent());
+
+        var userId = UserIdUtils.getUserIdFromContext();
+
+        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+            throw new UnauthorizedDocumentException();
+
+        return diffUtils.buildDiffResponse(baseBranch.getBranchContent(), compareBranch.getBranchContent());
     }
 
     @CacheEvict(value = "document_branch_contents", key = "{#documentId, #branchId}")

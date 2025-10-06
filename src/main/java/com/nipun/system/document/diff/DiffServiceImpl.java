@@ -12,8 +12,8 @@ public class DiffServiceImpl implements DiffService {
     private final DiffMatchPatch dmp = new DiffMatchPatch();
 
     @Override
-    public List<DiffRow> getVersionDiffs(String baseVersionContent, String compareVersionContent) {
-        if(baseVersionContent == null || compareVersionContent == null)
+    public List<DiffRow> getDiffs(String baseVersionContent, String compareVersionContent) {
+        if (baseVersionContent == null || compareVersionContent == null)
             throw new IllegalArgumentException("Document contents cannot be null");
 
         var diffs = dmp.diffMain(baseVersionContent, compareVersionContent);
@@ -27,7 +27,7 @@ public class DiffServiceImpl implements DiffService {
 
     @Override
     public String patchDocument(String originalDoc, String updatedDoc) {
-        if(originalDoc == null || updatedDoc == null)
+        if (originalDoc == null || updatedDoc == null)
             throw new IllegalArgumentException("Document contents cannot be null");
 
         var patches = dmp.patchMake(originalDoc, updatedDoc);
