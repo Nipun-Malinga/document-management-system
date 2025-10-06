@@ -31,16 +31,16 @@ public class DocumentController {
     ) {
         var document = documentService.createDocument(request);
 
-        var uri = uriBuilder.path("/documents/{id}")
+        var uri = uriBuilder.path("/documents/{documentId}")
                 .buildAndExpand(document.getId()).toUri();
 
         return ResponseEntity.created(uri).body(document);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{documentId}")
     @Operation(summary = "Get document", description = "Get document by ID")
     public ResponseEntity<DocumentResponse> getDocument(
-            @PathVariable(name = "id")
+            @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
     ) {
@@ -62,10 +62,10 @@ public class DocumentController {
         return ResponseEntity.ok(paginatedDocumentDtoList);
     }
 
-    @PutMapping("/{id}/title")
+    @PutMapping("/{documentId}/title")
     @Operation(summary = "Update document title", description = "Updates the document title")
     public ResponseEntity<DocumentResponse> updateDocumentTitle(
-            @PathVariable(name = "id")
+            @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
             @RequestBody @Valid UpdateTitleRequest request
@@ -74,10 +74,10 @@ public class DocumentController {
         return ResponseEntity.ok(documentDto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{documentId}")
     @Operation(summary = "Delete document", description = "Deletes document from the system")
     public ResponseEntity<Void> deleteDocument(
-            @PathVariable(name = "id")
+            @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
     ) {

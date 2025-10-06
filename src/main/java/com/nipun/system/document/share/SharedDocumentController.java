@@ -22,10 +22,10 @@ public class SharedDocumentController {
 
     private final SharedDocumentService sharedDocumentService;
 
-    @PostMapping("/{id}/share/{userId}")
+    @PostMapping("/{documentId}/share/{userId}")
     @Operation(summary = "Share document", description = "Share document among user")
     public ResponseEntity<SharedDocumentResponse> shareDocument(
-            @PathVariable(name = "id")
+            @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
             @PathVariable(name = "userId")
@@ -40,10 +40,10 @@ public class SharedDocumentController {
         return ResponseEntity.ok(sharedDocumentDto);
     }
 
-    @GetMapping("/{id}/share/users")
+    @GetMapping("/{documentId}/share/users")
     @Operation(summary = "Get all shared users", description = "Get all shared users with the document")
     public ResponseEntity<List<SharedDocumentResponse>> getAllSharedUsers(
-            @PathVariable(name = "id")
+            @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
     ) {
@@ -65,10 +65,10 @@ public class SharedDocumentController {
         return ResponseEntity.ok(paginatedDocuments);
     }
 
-    @PostMapping("/{id}/share/remove")
+    @PostMapping("/{documentId}/share/remove")
     @Operation(summary = "Remove document access", description = "Remove own document access")
     public ResponseEntity<Void> removeDocumentAccess(
-            @PathVariable(name = "id")
+            @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
     ) {
@@ -76,10 +76,10 @@ public class SharedDocumentController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/share/remove/{sharedUserId}")
+    @PostMapping("/{documentId}/share/remove/{sharedUserId}")
     @Operation(summary = "Remove document access", description = "Remove document access as owner")
     public ResponseEntity<Void> removeDocumentAccess(
-            @PathVariable(name = "id")
+            @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
             @PathVariable(name = "sharedUserId")
