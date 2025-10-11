@@ -16,6 +16,8 @@ public class PermissionServiceImpl implements PermissionService {
     private final DocumentRepository documentRepository;
     private final SharedDocumentAuthService sharedDocumentAuthService;
 
+    private final Object cacheMonitor = new Object();
+
     @Override
     public boolean isUnauthorizedUser(UUID documentId, Long userId) {
         return getPermissions(documentId, userId).isUnauthorizedUser();
@@ -37,16 +39,21 @@ public class PermissionServiceImpl implements PermissionService {
         if (permissions != null)
             return permissions;
 
-        var document = documentRepository
-                .findByPublicId(documentId)
-                .orElseThrow(DocumentNotFoundException::new);
+        synchronized (cacheMonitor) {
+            permissions = permissionCacheService.getUserPermissions(documentId, userId);
 
-        var unauthorized = sharedDocumentAuthService.isUnauthorizedUser(userId, document);
-        var readOnly = sharedDocumentAuthService.isReadOnlyUser(userId, document);
+            if (permissions == null) {
+                var document = documentRepository.findByPublicId(documentId)
+                        .orElseThrow(DocumentNotFoundException::new);
 
-        permissions = new Permissions(unauthorized, readOnly);
+                var unauthorized = sharedDocumentAuthService.isUnauthorizedUser(userId, document);
+                var readOnly = sharedDocumentAuthService.isReadOnlyUser(userId, document);
 
-        permissionCacheService.setUserPermissions(documentId, userId, permissions);
+                permissions = new Permissions(unauthorized, readOnly);
+
+                permissionCacheService.setUserPermissions(documentId, userId, permissions);
+            }
+        }
 
         return permissions;
     }
