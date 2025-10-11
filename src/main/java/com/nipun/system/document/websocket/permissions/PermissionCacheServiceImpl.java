@@ -17,6 +17,7 @@ public class PermissionCacheServiceImpl implements PermissionCacheService {
 
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+
     @Value("${cache.names.document.websocket.permission}")
     private String USER_PERMISSION;
 
@@ -27,6 +28,7 @@ public class PermissionCacheServiceImpl implements PermissionCacheService {
 
         if (cache == null)
             return;
+
         var permissions = objectMapper.convertValue(
                 cache.get(documentId, Object.class),
                 new TypeReference<Map<String, Permissions>>() {

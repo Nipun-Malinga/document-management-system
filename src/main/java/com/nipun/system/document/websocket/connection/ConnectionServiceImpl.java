@@ -2,7 +2,6 @@ package com.nipun.system.document.websocket.connection;
 
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.permissions.PermissionService;
-import com.nipun.system.document.websocket.state.StateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ public class ConnectionServiceImpl implements ConnectionService {
     private final ConnectionCacheService cacheService;
     private final SimpMessagingTemplate messagingTemplate;
     private final PermissionService permissionService;
-    private final StateService stateService;
 
     @Override
     public void registerConnectedUser(UUID documentId, UUID branchId, String sessionId, Long userId) {
@@ -57,9 +55,6 @@ public class ConnectionServiceImpl implements ConnectionService {
                     "/document/" + user.getDocumentId() + "/users",
                     getAllConnectedUsers(user.getDocumentId())
             );
-
-            if (getConnectedUsers(user.getDocumentId(), user.getBranchId()).isEmpty())
-                stateService.updateDocument(user.getDocumentId(), user.getBranchId());
         }
     }
 

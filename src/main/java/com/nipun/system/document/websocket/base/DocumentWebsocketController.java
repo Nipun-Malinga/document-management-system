@@ -1,5 +1,6 @@
 package com.nipun.system.document.websocket.base;
 
+import com.nipun.system.document.websocket.autoupdater.AutoUpdater;
 import com.nipun.system.document.websocket.connection.ConnectionService;
 import com.nipun.system.document.websocket.state.StateService;
 import com.nipun.system.document.websocket.state.dtos.StatusRequest;
@@ -24,7 +25,7 @@ public class DocumentWebsocketController {
 
     private final StateService stateService;
     private final ConnectionService connectionService;
-
+    private final AutoUpdater autoUpdater;
 
     @SendTo("/document/{documentId}/branch/{branchId}/broadcastStatus")
     @MessageMapping("/document/{documentId}/branch/{branchId}/accept-changes")
@@ -50,6 +51,7 @@ public class DocumentWebsocketController {
                 documentId, branchId,
                 headerAccessor.getSessionId(), UserIdUtils.getUserIdFromPrincipal(principal));
 
+        autoUpdater.startAutoUpdater(documentId, branchId);
 
         var state = stateService.getDocumentState(documentId, branchId, UserIdUtils.getUserIdFromPrincipal(principal));
         return new StatusResponse(state);
