@@ -2,14 +2,13 @@ package com.nipun.system.document.websocket.connection;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nipun.system.document.websocket.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -17,7 +16,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final CacheUtils cacheUtils;
 
     @Value("${cache.names.document.websocket.branch-connection.users}")
     private String DOCUMENT_BRANCH_USERS;
@@ -55,7 +54,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
         cache.put(documentId, users);
 
-        refreshTTL(DOCUMENT_ALL_USERS, documentId.toString());
+        cacheUtils.refreshTTL(DOCUMENT_ALL_USERS, documentId.toString(), CACHE_EXPIRE_TTL);
     }
 
     @Override
@@ -80,7 +79,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
             users.addAll(branch.getValue());
         }
 
-        refreshTTL(DOCUMENT_ALL_USERS, documentId.toString());
+        cacheUtils.refreshTTL(DOCUMENT_ALL_USERS, documentId.toString(), CACHE_EXPIRE_TTL);
 
         return users;
     }
@@ -113,7 +112,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
         cache.put(documentId, branches);
 
-        refreshTTL(DOCUMENT_ALL_USERS, documentId.toString());
+        cacheUtils.refreshTTL(DOCUMENT_ALL_USERS, documentId.toString(), CACHE_EXPIRE_TTL);
     }
 
     @Override
@@ -123,7 +122,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
         if (cache == null)
             return;
 
-        var cacheKey = getCacheKey(documentId, branchId);
+        var cacheKey = cacheUtils.generateCacheKey(documentId, branchId);
 
         var users = objectMapper.convertValue(
                 cache.get(cacheKey, Object.class),
@@ -138,7 +137,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
         cache.put(cacheKey, users);
 
-        refreshTTL(DOCUMENT_BRANCH_USERS, cacheKey);
+        cacheUtils.refreshTTL(DOCUMENT_BRANCH_USERS, cacheKey, CACHE_EXPIRE_TTL);
     }
 
     @Override
@@ -157,7 +156,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
         if (users != null && users.containsKey(branchId.toString()))
             return users.get(branchId.toString());
 
-        refreshTTL(DOCUMENT_ALL_USERS, documentId.toString());
+        cacheUtils.refreshTTL(DOCUMENT_ALL_USERS, documentId.toString(), CACHE_EXPIRE_TTL);
 
         return new HashSet<>();
     }
@@ -186,7 +185,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
 
         cache.put("sessions", sessions);
 
-        refreshTTL(DOCUMENT_BRANCH_SESSIONS, "sessions");
+        cacheUtils.refreshTTL(DOCUMENT_BRANCH_SESSIONS, "sessions", CACHE_EXPIRE_TTL);
     }
 
     @Override
@@ -202,7 +201,7 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
                 }
         );
 
-        refreshTTL(DOCUMENT_BRANCH_SESSIONS, "sessions");
+        cacheUtils.refreshTTL(DOCUMENT_BRANCH_SESSIONS, "sessions", CACHE_EXPIRE_TTL);
 
         if (sessions != null && sessions.containsKey(sessionId)) {
             var user = sessions.get(sessionId);
@@ -216,14 +215,5 @@ public class ConnectionCacheServiceImpl implements ConnectionCacheService {
         }
 
         return null;
-    }
-
-    private String getCacheKey(UUID documentId, UUID branchId) {
-        return documentId + ":" + branchId;
-    }
-
-    private void refreshTTL(String cacheName, String key) {
-        String redisKey = cacheName + "::" + key;
-        redisTemplate.expire(redisKey, CACHE_EXPIRE_TTL, TimeUnit.MINUTES);
     }
 }

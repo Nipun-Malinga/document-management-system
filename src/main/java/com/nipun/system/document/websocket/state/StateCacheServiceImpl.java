@@ -2,6 +2,7 @@ package com.nipun.system.document.websocket.state;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nipun.system.document.websocket.utils.CacheUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -15,9 +16,12 @@ public class StateCacheServiceImpl implements StateCacheService {
 
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    private final CacheUtils cacheUtils;
 
     @Value("${cache.names.document.websocket.state}")
     private String STATE;
+    @Value("${cache.names.document.websocket.cache-ttl}")
+    private int CACHE_EXPIRE_TTL;
 
     @Override
     public void setDocumentState(UUID documentId, UUID branchId, String content) {
@@ -26,7 +30,11 @@ public class StateCacheServiceImpl implements StateCacheService {
         if (cache == null)
             return;
 
-        cache.put(getCacheKey(documentId, branchId), content);
+        var cacheKey = cacheUtils.generateCacheKey(documentId, branchId);
+
+        cache.put(cacheKey, content);
+
+        cacheUtils.refreshTTL(STATE, cacheKey, CACHE_EXPIRE_TTL);
     }
 
     @Override
@@ -36,15 +44,15 @@ public class StateCacheServiceImpl implements StateCacheService {
         if (cache == null)
             return null;
 
-        var state = cache.get(getCacheKey(documentId, branchId), Object.class);
+        var cacheKey = cacheUtils.generateCacheKey(documentId, branchId);
+
+        var state = cache.get(cacheKey, Object.class);
 
         if (state == null) return null;
 
+        cacheUtils.refreshTTL(STATE, cacheKey, CACHE_EXPIRE_TTL);
+
         return objectMapper.convertValue(state, new TypeReference<>() {
         });
-    }
-
-    private String getCacheKey(UUID documentId, UUID branchId) {
-        return documentId + ":" + branchId;
     }
 }
