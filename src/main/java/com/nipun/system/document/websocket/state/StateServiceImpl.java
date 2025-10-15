@@ -54,6 +54,7 @@ public class StateServiceImpl implements StateService {
         return content;
     }
 
+    @Transactional
     @Override
     public void updateDocument(UUID documentId, UUID branchId) {
         var state = stateCacheService.getDocumentState(documentId, branchId);
@@ -64,8 +65,9 @@ public class StateServiceImpl implements StateService {
                 .findByPublicIdAndDocumentPublicId(branchId, documentId)
                 .orElseThrow();
 
-        branch.setBranchContent(state);
-
-        branchRepository.save(branch);
+        if (!branch.getBranchContent().equals(state)) {
+            branch.setBranchContent(state);
+            branchRepository.save(branch);
+        }
     }
 }
