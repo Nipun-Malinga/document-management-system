@@ -39,3 +39,6 @@ cache:
           users: CONNECTED_USERS_CACHE
           sessions: CONNECTED_USERS_CACHE
         cache-ttl: 120
+
+client:
+  url: ${CLIENT_URL}

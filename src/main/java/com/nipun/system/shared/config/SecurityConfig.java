@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,31 +32,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-            .sessionManagement(c ->
-                    c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests((requests) ->
-                    requests
-                            .requestMatchers(
-                                    "/v3/api-docs/**",
-                                    "/swagger-ui/**",
-                                    "/swagger-ui.html"
-                            ).permitAll()
-                            .requestMatchers("/gs-guide-websocket/**").permitAll()
-                            .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-                            .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
-                            .requestMatchers(HttpMethod.POST,"/users/register").permitAll()
-                            .anyRequest().authenticated())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(config -> {
-                config.accessDeniedHandler(
-                        (_, response, _) ->
-                                response.setStatus(HttpStatus.FORBIDDEN.value()));
-                config.authenticationEntryPoint(
-                        (_, response, _) ->
-                                response.setStatus(HttpStatus.UNAUTHORIZED.value()));
-            })
-            .build();
+                .sessionManagement(c ->
+                        c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests((requests) ->
+                        requests
+                                .requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html"
+                                ).permitAll()
+                                .requestMatchers("/gs-guide-websocket/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
+                                .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(config -> {
+                    config.accessDeniedHandler(
+                            (_, response, _) ->
+                                    response.setStatus(HttpStatus.FORBIDDEN.value()));
+                    config.authenticationEntryPoint(
+                            (_, response, _) ->
+                                    response.setStatus(HttpStatus.UNAUTHORIZED.value()));
+                })
+                .build();
     }
 
     @Bean
