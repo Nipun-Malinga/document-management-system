@@ -20,6 +20,8 @@ public class DocumentResponse {
 
     private Status status;
 
+    private boolean shared;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 

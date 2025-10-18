@@ -49,7 +49,7 @@ public class Document {
             mappedBy = "document",
             cascade = {CascadeType.MERGE, CascadeType.REMOVE},
             orphanRemoval = true,
-            fetch = FetchType.LAZY
+            fetch = FetchType.EAGER
     )
     private Set<SharedDocument> sharedDocuments = new HashSet<>();
 
@@ -61,6 +61,10 @@ public class Document {
             fetch = FetchType.LAZY
     )
     private Set<Branch> branches = new HashSet<>();
+
+    public boolean isSharedDocument() {
+        return sharedDocuments != null && !sharedDocuments.isEmpty();
+    }
 
     public void addSharedDocument(SharedDocument document) {
         this.sharedDocuments.add(document);
