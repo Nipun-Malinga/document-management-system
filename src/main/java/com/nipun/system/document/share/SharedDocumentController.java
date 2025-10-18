@@ -1,6 +1,7 @@
 package com.nipun.system.document.share;
 
 import com.nipun.system.document.share.dtos.ShareDocumentRequest;
+import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -24,7 +24,7 @@ public class SharedDocumentController {
 
     @PostMapping("/{documentId}/share/{userId}")
     @Operation(summary = "Share document", description = "Share document among user")
-    public ResponseEntity<SharedDocumentResponse> shareDocument(
+    public ResponseEntity<SharedDocumentDto> shareDocument(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
@@ -42,7 +42,7 @@ public class SharedDocumentController {
 
     @GetMapping("/{documentId}/share/users")
     @Operation(summary = "Get all shared users", description = "Get all shared users with the document")
-    public ResponseEntity<List<SharedDocumentResponse>> getAllSharedUsers(
+    public ResponseEntity<SharedDocumentResponse> getAllSharedUsers(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId

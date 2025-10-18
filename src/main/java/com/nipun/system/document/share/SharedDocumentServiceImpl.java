@@ -3,6 +3,7 @@ package com.nipun.system.document.share;
 import com.nipun.system.document.base.DocumentMapper;
 import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.websocket.permissions.PermissionService;
@@ -11,12 +12,13 @@ import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -36,7 +38,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
 
     @Transactional
     @Override
-    public SharedDocumentResponse shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
+    public SharedDocumentDto shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
@@ -67,15 +69,18 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
         return sharedDocumentMapper.toSharedDocumentDto(sharedDocument);
     }
 
+    @Cacheable(value = "sharedUsers", key = "{#documentId}")
     @Override
-    public List<SharedDocumentResponse> getAllSharedUsers(UUID documentId) {
+    public SharedDocumentResponse getAllSharedUsers(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElseThrow(DocumentNotFoundException::new);
 
-        return document.getSharedUsers().stream()
-                .map(user -> new SharedDocumentResponse(documentId, user.getUserId(), user.getPermission()))
+        var dtoList = document.getSharedUsers().stream()
+                .map(sharedDocumentMapper::toSharedDocumentDto)
                 .toList();
+
+        return new SharedDocumentResponse(dtoList);
     }
 
     @Override
@@ -103,6 +108,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
         );
     }
 
+    @CacheEvict(value = "sharedUsers", key = "{#documentId}")
     @Override
     public void removeDocumentAccess(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
@@ -115,6 +121,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
         sharedDocumentRepository.delete(sharedDocument);
     }
 
+    @CacheEvict(value = "sharedUsers", key = "{#documentId}")
     @Override
     public void removeDocumentAccess(UUID documentId, Long sharedUserId) {
         var userId = UserIdUtils.getUserIdFromContext();
