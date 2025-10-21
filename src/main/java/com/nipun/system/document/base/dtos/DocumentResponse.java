@@ -22,6 +22,8 @@ public class DocumentResponse {
 
     private boolean shared;
 
+    private int branchCount;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 

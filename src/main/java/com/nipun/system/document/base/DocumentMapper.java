@@ -11,5 +11,6 @@ public interface DocumentMapper {
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "status", source = "status")
     @Mapping(target = "shared", expression = "java(document.isSharedDocument())")
+    @Mapping(target = "branchCount", expression = "java(document.getBranches().size())")
     DocumentResponse toDto(Document document);
 }

@@ -10,5 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class SharedDocumentDto {
     private Long userId;
+    private String username;
+    private String email;
     private Permission permission;
 }

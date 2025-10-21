@@ -14,4 +14,6 @@ public class BranchResponse {
     private String branchName;
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

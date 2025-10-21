@@ -9,7 +9,8 @@ public interface BranchMapper {
 
     @Mapping(target = "id", source = "publicId")
     @Mapping(target = "documentId", source = "document.publicId")
-    @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "branchName", source = "branchName")
+    @Mapping(target = "createdAt", source = "createdAt")
+    @Mapping(target = "updatedAt", source = "updatedAt")
     BranchResponse toDto(Branch branch);
 }
