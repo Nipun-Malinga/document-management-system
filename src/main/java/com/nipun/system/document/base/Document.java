@@ -62,6 +62,14 @@ public class Document {
     )
     private Set<Branch> branches = new HashSet<>();
 
+    public UUID getMainBranchId() {
+        return branches.stream()
+                .filter(b -> b.getBranchName().equals("main"))
+                .findFirst()
+                .orElseThrow()
+                .getPublicId();
+    }
+
     public boolean isSharedDocument() {
         return sharedDocuments != null && !sharedDocuments.isEmpty();
     }

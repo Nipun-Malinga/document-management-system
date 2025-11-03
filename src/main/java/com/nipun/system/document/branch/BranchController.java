@@ -42,7 +42,7 @@ public class BranchController {
         return ResponseEntity.ok(branchDto);
     }
 
-    @GetMapping("/{documentId}/branches/{branchId}")
+    @GetMapping("/{documentId}/branches/{branchId}/content")
     @Operation(summary = "Get content", description = "Get document branch content")
     public ResponseEntity<ContentResponse> getBranchContent(
             @PathVariable(name = "documentId")
@@ -56,7 +56,7 @@ public class BranchController {
         return ResponseEntity.ok(branchContentDto);
     }
 
-    @PutMapping("/{documentId}/branches/{branchId}")
+    @PutMapping("/{documentId}/branches/{branchId}/content")
     @Operation(summary = "Update branch content", description = "Update document branch content")
     public ResponseEntity<ContentResponse> updateBranchContent(
             @PathVariable(name = "documentId")
