@@ -6,6 +6,8 @@ import com.nipun.system.document.diff.exceptions.PatchFailedException;
 import com.nipun.system.document.share.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;
+import com.nipun.system.filemanager.exceptions.FileUploadFailedException;
+import com.nipun.system.filemanager.exceptions.InvalidFileTypeException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -119,6 +121,24 @@ public class GlobalExceptionHandler {
     ) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(FileUploadFailedException.class)
+    public ResponseEntity<ErrorResponse> handleFileUploadFailedException(
+            FileUploadFailedException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFileTypeException(
+            InvalidFileTypeException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(exception.getMessage()));
     }
 }
