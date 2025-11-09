@@ -75,23 +75,23 @@ public class Document {
     }
 
     public void addSharedDocument(SharedDocument document) {
-        this.sharedDocuments.add(document);
+        sharedDocuments.add(document);
     }
 
     public Set<SharedDocument> getSharedUsers() {
-        return this.getSharedDocuments();
+        return getSharedDocuments();
     }
 
     public void removeSharedUser(Long userId) {
-        this.getSharedDocuments().removeIf(shDoc -> shDoc.getSharedUser().getId().equals(userId));
+        getSharedDocuments().removeIf(shDoc -> shDoc.getSharedUser().getId().equals(userId));
     }
 
     public void addBranch(Branch branch) {
-        this.branches.add(branch);
+        branches.add(branch);
     }
 
     public Branch getBranch(UUID branchId) {
-        return this.getBranches().stream()
+        return getBranches().stream()
                 .filter(branch -> branch.getPublicId().equals(branchId))
                 .findAny()
                 .orElse(null);

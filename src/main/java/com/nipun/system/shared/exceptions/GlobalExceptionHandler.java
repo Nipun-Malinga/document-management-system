@@ -2,6 +2,7 @@ package com.nipun.system.shared.exceptions;
 
 import com.nipun.system.auth.exceptions.BadCredentialsException;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.diff.exceptions.PatchFailedException;
 import com.nipun.system.document.permission.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
@@ -73,6 +74,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentNotFoundException(
             DocumentNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(BranchNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBranchNotFoundException(
+            BranchNotFoundException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
