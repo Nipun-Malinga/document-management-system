@@ -1,7 +1,6 @@
 package com.nipun.system.shared.config;
 
 import com.nipun.system.shared.interceptors.AuthChannelInterceptor;
-import com.nipun.system.shared.interceptors.SubscribeChannelInterceptor;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -16,7 +15,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final AuthChannelInterceptor authChannelInterceptor;
-    private final SubscribeChannelInterceptor subscribeChannelInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -33,7 +31,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(authChannelInterceptor);
-        registration.interceptors(subscribeChannelInterceptor);
     }
 
 }

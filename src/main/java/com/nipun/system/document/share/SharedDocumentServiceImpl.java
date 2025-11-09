@@ -6,7 +6,6 @@ import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
-import com.nipun.system.document.websocket.permissions.PermissionService;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
@@ -28,8 +27,6 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final SharedDocumentRepository sharedDocumentRepository;
-
-    private final PermissionService permissionService;
 
     private final DocumentMapper documentMapper;
     private final SharedDocumentMapper sharedDocumentMapper;
@@ -63,8 +60,6 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
         document.setUpdatedAt(LocalDateTime.now());
 
         documentRepository.save(document);
-
-        permissionService.removeUserPermissions(documentId, sharedUserId);
 
         return sharedDocumentMapper.toSharedDocumentDto(sharedDocument);
     }
@@ -117,7 +112,6 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
                 .findByDocumentPublicIdAndSharedUserId(documentId, userId)
                 .orElseThrow(UnauthorizedDocumentException::new);
 
-        permissionService.removeUserPermissions(documentId, userId);
         sharedDocumentRepository.delete(sharedDocument);
     }
 
@@ -132,7 +126,6 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
 
         document.removeSharedUser(sharedUserId);
 
-        permissionService.removeUserPermissions(documentId, sharedUserId);
         documentRepository.save(document);
     }
 }
