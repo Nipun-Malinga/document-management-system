@@ -7,11 +7,10 @@ import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.branch.dtos.BranchResponse;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.branch.exceptions.BranchTitleAlreadyExistsException;
-import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.diff.DiffUtils;
 import com.nipun.system.document.diff.dtos.DiffResponse;
-import com.nipun.system.document.share.SharedDocumentAuthService;
-import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.permission.PermissionUtils;
+import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
@@ -40,9 +39,6 @@ public class BranchServiceImpl implements BranchService {
 
     private final DiffUtils diffUtils;
 
-    private final DiffService diffService;
-    private final SharedDocumentAuthService sharedDocumentAuthService;
-
     private final BranchFactory branchFactory;
 
     @Transactional
@@ -55,7 +51,7 @@ public class BranchServiceImpl implements BranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        sharedDocumentAuthService.checkUserCanWrite(userId, document);
+        PermissionUtils.checkUserCanWrite(userId, document);
 
         if (branchRepository.existsByBranchNameAndDocumentId(branchName, document.getId()))
             throw new BranchTitleAlreadyExistsException();
@@ -78,7 +74,7 @@ public class BranchServiceImpl implements BranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+        if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
@@ -117,7 +113,7 @@ public class BranchServiceImpl implements BranchService {
                 .orElseThrow(BranchNotFoundException::new);
 
 
-        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+        if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         return new ContentResponse(branch.getBranchContent());
@@ -133,15 +129,13 @@ public class BranchServiceImpl implements BranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        sharedDocumentAuthService.checkUserCanWrite(userId, document);
+        PermissionUtils.checkUserCanWrite(userId, document);
 
         var branch = branchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
                 .orElseThrow(BranchNotFoundException::new);
 
-        var patchedDocument = diffService.patchDocument(branch.getBranchContent(), content);
-
-        branch.setBranchContent(patchedDocument);
+        branch.setBranchContent(content);
 
         branchRepository.save(branch);
 
@@ -158,7 +152,7 @@ public class BranchServiceImpl implements BranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        sharedDocumentAuthService.checkUserCanWrite(userId, document);
+        PermissionUtils.checkUserCanWrite(userId, document);
 
         branchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
@@ -186,7 +180,7 @@ public class BranchServiceImpl implements BranchService {
 
         var userId = UserIdUtils.getUserIdFromContext();
 
-        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+        if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         return diffUtils.buildDiffResponse(baseBranch.getBranchContent(), compareBranch.getBranchContent());
@@ -202,7 +196,7 @@ public class BranchServiceImpl implements BranchService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        sharedDocumentAuthService.checkUserCanWrite(userId, document);
+        PermissionUtils.checkUserCanWrite(userId, document);
 
         var baseBranch = branchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
@@ -212,10 +206,7 @@ public class BranchServiceImpl implements BranchService {
                 .findByPublicIdAndDocumentId(mergeBranchId, document.getId())
                 .orElseThrow(BranchNotFoundException::new);
 
-        var patchedDocument = diffService
-                .patchDocument(baseBranch.getBranchContent(), mergeBranch.getBranchContent());
-
-        baseBranch.setBranchContent(patchedDocument);
+        baseBranch.setBranchContent(mergeBranch.getBranchContent());
 
         branchRepository.save(baseBranch);
     }

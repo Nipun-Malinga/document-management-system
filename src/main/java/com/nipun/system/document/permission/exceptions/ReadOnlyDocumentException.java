@@ -1,4 +1,4 @@
-package com.nipun.system.document.share.exceptions;
+package com.nipun.system.document.permission.exceptions;
 
 public class ReadOnlyDocumentException extends RuntimeException {
     public ReadOnlyDocumentException() {

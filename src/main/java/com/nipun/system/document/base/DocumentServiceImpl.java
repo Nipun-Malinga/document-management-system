@@ -4,8 +4,8 @@ import com.nipun.system.document.base.dtos.CreateDocumentRequest;
 import com.nipun.system.document.base.dtos.DocumentResponse;
 import com.nipun.system.document.base.dtos.UpdateTitleRequest;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
-import com.nipun.system.document.share.SharedDocumentAuthService;
-import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.permission.PermissionUtils;
+import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
@@ -27,8 +27,6 @@ public class DocumentServiceImpl implements DocumentService {
     private final UserRepository userRepository;
 
     private final DocumentMapper documentMapper;
-
-    private final SharedDocumentAuthService sharedDocumentAuthService;
 
     @Transactional
     @Override
@@ -57,7 +55,7 @@ public class DocumentServiceImpl implements DocumentService {
         var document = documentRepository.findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+        if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         return documentMapper.toDto(document);

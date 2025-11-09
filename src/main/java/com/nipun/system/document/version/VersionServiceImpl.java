@@ -6,11 +6,10 @@ import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.branch.BranchRepository;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
-import com.nipun.system.document.diff.DiffService;
 import com.nipun.system.document.diff.DiffUtils;
 import com.nipun.system.document.diff.dtos.DiffResponse;
-import com.nipun.system.document.share.SharedDocumentAuthService;
-import com.nipun.system.document.share.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.permission.PermissionUtils;
+import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.version.dtos.VersionResponse;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.shared.dtos.PaginatedData;
@@ -36,9 +35,6 @@ public class VersionServiceImpl implements VersionService {
     private final VersionMapper versionMapper;
 
     private final DiffUtils diffUtils;
-    
-    private final DiffService diffService;
-    private final SharedDocumentAuthService sharedDocumentAuthService;
 
     private final VersionFactory versionFactory;
 
@@ -60,7 +56,7 @@ public class VersionServiceImpl implements VersionService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        sharedDocumentAuthService.checkUserCanWrite(userId, document);
+        PermissionUtils.checkUserCanWrite(userId, document);
 
         var user = userRepository.findById(userId).orElseThrow();
 
@@ -85,7 +81,7 @@ public class VersionServiceImpl implements VersionService {
 
         PageRequest pageRequest = PageRequest.of(pageNumber, size);
 
-        Page<Version> versions = sharedDocumentAuthService.isUnauthorizedUser(userId, document)
+        Page<Version> versions = PermissionUtils.isUnauthorizedUser(userId, document)
                 ? versionRepository.findAllByBranchDocumentIdAndStatusPublic(document.getId(), pageRequest)
                 : versionRepository.findAllByBranchDocumentId(document.getId(), pageRequest);
 
@@ -121,7 +117,7 @@ public class VersionServiceImpl implements VersionService {
 
         var userId = UserIdUtils.getUserIdFromContext();
 
-        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+        if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         return new ContentResponse(version.getVersionContent());
@@ -137,7 +133,7 @@ public class VersionServiceImpl implements VersionService {
                 .findByPublicId(documentId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        sharedDocumentAuthService.checkUserCanWrite(userId, document);
+        PermissionUtils.checkUserCanWrite(userId, document);
 
         var branch = branchRepository
                 .findByPublicIdAndDocumentId(branchId, document.getId())
@@ -147,12 +143,7 @@ public class VersionServiceImpl implements VersionService {
                 .findByPublicIdAndBranchDocumentId(versionId, document.getId())
                 .orElseThrow(VersionNotFoundException::new);
 
-        var patchedDocument = diffService.patchDocument(
-                branch.getBranchContent(),
-                version.getVersionContent()
-        );
-
-        branch.setBranchContent(patchedDocument);
+        branch.setBranchContent(version.getVersionContent());
 
         branchRepository.save(branch);
     }
@@ -177,7 +168,7 @@ public class VersionServiceImpl implements VersionService {
 
         var userId = UserIdUtils.getUserIdFromContext();
 
-        if (sharedDocumentAuthService.isUnauthorizedUser(userId, document))
+        if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
         return diffUtils.buildDiffResponse(baseVersion.getVersionContent(), compareVersion.getVersionContent());
