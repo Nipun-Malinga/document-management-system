@@ -17,4 +17,8 @@ public interface DocumentService {
     PaginatedData getAllDocuments(int pageNumber, int size);
 
     DocumentResponse updateTitle(UUID documentId, UpdateTitleRequest request);
+
+    DocumentResponse addDocumentToFavotites(UUID documentId);
+
+    int getDocumentFavoriteCount();
 }

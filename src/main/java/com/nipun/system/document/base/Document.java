@@ -65,6 +65,9 @@ public class Document {
     @Column(name = "trashed")
     private boolean trashed;
 
+    @Column(name = "favorite")
+    private boolean favorite;
+
     public UUID getMainBranchId() {
         return branches.stream()
                 .filter(b -> b.getBranchName().equals("main"))

@@ -20,6 +20,7 @@ public class DocumentFactory {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .trashed(false)
+                .favorite(false)
                 .build();
 
         var content = Content.builder()

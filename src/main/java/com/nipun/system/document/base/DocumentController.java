@@ -78,4 +78,20 @@ public class DocumentController {
     public ResponseEntity<Integer> getDocumentCount() {
         return ResponseEntity.ok(documentService.getDocumentCount());
     }
+
+    @PostMapping("/{documentId}/favorites")
+    @Operation(summary = "Add to favorites", description = "Add document to favorites")
+    public ResponseEntity<DocumentResponse> addToFavorites(
+            @PathVariable(name = "documentId")
+            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
+            UUID documentId
+    ) {
+        return ResponseEntity.ok(documentService.addDocumentToFavotites(documentId));
+    }
+
+    @GetMapping("/count/favorites")
+    @Operation(summary = "Favorite documents", description = "Get all user favorite documents")
+    public ResponseEntity<Integer> getDocumentFavoriteCount() {
+        return ResponseEntity.ok(documentService.getDocumentFavoriteCount());
+    }
 }

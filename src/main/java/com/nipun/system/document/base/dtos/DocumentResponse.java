@@ -28,6 +28,8 @@ public class DocumentResponse {
 
     private boolean trashed;
 
+    private boolean favorite;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 

@@ -25,4 +25,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     Optional<Document> findByPublicId(UUID publicId);
 
     int countAllByOwnerIdAndTrashedIsFalse(Long ownerId);
+
+    @Query("select count(d) from Document d where d.owner.id = :userId and d.trashed = false and d.favorite = true")
+    int countAllFavoriteDocumentByUser(@Param("userId") Long userId);
 }

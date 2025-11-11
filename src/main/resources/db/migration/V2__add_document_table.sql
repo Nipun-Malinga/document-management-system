@@ -8,6 +8,7 @@ CREATE TABLE documents
     updated_at DATETIME                                   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     status     VARCHAR(20)                       NOT NULL DEFAULT 'PUBLIC',
     trashed    BOOLEAN                           NOT NULL DEFAULT FALSE,
+    favorite   BOOLEAN                           NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_document_owner_id
         FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE
 );
