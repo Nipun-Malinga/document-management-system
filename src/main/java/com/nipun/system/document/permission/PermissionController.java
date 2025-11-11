@@ -1,7 +1,9 @@
 package com.nipun.system.document.permission;
 
 import com.nipun.system.document.permission.dtos.PermissionResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,11 +16,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/permissions/documents")
+@Tag(name = "Permissions", description = "Broadcasts user permission validity")
 public class PermissionController {
 
     private final PermissionService permissionService;
 
     @GetMapping("/{documentId}/branches/{branchId}")
+    @Operation(summary = "Validate", description = "Validates the user relationship with the document")
     public ResponseEntity<PermissionResponse> validate(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")

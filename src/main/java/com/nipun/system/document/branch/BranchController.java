@@ -122,6 +122,14 @@ public class BranchController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{documentId}/branches/count")
+    @Operation(summary = "Document branches count", description = "Get user document branches count")
+    public ResponseEntity<Integer> getDocumentCount(
+            @PathVariable(name = "documentId") UUID branchId
+    ) {
+        return ResponseEntity.ok(branchService.getAllBranchCount(branchId));
+    }
+
     @ExceptionHandler(BranchNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBranchNotFoundException(
             BranchNotFoundException exception
@@ -138,12 +146,5 @@ public class BranchController {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(exception.getMessage()));
-    }
-
-    @GetMapping("/{documentId}/branches/count")
-    public ResponseEntity<Integer> getDocumentCount(
-            @PathVariable(name = "documentId") UUID branchId
-    ) {
-        return ResponseEntity.ok(branchService.getAllBranchCount(branchId));
     }
 }

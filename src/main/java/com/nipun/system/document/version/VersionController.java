@@ -8,6 +8,7 @@ import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,15 @@ public class VersionController {
 
 
     @PostMapping("/{documentId}/branches/{branchId}/versions")
+    @Operation(summary = "Create version", description = "Creates a version from specific document branch")
     public ResponseEntity<VersionResponse> createNewVersion(
             @PathVariable(name = "documentId")
+            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
             @PathVariable(name = "branchId")
+            @Parameter(description = "Document branch ID", example = "8d5177f7-bc39-42b0-84bc-3a945be383c4")
             UUID branchId,
-            @RequestBody
+            @Valid @RequestBody
             CreateVersionRequest request
     ) {
         var newVersion = versionService.createNewVersion(documentId, branchId, request.getName(), request.getStatus());

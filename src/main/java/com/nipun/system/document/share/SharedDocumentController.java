@@ -91,7 +91,8 @@ public class SharedDocumentController {
     }
 
     @GetMapping("/shared/count/user")
-    public ResponseEntity<Integer> getSharedBranchWithUserCount() {
+    @Operation(summary = "Shared document count", description = "Get shared document count with user")
+    public ResponseEntity<Integer> getSharedDocumentWithUserCount() {
         return ResponseEntity.ok(sharedDocumentService.getSharedDocumentWithUserCount());
     }
 }

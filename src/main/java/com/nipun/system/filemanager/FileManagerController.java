@@ -1,6 +1,9 @@
 package com.nipun.system.filemanager;
 
 import com.nipun.system.filemanager.dtos.FileUploadResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,13 +16,17 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/files")
+@Tag(name = "File Manager", description = "Manages files in the system")
 public class FileManagerController {
 
     private final FileManagerService fileManagerService;
 
     @PostMapping("/images")
+    @Operation(summary = "Receive Image", description = "Receives images from the client")
     public ResponseEntity<FileUploadResponse> receiveImage(
-            @RequestParam("file") MultipartFile file,
+            @RequestParam("file")
+            @Parameter(description = "The request file")
+            MultipartFile file,
             UriComponentsBuilder uriBuilder
     ) {
         var fileUrl = fileManagerService.uploadFileToCloud(file);

@@ -47,7 +47,8 @@ public class TrashController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("")
+    @GetMapping
+    @Operation(summary = "All trashed documents", description = "Get all user trashed documents")
     public ResponseEntity<PaginatedData> getAllTrashedDocuments(
             @RequestParam(name = "page-number", defaultValue = "0")
             @Parameter(description = "Required page number")
@@ -60,6 +61,7 @@ public class TrashController {
     }
 
     @GetMapping("/branches")
+    @Operation(summary = "All trashed branches", description = "Get all user trashed branches")
     public ResponseEntity<PaginatedData> getAllTrashedBranches(
             @RequestParam(name = "page-number", defaultValue = "0")
             @Parameter(description = "Required page number")
@@ -72,6 +74,7 @@ public class TrashController {
     }
 
     @PostMapping("/restore/{documentId}")
+    @Operation(summary = "Restore document", description = "Restore trashed document")
     public ResponseEntity<Void> restoreDocument(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
@@ -82,6 +85,7 @@ public class TrashController {
     }
 
     @PostMapping("/restore/{documentId}/branch/{branchId}")
+    @Operation(summary = "Restore branch", description = "Restore trashed branch")
     public ResponseEntity<Void> restoreBranch(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
@@ -120,6 +124,20 @@ public class TrashController {
     }
 
 
+    @GetMapping("/count")
+    @Operation(summary = "Trashed document count", description = "Get trashed document count")
+    public ResponseEntity<Integer> getDocumentCount() {
+        return ResponseEntity.ok(trashService.getTrashedDocumentCount());
+    }
+
+    @GetMapping("/{documentId}/branches/count")
+    @Operation(summary = "Trashed branches count", description = "Get trashed branches count")
+    public ResponseEntity<Integer> getBranchesCount(
+            @PathVariable(name = "documentId") UUID documentId
+    ) {
+        return ResponseEntity.ok(trashService.getTrashedBranchesCount(documentId));
+    }
+
     @ExceptionHandler(UnauthorizedBranchDeletionException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedBranchDeletionException(
             UnauthorizedBranchDeletionException exception
@@ -136,17 +154,5 @@ public class TrashController {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(exception.getMessage()));
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Integer> getDocumentCount() {
-        return ResponseEntity.ok(trashService.getTrashedDocumentCount());
-    }
-
-    @GetMapping("/{documentId}/branches/count")
-    public ResponseEntity<Integer> getBranchesCount(
-            @PathVariable(name = "documentId") UUID documentId
-    ) {
-        return ResponseEntity.ok(trashService.getTrashedBranchesCount(documentId));
     }
 }

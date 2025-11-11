@@ -75,6 +75,7 @@ public class DocumentController {
     }
 
     @GetMapping("/count")
+    @Operation(summary = "Document count", description = "Get user non trashed document count")
     public ResponseEntity<Integer> getDocumentCount() {
         return ResponseEntity.ok(documentService.getDocumentCount());
     }
