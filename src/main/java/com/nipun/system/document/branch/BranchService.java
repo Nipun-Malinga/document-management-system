@@ -12,6 +12,8 @@ public interface BranchService {
 
     PaginatedData getAllBranches(UUID documentId, int pageNumber, int size);
 
+    int getAllBranchCount(UUID documentId);
+
     ContentResponse getBranchContent(UUID documentId, UUID branchId);
 
     ContentResponse updateBranchContent(UUID documentId, UUID branchId, String content);

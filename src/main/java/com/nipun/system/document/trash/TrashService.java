@@ -137,6 +137,16 @@ public class TrashService {
         handleBranchAction(documentId, branchId, ActionType.DELETE);
     }
 
+    public int getTrashedDocumentCount() {
+        var userId = UserIdUtils.getUserIdFromContext();
+        return trashRepository.countAllByDocumentOwnerId(userId);
+    }
+
+    public int getTrashedBranchesCount(UUID documentId) {
+        var userId = UserIdUtils.getUserIdFromContext();
+        return trashRepository.countAllByBranchDocumentPublicId(documentId);
+    }
+
     private void handleDocumentAction(UUID documentId, ActionType action) {
         var userId = UserIdUtils.getUserIdFromContext();
 

@@ -19,4 +19,6 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
 
     @EntityGraph(attributePaths = {"document"})
     Page<Branch> findAllByDocumentId(Long documentId, Pageable pageable);
+
+    int countAllByDocumentId(Long documentId);
 }

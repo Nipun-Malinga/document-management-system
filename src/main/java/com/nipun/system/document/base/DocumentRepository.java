@@ -23,4 +23,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     @EntityGraph(attributePaths = {"sharedDocuments"})
     Optional<Document> findByPublicId(UUID publicId);
+
+    int countAllByOwnerIdAndTrashedIsFalse(Long ownerId);
 }

@@ -139,4 +139,11 @@ public class BranchController {
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(exception.getMessage()));
     }
+
+    @GetMapping("/{documentId}/branches/count")
+    public ResponseEntity<Integer> getDocumentCount(
+            @PathVariable(name = "documentId") UUID branchId
+    ) {
+        return ResponseEntity.ok(branchService.getAllBranchCount(branchId));
+    }
 }

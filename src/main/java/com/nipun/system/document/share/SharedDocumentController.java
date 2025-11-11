@@ -90,4 +90,8 @@ public class SharedDocumentController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/shared/count/user")
+    public ResponseEntity<Integer> getSharedBranchWithUserCount() {
+        return ResponseEntity.ok(sharedDocumentService.getSharedDocumentWithUserCount());
+    }
 }

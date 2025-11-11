@@ -11,6 +11,8 @@ public interface SharedDocumentService {
 
     SharedDocumentResponse getAllSharedUsers(UUID documentId);
 
+    int getSharedDocumentWithUserCount();
+
     PaginatedData getAllSharedDocumentsWithUser(int pageNumber, int size);
 
     void removeDocumentAccess(UUID documentId);

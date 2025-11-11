@@ -137,4 +137,16 @@ public class TrashController {
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(exception.getMessage()));
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getDocumentCount() {
+        return ResponseEntity.ok(trashService.getTrashedDocumentCount());
+    }
+
+    @GetMapping("/{documentId}/branches/count")
+    public ResponseEntity<Integer> getBranchesCount(
+            @PathVariable(name = "documentId") UUID documentId
+    ) {
+        return ResponseEntity.ok(trashService.getTrashedBranchesCount(documentId));
+    }
 }

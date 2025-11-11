@@ -60,6 +60,12 @@ public class DocumentServiceImpl implements DocumentService {
         return documentMapper.toDto(document);
     }
 
+    @Override
+    public int getDocumentCount() {
+        var userId = UserIdUtils.getUserIdFromContext();
+        return documentRepository.countAllByOwnerIdAndTrashedIsFalse(userId);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public PaginatedData getAllDocuments(int pageNumber, int size) {

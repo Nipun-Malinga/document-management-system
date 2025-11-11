@@ -79,6 +79,12 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
     }
 
     @Override
+    public int getSharedDocumentWithUserCount() {
+        var userId = UserIdUtils.getUserIdFromContext();
+        return sharedDocumentRepository.countAllBySharedUserId(userId);
+    }
+
+    @Override
     public PaginatedData getAllSharedDocumentsWithUser(int pageNumber, int size) {
         var userId = UserIdUtils.getUserIdFromContext();
 

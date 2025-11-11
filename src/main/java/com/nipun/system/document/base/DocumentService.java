@@ -12,6 +12,8 @@ public interface DocumentService {
 
     DocumentResponse getDocument(UUID documentId);
 
+    int getDocumentCount();
+
     PaginatedData getAllDocuments(int pageNumber, int size);
 
     DocumentResponse updateTitle(UUID documentId, UpdateTitleRequest request);

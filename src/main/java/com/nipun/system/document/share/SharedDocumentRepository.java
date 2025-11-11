@@ -9,4 +9,6 @@ public interface SharedDocumentRepository extends JpaRepository<SharedDocument, 
     Optional<SharedDocument> findByDocumentIdAndSharedUserId(Long documentId, Long userId);
 
     Optional<SharedDocument> findByDocumentPublicIdAndSharedUserId(UUID documentId, Long userId);
+
+    int countAllBySharedUserId(Long userId);
 }

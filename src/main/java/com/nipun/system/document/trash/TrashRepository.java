@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface TrashRepository extends JpaRepository<Trash, Long> {
     Page<Trash> findAllByBranchIsNullAndDocumentOwnerId(Long id, Pageable pageable);
@@ -14,4 +15,8 @@ public interface TrashRepository extends JpaRepository<Trash, Long> {
     Optional<Trash> findByDocumentIdAndBranchIsNull(Long documentId);
 
     Optional<Trash> findByDocumentIdAndBranchId(Long documentId, Long branchId);
+
+    int countAllByDocumentOwnerId(Long ownerId);
+
+    int countAllByBranchDocumentPublicId(UUID documentId);
 }

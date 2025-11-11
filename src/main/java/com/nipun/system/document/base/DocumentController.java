@@ -73,4 +73,9 @@ public class DocumentController {
         var documentDto = documentService.updateTitle(documentId, request);
         return ResponseEntity.ok(documentDto);
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getDocumentCount() {
+        return ResponseEntity.ok(documentService.getDocumentCount());
+    }
 }

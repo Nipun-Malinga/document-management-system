@@ -98,6 +98,17 @@ public class BranchServiceImpl implements BranchService {
         );
     }
 
+    @Override
+    public int getAllBranchCount(UUID documentId) {
+        var userId = UserIdUtils.getUserIdFromContext();
+
+        var document = documentRepository
+                .findByPublicIdAndOwnerId(documentId, userId)
+                .orElseThrow(DocumentNotFoundException::new);
+
+        return branchRepository.countAllByDocumentId(document.getId());
+    }
+
     @Cacheable(value = "document_branch_contents", key = "{#documentId, #branchId}")
     @Transactional(readOnly = true)
     @Override
