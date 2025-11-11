@@ -9,6 +9,7 @@ CREATE TABLE document_branches
     created_at  DATETIME              DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     status      VARCHAR(20)  NOT NULL DEFAULT 'PUBLIC',
+    trashed    BOOLEAN       NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_branches_content_id
         FOREIGN KEY (content_id) REFERENCES document_contents (id),
     CONSTRAINT fk_branches_document_id

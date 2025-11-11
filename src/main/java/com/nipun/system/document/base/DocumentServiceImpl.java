@@ -10,7 +10,6 @@ import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
@@ -101,19 +100,5 @@ public class DocumentServiceImpl implements DocumentService {
         document.setTitle(request.getTitle());
 
         return documentMapper.toDto(documentRepository.save(document));
-    }
-
-    @CacheEvict(value = "documents", key = "{#documentId}")
-    @Transactional
-    @Override
-    public void deleteDocument(UUID documentId) {
-
-        var userId = UserIdUtils.getUserIdFromContext();
-
-        var document = documentRepository
-                .findByPublicIdAndOwnerId(documentId, userId)
-                .orElseThrow(DocumentNotFoundException::new);
-
-        documentRepository.delete(document);
     }
 }

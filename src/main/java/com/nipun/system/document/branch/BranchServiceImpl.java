@@ -142,23 +142,6 @@ public class BranchServiceImpl implements BranchService {
         return new ContentResponse(branch.getBranchContent());
     }
 
-    @CacheEvict(value = "document_branch_contents", key = "{#documentId, #branchId}")
-    @Transactional
-    @Override
-    public void deleteBranch(UUID documentId, UUID branchId) {
-        var userId = UserIdUtils.getUserIdFromContext();
-
-        var document = documentRepository
-                .findByPublicId(documentId)
-                .orElseThrow(DocumentNotFoundException::new);
-
-        PermissionUtils.checkUserCanWrite(userId, document);
-
-        branchRepository
-                .findByPublicIdAndDocumentId(branchId, document.getId())
-                .ifPresent(branchRepository::delete);
-    }
-
     @Cacheable(value = "document_branch_diffs", key = "{#documentId, #base, #compare}")
     @Transactional(readOnly = true)
     @Override

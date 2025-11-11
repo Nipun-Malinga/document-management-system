@@ -12,5 +12,6 @@ public interface DocumentMapper {
     @Mapping(target = "status", source = "status")
     @Mapping(target = "shared", expression = "java(document.isSharedDocument())")
     @Mapping(target = "branchCount", expression = "java(document.getBranches().size())")
+    @Mapping(target = "trashed", source = "trashed")
     DocumentResponse toDto(Document document);
 }

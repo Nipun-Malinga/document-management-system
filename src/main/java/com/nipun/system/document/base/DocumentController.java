@@ -73,15 +73,4 @@ public class DocumentController {
         var documentDto = documentService.updateTitle(documentId, request);
         return ResponseEntity.ok(documentDto);
     }
-
-    @DeleteMapping("/{documentId}")
-    @Operation(summary = "Delete document", description = "Deletes document from the system")
-    public ResponseEntity<Void> deleteDocument(
-            @PathVariable(name = "documentId")
-            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
-            UUID documentId
-    ) {
-        documentService.deleteDocument(documentId);
-        return ResponseEntity.noContent().build();
-    }
 }

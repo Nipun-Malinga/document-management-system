@@ -71,6 +71,9 @@ public class Branch {
     )
     private Set<Version> versions = new HashSet<>();
 
+    @Column(name = "trashed")
+    private boolean trashed;
+
     public String getBranchContent() {
         return this.content.getContent();
     }

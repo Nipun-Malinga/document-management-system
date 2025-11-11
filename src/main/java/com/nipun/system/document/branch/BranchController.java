@@ -88,20 +88,6 @@ public class BranchController {
         return ResponseEntity.ok(paginatedBranches);
     }
 
-    @DeleteMapping("/{documentId}/branches/{branchId}")
-    @Operation(summary = "Delete branch", description = "Delete branch from document")
-    public ResponseEntity<Void> deleteBranch(
-            @PathVariable(name = "documentId")
-            @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
-            UUID documentId,
-            @PathVariable(name = "branchId")
-            @Parameter(description = "Document branch ID", example = "8d5177f7-bc39-42b0-84bc-3a945be383c4")
-            UUID branchId
-    ) {
-        branchService.deleteBranch(documentId, branchId);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/{documentId}/branches/diffs")
     @Operation(summary = "Compare branch Diffs", description = "Compare document branch diffs")
     public ResponseEntity<DiffResponse> getVersionDiffs(

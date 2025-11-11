@@ -19,6 +19,7 @@ public class DocumentFactory {
                 .status(status)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .trashed(false)
                 .build();
 
         var content = Content.builder()
@@ -34,6 +35,7 @@ public class DocumentFactory {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .status(Status.PUBLIC)
+                .trashed(false)
                 .build();
 
         document.addBranch(branch);

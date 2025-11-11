@@ -16,8 +16,6 @@ public interface BranchService {
 
     ContentResponse updateBranchContent(UUID documentId, UUID branchId, String content);
 
-    void deleteBranch(UUID documentId, UUID branchId);
-
     DiffResponse getBranchDiffs(UUID documentId, UUID base, UUID compare);
 
     void mergeBranches(UUID documentId, UUID branchId, UUID mergeBranchId);

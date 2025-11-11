@@ -24,6 +24,7 @@ public class BranchFactory {
                 .owner(owner)
                 .createdAt(LocalDateTime.now())
                 .status(Status.PUBLIC)
+                .trashed(false)
                 .build();
     }
 }

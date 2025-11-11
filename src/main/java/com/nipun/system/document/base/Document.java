@@ -62,6 +62,9 @@ public class Document {
     )
     private Set<Branch> branches = new HashSet<>();
 
+    @Column(name = "trashed")
+    private boolean trashed;
+
     public UUID getMainBranchId() {
         return branches.stream()
                 .filter(b -> b.getBranchName().equals("main"))

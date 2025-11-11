@@ -151,4 +151,13 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(exception.getMessage()));
     }
+
+    @ExceptionHandler(UnauthorizedOperationException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedOperationException(
+            UnauthorizedOperationException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
 }

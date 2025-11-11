@@ -26,7 +26,7 @@ public class PermissionUtils {
                         Objects.equals(user.getUserId(), userId) && user.isReadOnlyUser());
     }
 
-    private static boolean isOwner(Long userId, Document document) {
+    public static boolean isOwner(Long userId, Document document) {
         return Objects.equals(document.getOwner().getId(), userId);
     }
 
