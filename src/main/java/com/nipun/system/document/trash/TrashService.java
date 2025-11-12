@@ -1,11 +1,15 @@
 package com.nipun.system.document.trash;
 
+import com.nipun.system.document.base.DocumentMapper;
 import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.branch.BranchMapper;
 import com.nipun.system.document.branch.BranchRepository;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.trash.dtos.TrashBranchResponse;
+import com.nipun.system.document.trash.dtos.TrashDocumentResponse;
 import com.nipun.system.document.trash.exceptions.TrashNotFoundException;
 import com.nipun.system.document.trash.exceptions.UnauthorizedBranchDeletionException;
 import com.nipun.system.shared.dtos.PaginatedData;
@@ -17,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -26,7 +31,8 @@ public class TrashService {
     private final TrashRepository trashRepository;
     private final DocumentRepository documentRepository;
     private final BranchRepository branchRepository;
-    private final TrashMapper trashMapper;
+    private final DocumentMapper documentMapper;
+    private final BranchMapper branchMapper;
 
     @CacheEvict(value = "documents", key = "{#documentId}")
     @Transactional
@@ -77,7 +83,7 @@ public class TrashService {
 
         var trashDtoList = trashList
                 .stream()
-                .map(trashMapper::toTrashDocumentDto)
+                .map(trash -> new TrashDocumentResponse(trash.getId(), documentMapper.toDto(trash.getDocument()), LocalDateTime.now()))
                 .toList();
 
         return new PaginatedData(
@@ -98,9 +104,12 @@ public class TrashService {
 
         PageRequest request = PageRequest.of(pageNumber, pageSize);
 
-        var trashList = trashRepository.findAllByDocumentIsNullAndDocumentOwnerId(userId, request);
+        var trashList = trashRepository.findAllByDocumentIsNullAndBranchOwnerId(userId, request);
 
-        var trashDtoList = trashList.stream().map(trashMapper::toTrashDocumentDto).toList();
+        var trashDtoList = trashList
+                .stream()
+                .map(trash -> new TrashBranchResponse(trash.getId(), branchMapper.toDto(trash.getBranch()), LocalDateTime.now()))
+                .toList();
 
         return new PaginatedData(
                 trashDtoList,
@@ -144,7 +153,7 @@ public class TrashService {
 
     public int getTrashedBranchesCount(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
-        return trashRepository.countAllByBranchDocumentPublicId(documentId);
+        return trashRepository.countAllByBranchDocumentPublicIdAndBranchDocumentOwnerId(documentId, userId);
     }
 
     private void handleDocumentAction(UUID documentId, ActionType action) {

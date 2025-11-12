@@ -16,4 +16,6 @@ public class BranchResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private boolean trashed;
 }

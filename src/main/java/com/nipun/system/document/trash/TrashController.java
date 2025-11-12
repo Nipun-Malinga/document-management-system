@@ -22,7 +22,7 @@ public class TrashController {
 
     private final TrashService trashService;
 
-    @PostMapping("/{documentId}")
+    @DeleteMapping("/{documentId}")
     @Operation(summary = "Add to trash", description = "Add entier document to trash")
     public ResponseEntity<Void> addDocumentToTrash(
             @PathVariable(name = "documentId")
@@ -33,7 +33,7 @@ public class TrashController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{documentId}/branch/{branchId}")
+    @DeleteMapping("/{documentId}/branch/{branchId}")
     @Operation(summary = "Add to trash", description = "Add document branch to trash")
     public ResponseEntity<Void> addBranchToTrash(
             @PathVariable(name = "documentId")
@@ -98,7 +98,7 @@ public class TrashController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{documentId}")
+    @DeleteMapping("/delete/{documentId}")
     @Operation(summary = "Delete document", description = "Deletes document from the system")
     public ResponseEntity<Void> deleteDocument(
             @PathVariable(name = "documentId")
@@ -109,7 +109,7 @@ public class TrashController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{documentId}/branches/{branchId}")
+    @DeleteMapping("/delete/{documentId}/branches/{branchId}")
     @Operation(summary = "Delete branch", description = "Delete branch from document")
     public ResponseEntity<Void> deleteBranch(
             @PathVariable(name = "documentId")

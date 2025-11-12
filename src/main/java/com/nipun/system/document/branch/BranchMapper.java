@@ -12,5 +12,6 @@ public interface BranchMapper {
     @Mapping(target = "branchName", source = "branchName")
     @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "updatedAt", source = "updatedAt")
+    @Mapping(target = "trashed", source = "trashed")
     BranchResponse toDto(Branch branch);
 }

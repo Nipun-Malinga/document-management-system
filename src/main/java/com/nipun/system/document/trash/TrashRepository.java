@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface TrashRepository extends JpaRepository<Trash, Long> {
     Page<Trash> findAllByBranchIsNullAndDocumentOwnerId(Long id, Pageable pageable);
 
-    Page<Trash> findAllByDocumentIsNullAndDocumentOwnerId(Long id, Pageable pageable);
+    Page<Trash> findAllByDocumentIsNullAndBranchOwnerId(Long id, Pageable pageable);
 
     Optional<Trash> findByDocumentIdAndBranchIsNull(Long documentId);
 
@@ -18,5 +18,5 @@ public interface TrashRepository extends JpaRepository<Trash, Long> {
 
     int countAllByDocumentOwnerId(Long ownerId);
 
-    int countAllByBranchDocumentPublicId(UUID documentId);
+    int countAllByBranchDocumentPublicIdAndBranchDocumentOwnerId(UUID documentId, Long ownerId);
 }
