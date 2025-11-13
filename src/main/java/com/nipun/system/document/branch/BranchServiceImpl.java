@@ -11,6 +11,7 @@ import com.nipun.system.document.diff.DiffUtils;
 import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
@@ -99,14 +100,14 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public int getAllBranchCount(UUID documentId) {
+    public CountResponse getAllBranchCount(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
                 .findByPublicIdAndOwnerId(documentId, userId)
                 .orElseThrow(DocumentNotFoundException::new);
 
-        return branchRepository.countAllByDocumentId(document.getId());
+        return new CountResponse(branchRepository.countAllByDocumentId(document.getId()));
     }
 
     @Cacheable(value = "document_branch_contents", key = "{#documentId, #branchId}")

@@ -6,6 +6,7 @@ import com.nipun.system.document.base.dtos.UpdateTitleRequest;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
@@ -61,9 +62,9 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public int getDocumentCount() {
+    public CountResponse getDocumentCount() {
         var userId = UserIdUtils.getUserIdFromContext();
-        return documentRepository.countAllByOwnerIdAndTrashedIsFalse(userId);
+        return new CountResponse(documentRepository.countAllByOwnerIdAndTrashedIsFalse(userId));
     }
 
     @Transactional(readOnly = true)
@@ -109,7 +110,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentResponse addDocumentToFavotites(UUID documentId) {
+    public DocumentResponse addDocumentToFavourites(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElseThrow(DocumentNotFoundException::new);
@@ -120,8 +121,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public int getDocumentFavoriteCount() {
+    public CountResponse getDocumentFavoriteCount() {
         var userId = UserIdUtils.getUserIdFromContext();
-        return documentRepository.countAllFavoriteDocumentByUser(userId);
+        return new CountResponse(documentRepository.countAllFavoriteDocumentByUser(userId));
     }
 }

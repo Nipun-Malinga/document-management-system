@@ -3,6 +3,7 @@ package com.nipun.system.document.base;
 import com.nipun.system.document.base.dtos.CreateDocumentRequest;
 import com.nipun.system.document.base.dtos.DocumentResponse;
 import com.nipun.system.document.base.dtos.UpdateTitleRequest;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -76,7 +77,7 @@ public class DocumentController {
 
     @GetMapping("/count")
     @Operation(summary = "Document count", description = "Get user non trashed document count")
-    public ResponseEntity<Integer> getDocumentCount() {
+    public ResponseEntity<CountResponse> getDocumentCount() {
         return ResponseEntity.ok(documentService.getDocumentCount());
     }
 
@@ -87,12 +88,12 @@ public class DocumentController {
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
     ) {
-        return ResponseEntity.ok(documentService.addDocumentToFavotites(documentId));
+        return ResponseEntity.ok(documentService.addDocumentToFavourites(documentId));
     }
 
     @GetMapping("/count/favorites")
     @Operation(summary = "Favorite documents", description = "Get all user favorite documents")
-    public ResponseEntity<Integer> getDocumentFavoriteCount() {
+    public ResponseEntity<CountResponse> getDocumentFavoriteCount() {
         return ResponseEntity.ok(documentService.getDocumentFavoriteCount());
     }
 }

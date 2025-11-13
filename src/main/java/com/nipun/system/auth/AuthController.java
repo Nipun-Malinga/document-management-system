@@ -2,7 +2,7 @@ package com.nipun.system.auth;
 
 import com.nipun.system.auth.dtos.UserLoginRequest;
 import com.nipun.system.shared.config.JwtConfig;
-import com.nipun.system.shared.dtos.JwtResponseDto;
+import com.nipun.system.shared.dtos.JwtResponse;
 import com.nipun.system.shared.services.JwtService;
 import com.nipun.system.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "User login")
-    public ResponseEntity<JwtResponseDto> userLogin(
+    public ResponseEntity<JwtResponse> userLogin(
             @RequestBody @Valid UserLoginRequest request,
             HttpServletResponse response
     ) {
@@ -45,12 +45,12 @@ public class AuthController {
         cookie.setSecure(true);
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(new JwtResponseDto(accessToken.toString()));
+        return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
     }
 
     @PostMapping("/refresh")
     @Operation(summary = "JWT token refresh", description = "Refresh the access token")
-    public ResponseEntity<JwtResponseDto> refresh(
+    public ResponseEntity<JwtResponse> refresh(
             @CookieValue("refreshToken")
             @Parameter(description = "Refresh token issued by the server when login")
             String refreshToken
@@ -62,6 +62,6 @@ public class AuthController {
         }
 
         var user = userService.findUser(jwt.getUserId());
-        return ResponseEntity.ok(new JwtResponseDto(jwtService.generateAccessToken(user).toString()));
+        return ResponseEntity.ok(new JwtResponse(jwtService.generateAccessToken(user).toString()));
     }
 }

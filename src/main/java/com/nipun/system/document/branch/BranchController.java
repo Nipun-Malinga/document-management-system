@@ -7,6 +7,7 @@ import com.nipun.system.document.branch.dtos.CreateBranchRequest;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.branch.exceptions.BranchTitleAlreadyExistsException;
 import com.nipun.system.document.diff.dtos.DiffResponse;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -124,7 +125,7 @@ public class BranchController {
 
     @GetMapping("/{documentId}/branches/count")
     @Operation(summary = "Document branches count", description = "Get user document branches count")
-    public ResponseEntity<Integer> getDocumentCount(
+    public ResponseEntity<CountResponse> getDocumentCount(
             @PathVariable(name = "documentId") UUID branchId
     ) {
         return ResponseEntity.ok(branchService.getAllBranchCount(branchId));

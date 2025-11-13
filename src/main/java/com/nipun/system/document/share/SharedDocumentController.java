@@ -3,6 +3,7 @@ package com.nipun.system.document.share;
 import com.nipun.system.document.share.dtos.ShareDocumentRequest;
 import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -92,7 +93,7 @@ public class SharedDocumentController {
 
     @GetMapping("/shared/count/user")
     @Operation(summary = "Shared document count", description = "Get shared document count with user")
-    public ResponseEntity<Integer> getSharedDocumentWithUserCount() {
+    public ResponseEntity<CountResponse> getSharedDocumentWithUserCount() {
         return ResponseEntity.ok(sharedDocumentService.getSharedDocumentWithUserCount());
     }
 }

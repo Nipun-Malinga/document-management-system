@@ -6,6 +6,7 @@ import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
 import com.nipun.system.user.UserRepository;
@@ -79,9 +80,9 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
     }
 
     @Override
-    public int getSharedDocumentWithUserCount() {
+    public CountResponse getSharedDocumentWithUserCount() {
         var userId = UserIdUtils.getUserIdFromContext();
-        return sharedDocumentRepository.countAllBySharedUserId(userId);
+        return new CountResponse(sharedDocumentRepository.countAllBySharedUserId(userId));
     }
 
     @Override

@@ -14,7 +14,7 @@ public interface TrashRepository extends JpaRepository<Trash, Long> {
 
     Optional<Trash> findByDocumentIdAndBranchIsNull(Long documentId);
 
-    Optional<Trash> findByDocumentIdAndBranchId(Long documentId, Long branchId);
+    Optional<Trash> findByBranchIdAndBranchDocumentId(Long branchId, Long documentId);
 
     int countAllByDocumentOwnerId(Long ownerId);
 

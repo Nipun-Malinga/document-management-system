@@ -12,6 +12,7 @@ import com.nipun.system.document.trash.dtos.TrashBranchResponse;
 import com.nipun.system.document.trash.dtos.TrashDocumentResponse;
 import com.nipun.system.document.trash.exceptions.TrashNotFoundException;
 import com.nipun.system.document.trash.exceptions.UnauthorizedBranchDeletionException;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.exceptions.UnauthorizedOperationException;
 import com.nipun.system.shared.utils.UserIdUtils;
@@ -146,14 +147,14 @@ public class TrashService {
         handleBranchAction(documentId, branchId, ActionType.DELETE);
     }
 
-    public int getTrashedDocumentCount() {
+    public CountResponse getTrashedDocumentCount() {
         var userId = UserIdUtils.getUserIdFromContext();
-        return trashRepository.countAllByDocumentOwnerId(userId);
+        return new CountResponse(trashRepository.countAllByDocumentOwnerId(userId));
     }
 
-    public int getTrashedBranchesCount(UUID documentId) {
+    public CountResponse getTrashedBranchesCount(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
-        return trashRepository.countAllByBranchDocumentPublicIdAndBranchDocumentOwnerId(documentId, userId);
+        return new CountResponse(trashRepository.countAllByBranchDocumentPublicIdAndBranchDocumentOwnerId(documentId, userId));
     }
 
     private void handleDocumentAction(UUID documentId, ActionType action) {
@@ -193,7 +194,7 @@ public class TrashService {
         }
 
         var trash = trashRepository
-                .findByDocumentIdAndBranchId(branch.getId(), branch.getDocument().getId())
+                .findByBranchIdAndBranchDocumentId(branch.getId(), branch.getDocument().getId())
                 .orElseThrow(TrashNotFoundException::new);
 
         switch (action) {

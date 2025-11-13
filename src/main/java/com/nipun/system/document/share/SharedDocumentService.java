@@ -2,6 +2,7 @@ package com.nipun.system.document.share;
 
 import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 
 import java.util.UUID;
@@ -11,7 +12,7 @@ public interface SharedDocumentService {
 
     SharedDocumentResponse getAllSharedUsers(UUID documentId);
 
-    int getSharedDocumentWithUserCount();
+    CountResponse getSharedDocumentWithUserCount();
 
     PaginatedData getAllSharedDocumentsWithUser(int pageNumber, int size);
 

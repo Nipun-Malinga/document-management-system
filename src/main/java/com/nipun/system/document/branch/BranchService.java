@@ -3,6 +3,7 @@ package com.nipun.system.document.branch;
 import com.nipun.system.document.base.dtos.ContentResponse;
 import com.nipun.system.document.branch.dtos.BranchResponse;
 import com.nipun.system.document.diff.dtos.DiffResponse;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 
 import java.util.UUID;
@@ -12,7 +13,7 @@ public interface BranchService {
 
     PaginatedData getAllBranches(UUID documentId, int pageNumber, int size);
 
-    int getAllBranchCount(UUID documentId);
+    CountResponse getAllBranchCount(UUID documentId);
 
     ContentResponse getBranchContent(UUID documentId, UUID branchId);
 

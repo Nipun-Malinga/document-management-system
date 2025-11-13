@@ -2,6 +2,7 @@ package com.nipun.system.document.trash;
 
 import com.nipun.system.document.trash.exceptions.TrashNotFoundException;
 import com.nipun.system.document.trash.exceptions.UnauthorizedBranchDeletionException;
+import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +34,7 @@ public class TrashController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{documentId}/branch/{branchId}")
+    @DeleteMapping("/{documentId}/branches/{branchId}")
     @Operation(summary = "Add to trash", description = "Add document branch to trash")
     public ResponseEntity<Void> addBranchToTrash(
             @PathVariable(name = "documentId")
@@ -84,7 +85,7 @@ public class TrashController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/restore/{documentId}/branch/{branchId}")
+    @PostMapping("/restore/{documentId}/branches/{branchId}")
     @Operation(summary = "Restore branch", description = "Restore trashed branch")
     public ResponseEntity<Void> restoreBranch(
             @PathVariable(name = "documentId")
@@ -126,13 +127,13 @@ public class TrashController {
 
     @GetMapping("/count")
     @Operation(summary = "Trashed document count", description = "Get trashed document count")
-    public ResponseEntity<Integer> getDocumentCount() {
+    public ResponseEntity<CountResponse> getDocumentCount() {
         return ResponseEntity.ok(trashService.getTrashedDocumentCount());
     }
 
     @GetMapping("/{documentId}/branches/count")
     @Operation(summary = "Trashed branches count", description = "Get trashed branches count")
-    public ResponseEntity<Integer> getBranchesCount(
+    public ResponseEntity<CountResponse> getBranchesCount(
             @PathVariable(name = "documentId") UUID documentId
     ) {
         return ResponseEntity.ok(trashService.getTrashedBranchesCount(documentId));
