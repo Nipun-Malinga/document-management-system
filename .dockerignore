@@ -1,0 +1,33 @@
+# Maven and Gradle build directories
+target
+build
+out
+
+# Maven wrapper files you don't need in the image
+!.mvn/wrapper/maven-wrapper.jar  # keep wrapper jar if needed
+
+# Gradle wrapper & caches
+.gradle
+
+# Logs
+*.log
+
+# OS / editor files
+.DS_Store
+.vscode
+.idea
+*.iml
+
+# Environment files
+.env
+application-*.yml
+application-*.properties
+
+# Test outputs
+test-output
+surefire-reports
+failsafe-reports
+
+# Docker
+Dockerfile.*
+docker-compose.*

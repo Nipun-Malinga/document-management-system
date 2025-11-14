@@ -9,7 +9,7 @@ spring:
     show-sql: true
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
   servlet:
     multipart:
@@ -35,9 +35,6 @@ cache:
         branch-connection:
           users: DOCUMENT_BRANCH_CONNECTED_USERS_CACHE
           sessions: DOCUMENT_BRANCH_CONNECTED_SESSIONS_CACHE
-        permission: DOCUMENT_USER_PERMISSION_CACHE
-        state: DOCUMENT_BRANCH_STATE_CACHE
-        cache-ttl: 120
     user:
       websocket:
         user-connection:

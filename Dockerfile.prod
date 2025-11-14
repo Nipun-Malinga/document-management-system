@@ -1,0 +1,28 @@
+FROM maven:3.9-eclipse-temurin-24 AS build
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y maven
+
+COPY pom.xml .
+
+COPY src ./src
+
+RUN mvn -q -DskipTests clean package
+
+
+FROM eclipse-temurin:24-jre-alpine AS production
+
+RUN groupadd -r app && useradd -r -g app app
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+RUN chown -R app:app /app
+
+USER app
+
+EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","app.jar"]

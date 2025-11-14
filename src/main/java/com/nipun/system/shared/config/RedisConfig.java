@@ -2,10 +2,7 @@ package com.nipun.system.shared.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -22,20 +19,14 @@ import java.time.Duration;
 @Configuration
 public class RedisConfig {
 
-    @Value("${cache.names.document.websocket.full-connection}")
-    private String DOCUMENT_ALL_USERS;
-    @Value("${cache.names.user.websocket.user-connection.users}")
-    private String USERS;
-    @Value("${cache.names.user.websocket.user-connection.sessions}")
-    private String SESSIONS;
-    @Value("${cache.names.document.websocket.branch-connection.users}")
-    private String DOCUMENT_BRANCH_USERS;
-    @Value("${cache.names.document.websocket.branch-connection.sessions}")
-    private String DOCUMENT_BRANCH_SESSIONS;
-
     @Bean
-    LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory();
+    LettuceConnectionFactory redisConnectionFactory(
+            RedisProperties redisProperties
+    ) {
+        return new LettuceConnectionFactory(
+                redisProperties.getHost(),
+                redisProperties.getPort()
+        );
     }
 
     @Bean
@@ -71,20 +62,5 @@ public class RedisConfig {
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
         return template;
-    }
-
-    @Bean
-    public ApplicationRunner clearSelectedCache(CacheManager cacheManager) {
-        return _ -> {
-            clearCache(cacheManager.getCache(USERS));
-            clearCache(cacheManager.getCache(SESSIONS));
-            clearCache(cacheManager.getCache(DOCUMENT_BRANCH_USERS));
-            clearCache(cacheManager.getCache(DOCUMENT_BRANCH_SESSIONS));
-            clearCache(cacheManager.getCache(DOCUMENT_ALL_USERS));
-        };
-    }
-
-    private void clearCache(Cache cache) {
-        if (cache != null) cache.clear();
     }
 }

@@ -1,0 +1,22 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: doc-server-dev
+    networks:
+      - doc-frontend-network
+      - doc-backend-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DOCKER_COMPOSE_ENABLED: false
+    volumes:
+      - .:/app
+    command: [ "./mvnw", "spring-boot:run" ]
+    ports:
+      - "8080:8080"
