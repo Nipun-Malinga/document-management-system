@@ -110,12 +110,12 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentResponse addDocumentToFavourites(UUID documentId) {
+    public DocumentResponse toggleFavorite(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElseThrow(DocumentNotFoundException::new);
 
-        document.setFavorite(true);
+        document.setFavorite(!document.getFavorite());
 
         return documentMapper.toDto(documentRepository.save(document));
     }

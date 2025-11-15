@@ -102,4 +102,8 @@ public class Document {
                 .findAny()
                 .orElse(null);
     }
+
+    public boolean getFavorite() {
+        return favorite;
+    }
 }

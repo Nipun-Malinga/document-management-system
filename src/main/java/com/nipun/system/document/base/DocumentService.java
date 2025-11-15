@@ -19,7 +19,7 @@ public interface DocumentService {
 
     DocumentResponse updateTitle(UUID documentId, UpdateTitleRequest request);
 
-    DocumentResponse addDocumentToFavourites(UUID documentId);
+    DocumentResponse toggleFavorite(UUID documentId);
 
     CountResponse getDocumentFavoriteCount();
 }
