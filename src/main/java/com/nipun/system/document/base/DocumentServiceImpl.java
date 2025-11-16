@@ -6,6 +6,8 @@ import com.nipun.system.document.base.dtos.UpdateTitleRequest;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.template.TemplateRepository;
+import com.nipun.system.document.template.exceptions.TemplateNotFoundException;
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import com.nipun.system.shared.utils.UserIdUtils;
@@ -27,6 +29,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final UserRepository userRepository;
 
     private final DocumentMapper documentMapper;
+    private final TemplateRepository templateRepository;
 
     @Transactional
     @Override
@@ -37,8 +40,12 @@ public class DocumentServiceImpl implements DocumentService {
 
         var user = userRepository.findById(userId).orElseThrow();
 
+        var template = templateRepository
+                .findById(request.getTemplateId())
+                .orElseThrow(TemplateNotFoundException::new);
+
         var document = DocumentFactory
-                .createNewDocument(user, request.getTitle(), request.getStatus());
+                .createNewDocument(user, request.getTitle(), request.getStatus(), template);
 
         document = documentRepository.save(document);
 

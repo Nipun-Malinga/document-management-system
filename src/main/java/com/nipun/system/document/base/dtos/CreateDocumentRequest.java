@@ -21,4 +21,6 @@ public class CreateDocumentRequest {
     @NotNull(message = "Status can't be a null")
     @Schema(description = "Status type", examples = {"PUBLIC", "PRIVATE"})
     private Status status;
+
+    private long templateId;
 }

@@ -3,6 +3,7 @@ package com.nipun.system.document.base;
 import com.nipun.system.document.Status;
 import com.nipun.system.document.branch.Branch;
 import com.nipun.system.document.content.Content;
+import com.nipun.system.document.template.Template;
 import com.nipun.system.user.User;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 @Component
 public class DocumentFactory {
-    public static Document createNewDocument(User user, String title, Status status) {
+    public static Document createNewDocument(User user, String title, Status status, Template template) {
         var document = Document.builder()
                 .publicId(UUID.randomUUID())
                 .owner(user)
@@ -24,7 +25,7 @@ public class DocumentFactory {
                 .build();
 
         var content = Content.builder()
-                .content("")
+                .content(template.getTemplate())
                 .build();
 
         var branch = Branch.builder()

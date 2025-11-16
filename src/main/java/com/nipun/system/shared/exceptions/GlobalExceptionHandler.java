@@ -6,6 +6,7 @@ import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.diff.exceptions.PatchFailedException;
 import com.nipun.system.document.permission.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.template.exceptions.TemplateNotFoundException;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.filemanager.exceptions.FileUploadFailedException;
 import com.nipun.system.filemanager.exceptions.InvalidFileTypeException;
@@ -158,6 +159,15 @@ public class GlobalExceptionHandler {
     ) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(TemplateNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTemplateNotFoundException(
+            TemplateNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(exception.getMessage()));
     }
 }
