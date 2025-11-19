@@ -1,11 +1,33 @@
 services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    networks:
+      - doc-frontend-network
+      - doc-backend-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DOCKER_COMPOSE_ENABLED: false
+    volumes:
+      - .:/app
+    command: [ "mvn", "spring-boot:run" ]
+    ports:
+      - "8080:8080"
   mysql:
     image: mysql:8.0.44-debian
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: document_management_system
-      MYSQL_USER: doc-user
-      MYSQL_PASSWORD: doc-user
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     networks:
       - doc-backend-network
     ports:

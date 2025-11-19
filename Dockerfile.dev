@@ -1,6 +1,4 @@
-FROM maven:3.9-eclipse-temurin-24 AS build
-
-RUN groupadd -r app && useradd -r -g app app
+FROM maven:3.9-eclipse-temurin-24
 
 WORKDIR /app
 
@@ -8,4 +6,4 @@ COPY pom.xml .
 
 RUN mvn -q dependency:go-offline
 
-CMD ["./mvnw", "spring-boot:run"]
+CMD ["mvn", "spring-boot:run"]

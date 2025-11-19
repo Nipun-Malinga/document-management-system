@@ -1,9 +1,6 @@
 services:
   server:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    container_name: doc-server-prod
+    image: doc-manager-backend-server:latest
     networks:
       - doc-frontend-network
       - doc-backend-network
@@ -17,3 +14,49 @@ services:
     restart: always
     ports:
       - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+  mysql:
+    image: mysql:8.0.44-debian
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - doc-backend-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - mysql_data:/var/lib/mysql
+  redis:
+    image: redis:8.2.1
+    networks:
+      - doc-backend-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - redis_data:/data
+
+networks:
+  doc-backend-network:
+    name: doc-backend-network
+  doc-frontend-network:
+    name: doc-frontend-network
+
+volumes:
+  mysql_data:
+  redis_data:
