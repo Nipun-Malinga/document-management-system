@@ -3,6 +3,7 @@ package com.nipun.system.document.share;
 import com.nipun.system.document.base.DocumentMapper;
 import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
+import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
@@ -70,7 +71,10 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
     public SharedDocumentResponse getAllSharedUsers(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
-        var document = documentRepository.findByPublicIdAndOwnerId(documentId, userId).orElseThrow(DocumentNotFoundException::new);
+        var document = documentRepository.findByPublicId(documentId).orElseThrow(DocumentNotFoundException::new);
+
+        if (PermissionUtils.isUnauthorizedUser(userId, document))
+            throw new UnauthorizedDocumentException();
 
         var dtoList = document.getSharedUsers().stream()
                 .map(sharedDocumentMapper::toSharedDocumentDto)
