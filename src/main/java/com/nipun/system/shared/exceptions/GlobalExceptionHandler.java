@@ -7,6 +7,7 @@ import com.nipun.system.document.diff.exceptions.PatchFailedException;
 import com.nipun.system.document.permission.exceptions.ReadOnlyDocumentException;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.template.exceptions.TemplateNotFoundException;
+import com.nipun.system.document.trash.exceptions.TrashAlreadyExistsException;
 import com.nipun.system.document.version.exceptions.VersionNotFoundException;
 import com.nipun.system.filemanager.exceptions.FileUploadFailedException;
 import com.nipun.system.filemanager.exceptions.InvalidFileTypeException;
@@ -177,5 +178,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.TOO_MANY_REQUESTS)
                 .body(new ErrorResponse("Too many requests. Please try again later."));
+    }
+    
+    @ExceptionHandler(TrashAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleTrashAlreadyExistsException(
+            TrashAlreadyExistsException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(exception.getMessage()));
     }
 }

@@ -10,6 +10,7 @@ import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.trash.dtos.TrashBranchResponse;
 import com.nipun.system.document.trash.dtos.TrashDocumentResponse;
+import com.nipun.system.document.trash.exceptions.TrashAlreadyExistsException;
 import com.nipun.system.document.trash.exceptions.TrashNotFoundException;
 import com.nipun.system.document.trash.exceptions.UnauthorizedBranchDeletionException;
 import com.nipun.system.shared.dtos.CountResponse;
@@ -47,6 +48,9 @@ public class TrashService {
         if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
+        if (trashRepository.existsByDocumentIdAndBranchIsNull(document.getId()))
+            throw new TrashAlreadyExistsException("Requested document is already exists in the trash");
+
         document.setTrashed(true);
 
         documentRepository.save(document);
@@ -64,6 +68,9 @@ public class TrashService {
 
         if (branch.getBranchName().equals("main"))
             throw new UnauthorizedBranchDeletionException("You cannot delete main branch");
+
+        if (trashRepository.existsByBranchIdAndBranchDocumentId(branch.getId(), branch.getDocument().getId()))
+            throw new TrashAlreadyExistsException("Requested branch is already exists in the trash");
 
         if (PermissionUtils.isUnauthorizedUser(userId, branch.getDocument()))
             throw new UnauthorizedDocumentException();
