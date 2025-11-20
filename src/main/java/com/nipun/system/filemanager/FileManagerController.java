@@ -1,6 +1,7 @@
 package com.nipun.system.filemanager;
 
 import com.nipun.system.filemanager.dtos.FileUploadResponse;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ public class FileManagerController {
 
     private final FileManagerService fileManagerService;
 
+    @RateLimiter(name = "default")
     @PostMapping("/images")
     @Operation(summary = "Receive Image", description = "Receives images from the client")
     public ResponseEntity<FileUploadResponse> receiveImage(

@@ -10,6 +10,7 @@ import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,7 @@ public class BranchController {
 
     private final BranchService branchService;
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/{documentId}/branches/{branchId}")
     @Operation(summary = "Create branch", description = "Creates new document branch in the system")
     public ResponseEntity<BranchResponse> createBranch(
@@ -43,6 +45,7 @@ public class BranchController {
         return ResponseEntity.ok(branchDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/branches/{branchId}/content")
     @Operation(summary = "Get content", description = "Get document branch content")
     public ResponseEntity<ContentResponse> getBranchContent(
@@ -57,6 +60,7 @@ public class BranchController {
         return ResponseEntity.ok(branchContentDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PutMapping("/{documentId}/branches/{branchId}/content")
     @Operation(summary = "Update branch content", description = "Update document branch content")
     public ResponseEntity<ContentResponse> updateBranchContent(
@@ -72,6 +76,7 @@ public class BranchController {
         return ResponseEntity.ok(new ContentResponse(content.getContent()));
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/branches")
     @Operation(summary = "Get all branches", description = "Get all document branches")
     public ResponseEntity<PaginatedData> getAllBranches(
@@ -89,6 +94,7 @@ public class BranchController {
         return ResponseEntity.ok(paginatedBranches);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/branches/diffs")
     @Operation(summary = "Compare branch Diffs", description = "Compare document branch diffs")
     public ResponseEntity<DiffResponse> getVersionDiffs(
@@ -106,6 +112,7 @@ public class BranchController {
         return ResponseEntity.ok(diffResponseDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/{documentId}/branches/{branchId}/merge/{mergeBranchId}")
     @Operation(summary = "Merge branch", description = "Merge two specific branches")
     public ResponseEntity<Void> mergeToMainBranch(
@@ -123,6 +130,7 @@ public class BranchController {
         return ResponseEntity.ok().build();
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/branches/count")
     @Operation(summary = "Document branches count", description = "Get user document branches count")
     public ResponseEntity<CountResponse> getDocumentCount(

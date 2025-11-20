@@ -1,6 +1,7 @@
 package com.nipun.system.document.permission;
 
 import com.nipun.system.document.permission.dtos.PermissionResponse;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ public class PermissionController {
 
     private final PermissionService permissionService;
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/branches/{branchId}")
     @Operation(summary = "Validate", description = "Validates the user relationship with the document")
     public ResponseEntity<PermissionResponse> validate(

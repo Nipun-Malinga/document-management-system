@@ -4,6 +4,7 @@ import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.dtos.RegisterUserRequest;
 import com.nipun.system.user.dtos.UserResponse;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class UserController {
     private final UserService userService;
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/register")
     @Operation(summary = "Register user", description = "Register new user to the system")
     public ResponseEntity<UserResponse> registerUser(
@@ -37,6 +39,7 @@ public class UserController {
         return ResponseEntity.created(uri).body(userDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/find/{email}")
     @Operation(summary = "Find user", description = "Find user based by email")
     public ResponseEntity<UserResponse> findUser(
@@ -56,5 +59,6 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(exception.getMessage()));
+
     }
 }

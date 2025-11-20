@@ -5,6 +5,7 @@ import com.nipun.system.document.base.dtos.DocumentResponse;
 import com.nipun.system.document.base.dtos.UpdateTitleRequest;
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +25,7 @@ public class DocumentController {
 
     private final DocumentService documentService;
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping
     @Operation(summary = "Create document", description = "Creates new document in the system")
     public ResponseEntity<DocumentResponse> createDocument(
@@ -38,6 +40,7 @@ public class DocumentController {
         return ResponseEntity.created(uri).body(document);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}")
     @Operation(summary = "Get document", description = "Get document by ID")
     public ResponseEntity<DocumentResponse> getDocument(
@@ -49,6 +52,7 @@ public class DocumentController {
         return ResponseEntity.ok(documentDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping
     @Operation(summary = "Get all documents", description = "Get all user owned documents")
     public ResponseEntity<PaginatedData> getAllDocuments(
@@ -63,6 +67,7 @@ public class DocumentController {
         return ResponseEntity.ok(paginatedDocumentDtoList);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PutMapping("/{documentId}/title")
     @Operation(summary = "Update document title", description = "Updates the document title")
     public ResponseEntity<DocumentResponse> updateDocumentTitle(
@@ -75,12 +80,14 @@ public class DocumentController {
         return ResponseEntity.ok(documentDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/count")
     @Operation(summary = "Document count", description = "Get user non trashed document count")
     public ResponseEntity<CountResponse> getDocumentCount() {
         return ResponseEntity.ok(documentService.getDocumentCount());
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/{documentId}/favorites/toggle")
     @Operation(summary = "Add to favorites", description = "Add document to favorites")
     public ResponseEntity<DocumentResponse> toggleFavorite(
@@ -91,6 +98,7 @@ public class DocumentController {
         return ResponseEntity.ok(documentService.toggleFavorite(documentId));
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/favorites/count")
     @Operation(summary = "Favorite documents", description = "Get all user favorite documents")
     public ResponseEntity<CountResponse> getDocumentFavoriteCount() {

@@ -5,6 +5,7 @@ import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +24,7 @@ public class SharedDocumentController {
 
     private final SharedDocumentService sharedDocumentService;
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/{documentId}/share/{userId}")
     @Operation(summary = "Share document", description = "Share document among user")
     public ResponseEntity<SharedDocumentDto> shareDocument(
@@ -41,6 +43,7 @@ public class SharedDocumentController {
         return ResponseEntity.ok(sharedDocumentDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/share/users")
     @Operation(summary = "Get all shared users", description = "Get all shared users with the document")
     public ResponseEntity<SharedDocumentResponse> getAllSharedUsers(
@@ -52,6 +55,7 @@ public class SharedDocumentController {
         return ResponseEntity.ok(sharedUsers);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/share")
     @Operation(summary = "Get all shared documents", description = "Get all shared documents with the user")
     public ResponseEntity<PaginatedData> getAllSharedDocumentsWithUser(
@@ -66,6 +70,7 @@ public class SharedDocumentController {
         return ResponseEntity.ok(paginatedDocuments);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/{documentId}/share/remove")
     @Operation(summary = "Remove document access", description = "Remove own document access")
     public ResponseEntity<Void> removeDocumentAccess(
@@ -77,6 +82,7 @@ public class SharedDocumentController {
         return ResponseEntity.noContent().build();
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/{documentId}/share/remove/{sharedUserId}")
     @Operation(summary = "Remove document access", description = "Remove document access as owner")
     public ResponseEntity<Void> removeDocumentAccess(
@@ -91,6 +97,7 @@ public class SharedDocumentController {
         return ResponseEntity.noContent().build();
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/shared/count/user")
     @Operation(summary = "Shared document count", description = "Get shared document count with user")
     public ResponseEntity<CountResponse> getSharedDocumentWithUserCount() {

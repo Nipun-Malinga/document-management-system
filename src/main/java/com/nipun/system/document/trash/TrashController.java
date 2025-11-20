@@ -5,6 +5,7 @@ import com.nipun.system.document.trash.exceptions.UnauthorizedBranchDeletionExce
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +24,7 @@ public class TrashController {
 
     private final TrashService trashService;
 
+    @RateLimiter(name = "globalLimiter")
     @DeleteMapping("/{documentId}")
     @Operation(summary = "Add to trash", description = "Add entier document to trash")
     public ResponseEntity<Void> addDocumentToTrash(
@@ -34,6 +36,7 @@ public class TrashController {
         return ResponseEntity.noContent().build();
     }
 
+    @RateLimiter(name = "globalLimiter")
     @DeleteMapping("/{documentId}/branches/{branchId}")
     @Operation(summary = "Add to trash", description = "Add document branch to trash")
     public ResponseEntity<Void> addBranchToTrash(
@@ -48,6 +51,7 @@ public class TrashController {
         return ResponseEntity.noContent().build();
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping
     @Operation(summary = "All trashed documents", description = "Get all user trashed documents")
     public ResponseEntity<PaginatedData> getAllTrashedDocuments(
@@ -61,6 +65,7 @@ public class TrashController {
         return ResponseEntity.ok(trashService.getAllTrashedDocuments(pageNumber, pageSize));
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/branches")
     @Operation(summary = "All trashed branches", description = "Get all user trashed branches")
     public ResponseEntity<PaginatedData> getAllTrashedBranches(
@@ -74,6 +79,7 @@ public class TrashController {
         return ResponseEntity.ok(trashService.getAllTrashedBranches(pageNumber, pageSize));
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/restore/{documentId}")
     @Operation(summary = "Restore document", description = "Restore trashed document")
     public ResponseEntity<Void> restoreDocument(
@@ -85,6 +91,7 @@ public class TrashController {
         return ResponseEntity.ok().build();
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/restore/{documentId}/branches/{branchId}")
     @Operation(summary = "Restore branch", description = "Restore trashed branch")
     public ResponseEntity<Void> restoreBranch(
@@ -99,6 +106,7 @@ public class TrashController {
         return ResponseEntity.ok().build();
     }
 
+    @RateLimiter(name = "globalLimiter")
     @DeleteMapping("/delete/{documentId}")
     @Operation(summary = "Delete document", description = "Deletes document from the system")
     public ResponseEntity<Void> deleteDocument(
@@ -110,6 +118,7 @@ public class TrashController {
         return ResponseEntity.noContent().build();
     }
 
+    @RateLimiter(name = "globalLimiter")
     @DeleteMapping("/delete/{documentId}/branches/{branchId}")
     @Operation(summary = "Delete branch", description = "Delete branch from document")
     public ResponseEntity<Void> deleteBranch(
@@ -125,12 +134,14 @@ public class TrashController {
     }
 
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/count")
     @Operation(summary = "Trashed document count", description = "Get trashed document count")
     public ResponseEntity<CountResponse> getDocumentCount() {
         return ResponseEntity.ok(trashService.getTrashedDocumentCount());
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/branches/count")
     @Operation(summary = "Trashed branches count", description = "Get trashed branches count")
     public ResponseEntity<CountResponse> getBranchesCount(

@@ -5,6 +5,7 @@ import com.nipun.system.shared.config.JwtConfig;
 import com.nipun.system.shared.dtos.JwtResponse;
 import com.nipun.system.shared.services.JwtService;
 import com.nipun.system.user.UserService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +28,7 @@ public class AuthController {
     private final JwtConfig jwtConfig;
     private final UserService userService;
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/login")
     @Operation(summary = "User login")
     public ResponseEntity<JwtResponse> userLogin(
@@ -48,6 +50,7 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/refresh")
     @Operation(summary = "JWT token refresh", description = "Refresh the access token")
     public ResponseEntity<JwtResponse> refresh(

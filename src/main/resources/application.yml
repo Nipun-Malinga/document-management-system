@@ -29,12 +29,6 @@ security:
 
 cache:
   names:
-    document:
-      websocket:
-        full-connection: DOCUMENT_CONNECTED_USERS_CACHE
-        branch-connection:
-          users: DOCUMENT_BRANCH_CONNECTED_USERS_CACHE
-          sessions: DOCUMENT_BRANCH_CONNECTED_SESSIONS_CACHE
     user:
       websocket:
         user-connection:
@@ -51,3 +45,14 @@ cloud:
 
 client:
   url: ${CLIENT_URL}
+
+resilience4j:
+  ratelimiter:
+    configs:
+      default:
+        limitForPeriod: 20
+        limitRefreshPeriod: 1s
+        timeoutDuration: 10s
+    instances:
+      globalLimiter:
+        baseConfig: default

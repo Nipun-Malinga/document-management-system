@@ -5,6 +5,7 @@ import com.nipun.system.document.diff.dtos.DiffResponse;
 import com.nipun.system.document.version.dtos.CreateVersionRequest;
 import com.nipun.system.document.version.dtos.VersionResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +24,7 @@ public class VersionController {
 
     private final VersionService versionService;
 
-
+    @RateLimiter(name = "default")
     @PostMapping("/{documentId}/branches/{branchId}/versions")
     @Operation(summary = "Create version", description = "Creates a version from specific document branch")
     public ResponseEntity<VersionResponse> createNewVersion(
@@ -40,6 +41,7 @@ public class VersionController {
         return ResponseEntity.ok(newVersion);
     }
 
+    @RateLimiter(name = "default")
     @GetMapping("/{documentId}/versions")
     @Operation(summary = "Get all document versions", description = "Get all document versions by document ID")
     public ResponseEntity<PaginatedData> getAllDocumentVersions(
@@ -58,6 +60,7 @@ public class VersionController {
         return ResponseEntity.ok(paginatedVersions);
     }
 
+    @RateLimiter(name = "default")
     @GetMapping("/{documentId}/versions/{versionId}")
     @Operation(summary = "Get document version content", description = "Get document version content by document ID and version ID")
     public ResponseEntity<ContentResponse> getDocumentVersionContent(
@@ -72,6 +75,7 @@ public class VersionController {
         return ResponseEntity.ok(versionContentDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/versions/diffs")
     @Operation(summary = "Compare Diffs", description = "Compare document version diffs")
     public ResponseEntity<DiffResponse> getVersionDiffs(
@@ -89,6 +93,7 @@ public class VersionController {
         return ResponseEntity.ok(diffResponseDto);
     }
 
+    @RateLimiter(name = "globalLimiter")
     @PostMapping("/{documentId}/branches/{branchId}/merge/versions/{versionId}")
     @Operation(summary = "Restore to specific", description = "Restore document to the specific version")
     public ResponseEntity<Void> mergeVersionToBranch(
