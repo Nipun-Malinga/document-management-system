@@ -2,13 +2,14 @@ package com.nipun.system.user;
 
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.dtos.RegisterUserRequest;
-import com.nipun.system.user.dtos.UserDto;
+import com.nipun.system.user.dtos.UserResponse;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,23 +23,23 @@ public class UserController {
 
     @PostMapping("/register")
     @Operation(summary = "Register user", description = "Register new user to the system")
-    public ResponseEntity<UserDto> registerUser(
+    public ResponseEntity<UserResponse> registerUser(
             @RequestBody @Valid RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
     ) {
         var userDto = userService.registerUser(request);
 
         var uri = uriBuilder
-                    .path("/users/{userId}")
-                    .buildAndExpand(userDto.getId())
-                    .toUri();
+                .path("/users/{userId}")
+                .buildAndExpand(userDto.getId())
+                .toUri();
 
         return ResponseEntity.created(uri).body(userDto);
     }
 
     @GetMapping("/find/{email}")
     @Operation(summary = "Find user", description = "Find user based by email")
-    public ResponseEntity<UserDto> findUser(
+    public ResponseEntity<UserResponse> findUser(
             @PathVariable(name = "email")
             @Parameter(description = "User email", example = "johndoe@email.com")
             String email
@@ -53,7 +54,7 @@ public class UserController {
             EmailAlreadyRegisteredException exception
     ) {
         return ResponseEntity
-                .badRequest()
+                .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(exception.getMessage()));
     }
 }

@@ -14,6 +14,16 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Request object for register user")
 public class RegisterUserRequest {
 
+    @NotBlank(message = "First name cannot be blank")
+    @Size(min = 3, max = 10, message = "First name must have characters between 4 and 10")
+    @Schema(description = "First Name", example = "Tom")
+    private String firstname;
+
+    @NotBlank(message = "Last name cannot be blank")
+    @Size(min = 3, max = 10, message = "Last name must have characters between 4 and 10")
+    @Schema(description = "Last Name", example = "Cruise")
+    private String lastname;
+
     @NotBlank(message = "Username cannot be blank")
     @Size(min = 4, max = 20, message = "Username must have characters between 4 and 20")
     @Schema(description = "Username", example = "John Doe")

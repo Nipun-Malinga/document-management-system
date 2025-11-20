@@ -33,4 +33,5 @@ build/
 .vscode/
 
 ### Development ###
-/.env
+.env
+.env.prod

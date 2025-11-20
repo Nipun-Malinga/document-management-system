@@ -1,7 +1,7 @@
 package com.nipun.system.user;
 
 import com.nipun.system.user.dtos.RegisterUserRequest;
-import com.nipun.system.user.dtos.UserDto;
+import com.nipun.system.user.dtos.UserResponse;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserDto registerUser(
+    public UserResponse registerUser(
             RegisterUserRequest request
     ) {
         if (request == null)
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Cacheable(value = "users", key = "#userEmail")
     @Override
-    public UserDto findUser(String userEmail) {
+    public UserResponse findUser(String userEmail) {
         if (userEmail == null)
             throw new IllegalArgumentException("User email cannot be null");
 

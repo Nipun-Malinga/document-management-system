@@ -1,7 +1,7 @@
 package com.nipun.system.user;
 
 import com.nipun.system.user.dtos.RegisterUserRequest;
-import com.nipun.system.user.dtos.UserDto;
+import com.nipun.system.user.dtos.UserResponse;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
 import com.nipun.system.user.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ class UserServiceImplTest {
 
     private RegisterUserRequest testRegisterUserRequest;
     private User testUser;
-    private UserDto testUserDto;
+    private UserResponse testUserResponse;
 
     @BeforeEach
     void setup() {
@@ -50,11 +50,11 @@ class UserServiceImplTest {
         this.testUser.setEmail("testuser@email.com");
         this.testUser.setPassword("test12345");
 
-        this.testUserDto = new UserDto();
-        this.testUserDto.setId(1L);
-        this.testUserDto.setUsername("Test User");
-        this.testUserDto.setEmail("testuser@email.com");
-        this.testUserDto.setRole(Role.USER);
+        this.testUserResponse = new UserResponse();
+        this.testUserResponse.setId(1L);
+        this.testUserResponse.setUsername("Test User");
+        this.testUserResponse.setEmail("testuser@email.com");
+        this.testUserResponse.setRole(Role.USER);
     }
 
     @Nested
@@ -67,12 +67,12 @@ class UserServiceImplTest {
             when(userMapper.toEntity(testRegisterUserRequest)).thenReturn(testUser);
             when(userRepository.existsByEmail(testUser.getEmail())).thenReturn(false);
             when(userRepository.save(any(User.class))).thenReturn(testUser);
-            when(userMapper.toDto(any(User.class))).thenReturn(testUserDto);
+            when(userMapper.toDto(any(User.class))).thenReturn(testUserResponse);
 
             var result = UserServiceImplTest.this.userService.registerUser(testRegisterUserRequest);
 
             assertNotNull(result);
-            assertEquals(testUserDto, result);
+            assertEquals(testUserResponse, result);
             verify(userMapper, times(1)).toEntity(testRegisterUserRequest);
             verify(userRepository, times(1)).existsByEmail(testUser.getEmail());
             verify(userRepository, times(1)).save(any(User.class));
@@ -188,11 +188,11 @@ class UserServiceImplTest {
             var userEmail = "testuser@email.com";
 
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(testUser));
-            when(userMapper.toDto(testUser)).thenReturn(testUserDto);
+            when(userMapper.toDto(testUser)).thenReturn(testUserResponse);
 
             var userDto = UserServiceImplTest.this.userService.findUser(userEmail);
 
-            assertEquals(userDto, testUserDto);
+            assertEquals(userDto, testUserResponse);
             assertEquals(userEmail, userDto.getEmail());
 
             verify(userRepository, times(1)).findByEmail(userEmail);

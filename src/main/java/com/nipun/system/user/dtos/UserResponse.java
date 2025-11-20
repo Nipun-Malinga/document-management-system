@@ -4,9 +4,13 @@ import com.nipun.system.user.Role;
 import lombok.Data;
 
 @Data
-public class UserDto {
+public class UserResponse {
 
     private Long id;
+
+    private String firstname;
+
+    private String lastname;
 
     private String username;
 

@@ -1,13 +1,13 @@
 package com.nipun.system.user;
 
 import com.nipun.system.user.dtos.RegisterUserRequest;
-import com.nipun.system.user.dtos.UserDto;
+import com.nipun.system.user.dtos.UserResponse;
 
 
 public interface UserService {
-    UserDto registerUser(RegisterUserRequest request);
+    UserResponse registerUser(RegisterUserRequest request);
 
     User findUser(Long id);
 
-    UserDto findUser(String email);
+    UserResponse findUser(String email);
 }
