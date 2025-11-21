@@ -1,7 +1,7 @@
 package com.nipun.system.shared.interceptors;
 
-import com.nipun.system.shared.exceptions.InvalidJwtTokenException;
-import com.nipun.system.shared.exceptions.JwtTokenNotFoundException;
+import com.nipun.system.auth.exceptions.InvalidJwtTokenException;
+import com.nipun.system.auth.exceptions.JwtTokenNotFoundException;
 import com.nipun.system.shared.services.JwtService;
 import com.nipun.system.user.websocket.UserWebsocketServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +61,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
             accessor.setLeaveMutable(true);
 
             userWebsocketService.addConnectedSessionToCache(
-                            (String) message.getHeaders().get("simpSessionId"), accessor.getUser());
+                    (String) message.getHeaders().get("simpSessionId"), accessor.getUser());
 
             return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
         }

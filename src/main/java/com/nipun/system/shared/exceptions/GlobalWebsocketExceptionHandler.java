@@ -1,6 +1,8 @@
 package com.nipun.system.shared.exceptions;
 
 import com.nipun.system.auth.exceptions.BadCredentialsException;
+import com.nipun.system.auth.exceptions.InvalidJwtTokenException;
+import com.nipun.system.auth.exceptions.JwtTokenNotFoundException;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.branch.exceptions.BranchNotFoundException;
 import com.nipun.system.document.diff.exceptions.PatchFailedException;

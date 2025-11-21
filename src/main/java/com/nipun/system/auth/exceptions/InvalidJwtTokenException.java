@@ -1,4 +1,4 @@
-package com.nipun.system.shared.exceptions;
+package com.nipun.system.auth.exceptions;
 
 public class InvalidJwtTokenException extends RuntimeException {
     public InvalidJwtTokenException() {

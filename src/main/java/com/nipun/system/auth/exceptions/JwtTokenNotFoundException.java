@@ -1,4 +1,4 @@
-package com.nipun.system.shared.exceptions;
+package com.nipun.system.auth.exceptions;
 
 public class JwtTokenNotFoundException extends RuntimeException {
     public JwtTokenNotFoundException() {
