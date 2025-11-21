@@ -2,7 +2,7 @@ package com.nipun.system.document.base;
 
 import com.nipun.system.document.base.dtos.CreateDocumentRequest;
 import com.nipun.system.document.base.dtos.DocumentResponse;
-import com.nipun.system.document.base.dtos.UpdateTitleRequest;
+import com.nipun.system.document.base.dtos.UpdateDocumentRequest;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
@@ -103,7 +103,7 @@ public class DocumentServiceImpl implements DocumentService {
     @CachePut(value = "documents", key = "{#documentId}")
     @Transactional
     @Override
-    public DocumentResponse updateTitle(UUID documentId, UpdateTitleRequest request) {
+    public DocumentResponse updateDocument(UUID documentId, UpdateDocumentRequest request) {
 
         var userId = UserIdUtils.getUserIdFromContext();
 

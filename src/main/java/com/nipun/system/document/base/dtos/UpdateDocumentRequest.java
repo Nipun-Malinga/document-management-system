@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @Schema(description = "Request object for update document title")
-public class UpdateTitleRequest {
+public class UpdateDocumentRequest {
     @NotBlank(message = "Title can't be a blank")
     @Size(min = 1, max = 255, message = "Title can't be longer than 255 characters")
     @Schema(description = "New title of the document", example = "Project Plan Updated")

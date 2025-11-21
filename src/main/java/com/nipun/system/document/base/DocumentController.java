@@ -2,7 +2,7 @@ package com.nipun.system.document.base;
 
 import com.nipun.system.document.base.dtos.CreateDocumentRequest;
 import com.nipun.system.document.base.dtos.DocumentResponse;
-import com.nipun.system.document.base.dtos.UpdateTitleRequest;
+import com.nipun.system.document.base.dtos.UpdateDocumentRequest;
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
@@ -68,15 +68,15 @@ public class DocumentController {
     }
 
     @RateLimiter(name = "globalLimiter")
-    @PutMapping("/{documentId}/title")
+    @PutMapping("/{documentId}")
     @Operation(summary = "Update document title", description = "Updates the document title")
-    public ResponseEntity<DocumentResponse> updateDocumentTitle(
+    public ResponseEntity<DocumentResponse> updateDocument(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
-            @RequestBody @Valid UpdateTitleRequest request
+            @RequestBody @Valid UpdateDocumentRequest request
     ) {
-        var documentDto = documentService.updateTitle(documentId, request);
+        var documentDto = documentService.updateDocument(documentId, request);
         return ResponseEntity.ok(documentDto);
     }
 
