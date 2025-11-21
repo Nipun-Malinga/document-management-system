@@ -25,21 +25,17 @@ public class SharedDocumentController {
     private final SharedDocumentService sharedDocumentService;
 
     @RateLimiter(name = "globalLimiter")
-    @PostMapping("/{documentId}/share/{userId}")
+    @PostMapping("/{documentId}/share")
     @Operation(summary = "Share document", description = "Share document among user")
     public ResponseEntity<SharedDocumentDto> shareDocument(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
-            @PathVariable(name = "userId")
-            @Parameter(description = "The ID of the user", example = "1")
-            Long shareUserId,
             @RequestBody
             @Valid
             ShareDocumentRequest request
     ) {
-        var sharedDocumentDto = sharedDocumentService.shareDocument(
-                shareUserId, documentId, request.getPermission());
+        var sharedDocumentDto = sharedDocumentService.shareDocument(documentId, request);
         return ResponseEntity.ok(sharedDocumentDto);
     }
 

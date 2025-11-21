@@ -8,6 +8,11 @@ import lombok.Data;
 @Data
 @Schema(description = "Request object for user permission")
 public class ShareDocumentRequest {
+
+    @NotNull(message = "User Id can't be null")
+    @Schema(description = "User Id", example = "1")
+    private Long userId;
+
     @NotNull(message = "Permission can't be a null")
     @Schema(description = "Permission type", examples = {"READ_ONLY", "READ_WRITE"})
     private Permission permission;

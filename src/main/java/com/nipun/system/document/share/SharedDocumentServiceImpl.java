@@ -5,6 +5,7 @@ import com.nipun.system.document.base.DocumentRepository;
 import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
+import com.nipun.system.document.share.dtos.ShareDocumentRequest;
 import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.shared.dtos.CountResponse;
@@ -37,7 +38,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
 
     @Transactional
     @Override
-    public SharedDocumentDto shareDocument(Long sharedUserId, UUID documentId, Permission permission) {
+    public SharedDocumentDto shareDocument(UUID documentId, ShareDocumentRequest request) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
@@ -45,7 +46,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
                 .orElseThrow(DocumentNotFoundException::new);
 
         var sharedUser = userRepository
-                .findById(sharedUserId)
+                .findById(request.getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
         var sharedDocument = sharedDocumentRepository
@@ -57,7 +58,7 @@ public class SharedDocumentServiceImpl implements SharedDocumentService {
             document.addSharedDocument(sharedDocument);
         }
 
-        sharedDocument.setPermission(permission);
+        sharedDocument.setPermission(request.getPermission());
 
         document.setUpdatedAt(LocalDateTime.now());
 
