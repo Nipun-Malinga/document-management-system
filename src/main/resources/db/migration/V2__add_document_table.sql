@@ -6,7 +6,7 @@ CREATE TABLE documents
     owner_id   BIGINT                            NOT NULL,
     created_at DATETIME                                   DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME                                   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    status     VARCHAR(20)                       NOT NULL DEFAULT 'PUBLIC',
+    status     ENUM ('PUBLIC', 'PRIVATE')        NOT NULL DEFAULT 'PUBLIC',
     trashed    BOOLEAN                           NOT NULL DEFAULT FALSE,
     favorite   BOOLEAN                           NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_document_owner_id

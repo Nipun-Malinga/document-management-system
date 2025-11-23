@@ -142,12 +142,10 @@ public class TrashController {
     }
 
     @RateLimiter(name = "globalLimiter")
-    @GetMapping("/{documentId}/branches/count")
+    @GetMapping("/branches/count")
     @Operation(summary = "Trashed branches count", description = "Get trashed branches count")
-    public ResponseEntity<CountResponse> getBranchesCount(
-            @PathVariable(name = "documentId") UUID documentId
-    ) {
-        return ResponseEntity.ok(trashService.getTrashedBranchesCount(documentId));
+    public ResponseEntity<CountResponse> getBranchesCount() {
+        return ResponseEntity.ok(trashService.getTrashedBranchesCount());
     }
 
     @ExceptionHandler(UnauthorizedBranchDeletionException.class)

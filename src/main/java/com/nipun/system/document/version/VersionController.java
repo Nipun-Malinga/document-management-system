@@ -37,7 +37,7 @@ public class VersionController {
             @Valid @RequestBody
             CreateVersionRequest request
     ) {
-        var newVersion = versionService.createNewVersion(documentId, branchId, request.getName(), request.getStatus());
+        var newVersion = versionService.createNewVersion(documentId, branchId, request.getTitle(), request.getStatus());
         return ResponseEntity.ok(newVersion);
     }
 

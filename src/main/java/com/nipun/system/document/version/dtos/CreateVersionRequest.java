@@ -15,10 +15,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateVersionRequest {
-    @NotNull(message = "Name can't be a null")
-    @NotEmpty(message = "Name can't ne empty")
-    @Schema(description = "Name of the version")
-    String name;
+    @NotNull(message = "Title can't be a null")
+    @NotEmpty(message = "Title can't ne empty")
+    @Schema(description = "Title of the version")
+    String title;
 
     @NotNull(message = "Status can't be a null")
     @Schema(description = "Status type", examples = {"PUBLIC", "PRIVATE"})

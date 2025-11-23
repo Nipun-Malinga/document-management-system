@@ -159,9 +159,9 @@ public class TrashService {
         return new CountResponse(trashRepository.countAllByDocumentOwnerId(userId));
     }
 
-    public CountResponse getTrashedBranchesCount(UUID documentId) {
+    public CountResponse getTrashedBranchesCount() {
         var userId = UserIdUtils.getUserIdFromContext();
-        return new CountResponse(trashRepository.countAllByBranchDocumentPublicIdAndBranchDocumentOwnerId(documentId, userId));
+        return new CountResponse(trashRepository.countAllByBranchDocumentOwnerId(userId));
     }
 
     private void handleDocumentAction(UUID documentId, ActionType action) {
