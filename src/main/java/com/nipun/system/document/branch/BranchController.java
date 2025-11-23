@@ -60,7 +60,6 @@ public class BranchController {
         return ResponseEntity.ok(branchContentDto);
     }
 
-    @RateLimiter(name = "globalLimiter")
     @PutMapping("/{documentId}/branches/{branchId}/content")
     @Operation(summary = "Update branch content", description = "Update document branch content")
     public ResponseEntity<ContentResponse> updateBranchContent(

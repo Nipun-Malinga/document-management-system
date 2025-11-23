@@ -2,6 +2,7 @@ package com.nipun.system.document.version.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nipun.system.document.Status;
+import com.nipun.system.user.dtos.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -17,7 +18,7 @@ public class VersionResponse {
 
     private UUID documentId;
 
-    private Long createdBy;
+    private UserResponse createdBy;
 
     private String title;
 

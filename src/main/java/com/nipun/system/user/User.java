@@ -11,6 +11,8 @@ import lombok.Setter;
 import java.util.HashSet;
 import java.util.Set;
 
+//TODO: MAKE THE USERNAME UNIQUE
+
 @Getter
 @Setter
 @NoArgsConstructor
