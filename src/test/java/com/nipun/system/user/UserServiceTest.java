@@ -4,6 +4,7 @@ import com.nipun.system.user.dtos.RegisterUserRequest;
 import com.nipun.system.user.dtos.UserResponse;
 import com.nipun.system.user.exceptions.EmailAlreadyRegisteredException;
 import com.nipun.system.user.exceptions.UserNotFoundException;
+import com.nipun.system.user.exceptions.UsernameAlreadyExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserServiceImpl Unit Test")
-class UserServiceImplTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -32,7 +33,7 @@ class UserServiceImplTest {
     private UserMapper userMapper;
 
     @InjectMocks
-    private UserServiceImpl userService;
+    private UserService userService;
 
     private RegisterUserRequest testRegisterUserRequest;
     private User testUser;
@@ -69,7 +70,7 @@ class UserServiceImplTest {
             when(userRepository.save(any(User.class))).thenReturn(testUser);
             when(userMapper.toDto(any(User.class))).thenReturn(testUserResponse);
 
-            var result = UserServiceImplTest.this.userService.registerUser(testRegisterUserRequest);
+            var result = UserServiceTest.this.userService.registerUser(testRegisterUserRequest);
 
             assertNotNull(result);
             assertEquals(testUserResponse, result);
@@ -84,6 +85,26 @@ class UserServiceImplTest {
         }
 
         @Test
+        @DisplayName("Should throw UsernameAlreadyExistsException when username is already exists")
+        void shouldThrowUsernameAlreadyExistsException() {
+            when(userMapper.toEntity(testRegisterUserRequest)).thenReturn(testUser);
+            when(userRepository.existsByUsername(testUser.getUsername())).thenReturn(true);
+
+            UsernameAlreadyExistsException exception = assertThrows(
+                    UsernameAlreadyExistsException.class,
+                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest)
+            );
+
+            assertEquals(
+                    "Username: " + testRegisterUserRequest.getUsername() + " is already registered in system."
+                    , exception.getMessage()
+            );
+
+            verify(userRepository, times(1)).existsByUsername(testUser.getUsername());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
         @DisplayName("Should throw EmailAlreadyRegisteredException when email already exists")
         void shouldThrowEmailAlreadyRegisteredException() {
             when(userMapper.toEntity(testRegisterUserRequest)).thenReturn(testUser);
@@ -91,7 +112,7 @@ class UserServiceImplTest {
 
             EmailAlreadyRegisteredException exception = assertThrows(
                     EmailAlreadyRegisteredException.class,
-                    () -> UserServiceImplTest.this.userService.registerUser(testRegisterUserRequest)
+                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest)
             );
 
             assertEquals(
@@ -110,7 +131,7 @@ class UserServiceImplTest {
 
             IllegalArgumentException exception = assertThrows(
                     IllegalArgumentException.class,
-                    () -> UserServiceImplTest.this.userService.registerUser(testRegisterUserRequest)
+                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest)
             );
 
             assertEquals(
@@ -135,7 +156,7 @@ class UserServiceImplTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
-            var user = UserServiceImplTest.this.userService.findUser(userId);
+            var user = UserServiceTest.this.userService.findUser(userId);
 
             assertEquals(user.getEmail(), testUser.getEmail());
 
@@ -151,7 +172,7 @@ class UserServiceImplTest {
 
             UserNotFoundException exception = assertThrows(
                     UserNotFoundException.class,
-                    () -> UserServiceImplTest.this.userService.findUser(userId)
+                    () -> UserServiceTest.this.userService.findUser(userId)
             );
 
             assertEquals(
@@ -167,7 +188,7 @@ class UserServiceImplTest {
         void shouldHandleNullUserIdRequest() {
             IllegalArgumentException exception = assertThrows(
                     IllegalArgumentException.class,
-                    () -> UserServiceImplTest.this.userService.findUser((Long) null)
+                    () -> UserServiceTest.this.userService.findUser((Long) null)
             );
 
             assertEquals(
@@ -190,7 +211,7 @@ class UserServiceImplTest {
             when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(testUser));
             when(userMapper.toDto(testUser)).thenReturn(testUserResponse);
 
-            var userDto = UserServiceImplTest.this.userService.findUser(userEmail);
+            var userDto = UserServiceTest.this.userService.findUser(userEmail);
 
             assertEquals(userDto, testUserResponse);
             assertEquals(userEmail, userDto.getEmail());
@@ -208,7 +229,7 @@ class UserServiceImplTest {
 
             UserNotFoundException exception = assertThrows(
                     UserNotFoundException.class,
-                    () -> UserServiceImplTest.this.userService.findUser(userEmail)
+                    () -> UserServiceTest.this.userService.findUser(userEmail)
             );
 
             assertEquals(
@@ -224,7 +245,7 @@ class UserServiceImplTest {
         void shouldHandleNullUserEmailRequest() {
             IllegalArgumentException exception = assertThrows(
                     IllegalArgumentException.class,
-                    () -> UserServiceImplTest.this.userService.findUser((String) null)
+                    () -> UserServiceTest.this.userService.findUser((String) null)
             );
 
             assertEquals(

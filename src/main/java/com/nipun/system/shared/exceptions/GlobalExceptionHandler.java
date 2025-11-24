@@ -13,6 +13,7 @@ import com.nipun.system.filemanager.exceptions.FileUploadFailedException;
 import com.nipun.system.filemanager.exceptions.InvalidFileTypeException;
 import com.nipun.system.shared.dtos.ErrorResponse;
 import com.nipun.system.user.exceptions.UserNotFoundException;
+import com.nipun.system.user.exceptions.UsernameAlreadyExistsException;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -137,6 +138,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(exception.getMessage()));
     }
 
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameAlreadyExistsException(
+            UsernameAlreadyExistsException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
     @ExceptionHandler(FileUploadFailedException.class)
     public ResponseEntity<ErrorResponse> handleFileUploadFailedException(
             FileUploadFailedException exception
@@ -179,7 +189,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.TOO_MANY_REQUESTS)
                 .body(new ErrorResponse("Too many requests. Please try again later."));
     }
-    
+
     @ExceptionHandler(TrashAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleTrashAlreadyExistsException(
             TrashAlreadyExistsException exception
