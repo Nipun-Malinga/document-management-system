@@ -16,6 +16,7 @@ import com.nipun.system.user.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,10 @@ public class SharedDocumentService {
     private final SharedDocumentMapper sharedDocumentMapper;
     private final SharedDocumentFactory sharedDocumentFactory;
 
+    @Caching(evict = {
+            @CacheEvict(value = "documents", key = "{#documentId}"),
+            @CacheEvict(value = "sharedUsers", key = "{#documentId}")
+    })
     @Transactional
     public SharedDocumentDto shareDocument(UUID documentId, ShareDocumentRequest request) {
         var userId = UserIdUtils.getUserIdFromContext();
