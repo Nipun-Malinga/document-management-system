@@ -1,6 +1,6 @@
 CREATE TABLE document_comments
 (
-    id                BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    id                BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     parent_comment_id BIGINT,
     document_id       BIGINT  NOT NULL,
     user_id           BIGINT  NOT NULL,

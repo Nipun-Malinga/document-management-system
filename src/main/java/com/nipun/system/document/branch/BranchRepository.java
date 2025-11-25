@@ -21,4 +21,8 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
     Page<Branch> findAllByDocumentId(Long documentId, Pageable pageable);
 
     int countAllByDocumentId(Long documentId);
+
+    Page<Branch> findAllByTrashedIsTrueAndOwnerId(Long ownerId, Pageable pageable);
+
+    int countAllByTrashedIsTrueAndOwnerId(Long ownerId);
 }

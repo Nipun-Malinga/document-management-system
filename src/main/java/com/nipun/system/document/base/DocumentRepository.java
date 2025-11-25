@@ -28,4 +28,8 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     @Query("select count(d) from Document d where d.owner.id = :userId and d.trashed = false and d.favorite = true")
     int countAllFavoriteDocumentByUser(@Param("userId") Long userId);
+
+    Page<Document> findAllByTrashedIsTrueAndOwnerId(Long ownerId, Pageable pageable);
+
+    int countAllByTrashedIsTrueAndOwnerId(Long ownerId);
 }

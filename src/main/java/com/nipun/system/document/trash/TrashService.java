@@ -10,8 +10,6 @@ import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.trash.dtos.TrashBranchResponse;
 import com.nipun.system.document.trash.dtos.TrashDocumentResponse;
-import com.nipun.system.document.trash.exceptions.TrashAlreadyExistsException;
-import com.nipun.system.document.trash.exceptions.TrashNotFoundException;
 import com.nipun.system.document.trash.exceptions.UnauthorizedBranchDeletionException;
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
@@ -30,7 +28,6 @@ import java.util.UUID;
 @Service
 public class TrashService {
 
-    private final TrashRepository trashRepository;
     private final DocumentRepository documentRepository;
     private final BranchRepository branchRepository;
     private final DocumentMapper documentMapper;
@@ -48,13 +45,9 @@ public class TrashService {
         if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
-        if (trashRepository.existsByDocumentIdAndBranchIsNull(document.getId()))
-            throw new TrashAlreadyExistsException("Requested document is already exists in the trash");
-
         document.setTrashed(true);
 
         documentRepository.save(document);
-        trashRepository.save(TrashFactory.createDocumentTrash(document));
     }
 
     @CacheEvict(value = "document_branch_contents", key = "{#documentId, #branchId}")
@@ -69,16 +62,12 @@ public class TrashService {
         if (branch.getBranchName().equals("main"))
             throw new UnauthorizedBranchDeletionException("You cannot delete main branch");
 
-        if (trashRepository.existsByBranchIdAndBranchDocumentId(branch.getId(), branch.getDocument().getId()))
-            throw new TrashAlreadyExistsException("Requested branch is already exists in the trash");
-
         if (PermissionUtils.isUnauthorizedUser(userId, branch.getDocument()))
             throw new UnauthorizedDocumentException();
 
         branch.setTrashed(true);
 
         branchRepository.save(branch);
-        trashRepository.save(TrashFactory.createBranchTrash(branch));
     }
 
     @Transactional(readOnly = true)
@@ -87,11 +76,11 @@ public class TrashService {
 
         PageRequest request = PageRequest.of(pageNumber, pageSize);
 
-        var trashList = trashRepository.findAllByBranchIsNullAndDocumentOwnerId(userId, request);
+        var trashList = documentRepository.findAllByTrashedIsTrueAndOwnerId(userId, request);
 
         var trashDtoList = trashList
                 .stream()
-                .map(trash -> new TrashDocumentResponse(trash.getId(), documentMapper.toDto(trash.getDocument()), LocalDateTime.now()))
+                .map(trash -> new TrashDocumentResponse(trash.getId(), documentMapper.toDto(trash), LocalDateTime.now()))
                 .toList();
 
         return new PaginatedData(
@@ -112,11 +101,11 @@ public class TrashService {
 
         PageRequest request = PageRequest.of(pageNumber, pageSize);
 
-        var trashList = trashRepository.findAllByDocumentIsNullAndBranchOwnerId(userId, request);
+        var trashList = branchRepository.findAllByTrashedIsTrueAndOwnerId(userId, request);
 
         var trashDtoList = trashList
                 .stream()
-                .map(trash -> new TrashBranchResponse(trash.getId(), branchMapper.toDto(trash.getBranch()), LocalDateTime.now()))
+                .map(trash -> new TrashBranchResponse(trash.getId(), branchMapper.toDto(trash), LocalDateTime.now()))
                 .toList();
 
         return new PaginatedData(
@@ -156,12 +145,12 @@ public class TrashService {
 
     public CountResponse getTrashedDocumentCount() {
         var userId = UserIdUtils.getUserIdFromContext();
-        return new CountResponse(trashRepository.countAllByDocumentOwnerId(userId));
+        return new CountResponse(documentRepository.countAllByTrashedIsTrueAndOwnerId(userId));
     }
 
     public CountResponse getTrashedBranchesCount() {
         var userId = UserIdUtils.getUserIdFromContext();
-        return new CountResponse(trashRepository.countAllByBranchDocumentOwnerId(userId));
+        return new CountResponse(branchRepository.countAllByTrashedIsTrueAndOwnerId(userId));
     }
 
     private void handleDocumentAction(UUID documentId, ActionType action) {
@@ -174,10 +163,6 @@ public class TrashService {
             throw new UnauthorizedOperationException();
         }
 
-        var trash = trashRepository
-                .findByDocumentIdAndBranchIsNull(document.getId())
-                .orElseThrow(DocumentNotFoundException::new);
-
         switch (action) {
             case RESTORE -> {
                 document.setTrashed(false);
@@ -185,8 +170,6 @@ public class TrashService {
             }
             case DELETE -> documentRepository.delete(document);
         }
-
-        trashRepository.delete(trash);
     }
 
     private void handleBranchAction(UUID documentId, UUID branchId, ActionType action) {
@@ -200,10 +183,6 @@ public class TrashService {
             throw new UnauthorizedOperationException();
         }
 
-        var trash = trashRepository
-                .findByBranchIdAndBranchDocumentId(branch.getId(), branch.getDocument().getId())
-                .orElseThrow(TrashNotFoundException::new);
-
         switch (action) {
             case RESTORE -> {
                 branch.setTrashed(false);
@@ -211,8 +190,6 @@ public class TrashService {
             }
             case DELETE -> branchRepository.delete(branch);
         }
-
-        trashRepository.delete(trash);
     }
 
     private enum ActionType {
