@@ -35,7 +35,6 @@ public class BranchService {
     private final DocumentRepository documentRepository;
     private final BranchMapper branchMapper;
     private final DiffUtils diffUtils;
-    private final BranchFactory branchFactory;
 
     @Transactional
     public BranchResponse createBranch(UUID documentId, UUID branchId, String branchName) {
@@ -55,7 +54,7 @@ public class BranchService {
                 .findByPublicIdAndDocumentId(branchId, document.getId())
                 .orElseThrow(BranchNotFoundException::new);
 
-        var newBranch = branchFactory.createNewBranch(document, branchName, baseBranch.getBranchContent(), user);
+        var newBranch = BranchFactory.createNewBranch(document, branchName, baseBranch.getBranchContent(), user);
 
         return branchMapper.toDto(branchRepository.save(newBranch));
     }

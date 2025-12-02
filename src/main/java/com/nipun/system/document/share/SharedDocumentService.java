@@ -6,7 +6,6 @@ import com.nipun.system.document.base.exceptions.DocumentNotFoundException;
 import com.nipun.system.document.permission.PermissionUtils;
 import com.nipun.system.document.permission.exceptions.UnauthorizedDocumentException;
 import com.nipun.system.document.share.dtos.ShareDocumentRequest;
-import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -39,7 +39,7 @@ public class SharedDocumentService {
             @CacheEvict(value = "sharedUsers", key = "{#documentId}")
     })
     @Transactional
-    public SharedDocumentDto shareDocument(UUID documentId, ShareDocumentRequest request) {
+    public SharedDocumentResponse shareDocument(UUID documentId, ShareDocumentRequest request) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository
@@ -69,7 +69,7 @@ public class SharedDocumentService {
     }
 
     @Cacheable(value = "sharedUsers", key = "{#documentId}")
-    public SharedDocumentResponse getAllSharedUsers(UUID documentId) {
+    public List<SharedDocumentResponse> getAllSharedUsers(UUID documentId) {
         var userId = UserIdUtils.getUserIdFromContext();
 
         var document = documentRepository.findByPublicId(documentId).orElseThrow(DocumentNotFoundException::new);
@@ -77,11 +77,9 @@ public class SharedDocumentService {
         if (PermissionUtils.isUnauthorizedUser(userId, document))
             throw new UnauthorizedDocumentException();
 
-        var dtoList = document.getSharedUsers().stream()
+        return document.getSharedUsers().stream()
                 .map(sharedDocumentMapper::toSharedDocumentDto)
                 .toList();
-
-        return new SharedDocumentResponse(dtoList);
     }
 
     public CountResponse getSharedDocumentWithUserCount() {

@@ -12,7 +12,7 @@ import java.util.UUID;
 @Component
 public class BranchFactory {
 
-    public Branch createNewBranch(Document document, String branchName, String content, User owner) {
+    public static Branch createNewBranch(Document document, String branchName, String content, User owner) {
 
         var branchContent = Content.builder().content(content).build();
 

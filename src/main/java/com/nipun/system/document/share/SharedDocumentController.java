@@ -1,7 +1,6 @@
 package com.nipun.system.document.share;
 
 import com.nipun.system.document.share.dtos.ShareDocumentRequest;
-import com.nipun.system.document.share.dtos.SharedDocumentDto;
 import com.nipun.system.document.share.dtos.SharedDocumentResponse;
 import com.nipun.system.shared.dtos.CountResponse;
 import com.nipun.system.shared.dtos.PaginatedData;
@@ -14,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -27,7 +27,7 @@ public class SharedDocumentController {
     @RateLimiter(name = "globalLimiter")
     @PostMapping("/{documentId}/share")
     @Operation(summary = "Share document", description = "Share document among user")
-    public ResponseEntity<SharedDocumentDto> shareDocument(
+    public ResponseEntity<SharedDocumentResponse> shareDocument(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId,
@@ -42,7 +42,7 @@ public class SharedDocumentController {
     @RateLimiter(name = "globalLimiter")
     @GetMapping("/{documentId}/share/users")
     @Operation(summary = "Get all shared users", description = "Get all shared users with the document")
-    public ResponseEntity<SharedDocumentResponse> getAllSharedUsers(
+    public ResponseEntity<List<SharedDocumentResponse>> getAllSharedUsers(
             @PathVariable(name = "documentId")
             @Parameter(description = "The ID of the document", example = "bfb8777b-59bd-422b-8132-d1f64b09590d")
             UUID documentId
