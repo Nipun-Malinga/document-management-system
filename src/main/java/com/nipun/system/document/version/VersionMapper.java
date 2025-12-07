@@ -11,6 +11,6 @@ public interface VersionMapper {
     @Mapping(target = "documentId", source = "branch.document.publicId")
     @Mapping(target = "createdBy", source = "createdBy")
     @Mapping(target = "title", source = "versionTitle")
-    @Mapping(target = "created_at", source = "created_at")
+    @Mapping(target = "createdAt", source = "createdAt")
     VersionResponse toDto(Version version);
 }

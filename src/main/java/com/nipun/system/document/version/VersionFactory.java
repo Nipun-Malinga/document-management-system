@@ -28,7 +28,7 @@ public class VersionFactory {
                 .createdBy(createdBy)
                 .content(versionContent)
                 .versionTitle(title)
-                .created_at(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .status(status)
                 .build();
     }
