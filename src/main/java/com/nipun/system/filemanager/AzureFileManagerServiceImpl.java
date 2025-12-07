@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class FileManagerServiceImpl implements FileManagerService {
+public class AzureFileManagerServiceImpl implements FileManagerService {
 
     @Value("${cloud.blob-storage.azure.endpoint}")
     private String BLOB_SERVICE_ENDPOINT;

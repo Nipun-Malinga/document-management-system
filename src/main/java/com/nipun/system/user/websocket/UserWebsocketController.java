@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class UserWebsocketController {
 
-    private final UserWebsocketServiceImpl userWebsocketService;
+    private final UserWebsocketService userWebsocketService;
 
     @SubscribeMapping("/user/{userId}/status")
     public boolean isUserOnline(

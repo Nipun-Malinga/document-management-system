@@ -3,7 +3,7 @@ package com.nipun.system.shared.interceptors;
 import com.nipun.system.auth.exceptions.InvalidJwtTokenException;
 import com.nipun.system.auth.exceptions.JwtTokenNotFoundException;
 import com.nipun.system.shared.services.JwtService;
-import com.nipun.system.user.websocket.UserWebsocketServiceImpl;
+import com.nipun.system.user.websocket.UserWebsocketService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.messaging.Message;
@@ -26,7 +26,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
 
     private static final String SESSION_AUTH_KEY = "WS_AUTH";
     private final JwtService jwtService;
-    private final UserWebsocketServiceImpl userWebsocketService;
+    private final UserWebsocketService userWebsocketService;
 
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {
