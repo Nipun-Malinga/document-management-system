@@ -1,57 +1,37 @@
 # Document Management System (DMS)
 
-A backend service that manages documents, branches, version history, permissions, and real-time collaboration.
+Backend service for managing documents, branches, versions, permissions, and real‑time collaboration.
 
-Built with **Spring Boot**, secured with **Spring Security**, backed by **MySQL**, optimized with **Redis caching**,
-containerized with **Docker**, and supports real-time updates via **WebSockets**.
+Built with Spring Boot, secured by Spring Security (JWT), backed by MySQL, cached with Redis, containerized with Docker,
+and supporting real‑time updates over WebSockets.
 
 ---
 
-## Features
+## Overview
 
-### User Authentication & Authorization
-
-- JWT-based security with a role/permission model
-- Static permission checks for branches and document updates
-
-### Document & Branch Management
-
-- Create, update, version, and restore documents
-- Branching workflow similar to Git, optimized for text content
-
-### Real-Time Collaboration
-
-- WebSocket channels for live document updates
-
-### Caching Layer
-
-Redis used for:
-
-- Cached frequently accessed documents
-- Rate-limiting
-
-### Database Persistence
-
-- MySQL for durable storage
-- Designed with normalization + optimized indexes
-
-### Containerized Infrastructure
-
-- Docker Compose environment for MySQL, Redis, and the backend
+- Documents with branching and version history
+- Permission model with read/write access checks
+- Real‑time user presence and updates over STOMP/WebSockets
+- Flyway database migrations
+- OpenAPI/Swagger UI
+- Caching and basic rate limiting
 
 ---
 
 ## Tech Stack
 
-| Layer            | Technologies                                 |
-|------------------|----------------------------------------------|
-| Backend          | Spring Boot 3.x, Spring Web, Spring Data JPA |
-| Security         | Spring Security, JWT                         |
-| Database         | MySQL 8.0.44+                                |
-| Cache            | Redis                                        |
-| Messaging        | WebSockets (STOMP)                           |
-| Containerization | Docker & Docker Compose                      |
-| Testing          | JUnit 5, Mockito                             |
+- Language/runtime: Java 24
+- Frameworks: Spring Boot 3.5.x (Web, Data JPA, Security, WebSocket, Actuator)
+- Database: MySQL 8
+- Cache: Redis
+- Migrations: Flyway
+- Auth: JWT (jjwt)
+- Mapping: MapStruct
+- API Docs: springdoc-openapi
+- Resilience: resilience4j (rate limiter)
+- Build/PM: Maven (mvnw wrapper)
+- Containers: Docker & Docker Compose
+- Tests: JUnit 5, Spring Boot Test, Mockito
 
 ---
 
@@ -59,168 +39,205 @@ Redis used for:
 
 ```
 src/main/java/com/nipun/system
-├── auth/            # Login, JWT issuance, authentication flow
-├── user/            # Users, roles, profile, websocket presence
 ├── document/
 │   ├── base/        # Core document model, CRUD, repository
-│   ├── branch/      # Branching workflow (Git-like)
+│   ├── branch/      # Branching workflow and diffs
 │   ├── version/     # Version history
-│   ├── diff/        # Text diff/patch utilities
+│   ├── diff/        # Text diff utilities
 │   ├── permission/  # Access control and permission rules
-│   ├── share/       # Document sharing logic
-│   └── trash/       # Soft-deletion logic
-├── filemanager/     # File uploads
+│   └── ...
 ├── shared/
 │   ├── config/      # Security, Redis, WebSockets, OpenAPI
 │   ├── exceptions/  # Global exception handlers
-│   ├── utils/       # Common utilities
-│   └── services/    # Shared cross-module services
-└── websocket/       # STOMP channels, events, interceptors
+│   └── utils/       # Common utilities
+└── user/websocket   # Presence, listeners, services
 
+src/main/resources
+├── application.yml   # Spring configuration (DB, Redis, JWT, OpenAPI, etc.)
+└── db/migration      # Flyway migrations
 ```
 
 ---
 
-## Running the Project
-
-### Prerequisites
+## Requirements
 
 - Docker & Docker Compose
 - JDK 24+
-- Maven 3.9+
+- Maven 3.9+ (or use `./mvnw`)
 
-### 1. Start Infrastructure (MySQL + Redis)
+---
+
+## Setup and Run
+
+There are two common workflows: all-in-Docker, or local app with Dockerized services.
+
+### A. Run everything via Docker Compose
+
+1) Start services and app
 
 ```bash
-docker compose up -d
+docker compose -f compose.yml up -d
 ```
 
-This runs:
+This will:
 
-- `mysql:8`
-- `redis:8.2.1`
-- Any other services defined in `docker-compose.yml`
+- Build and run the server container (port 8080 → host 8080)
+- Start MySQL 8 (exposed as host 3307 → container 3306)
+- Start Redis 8.2.1 (6379)
 
-### 2. Start Spring Boot Backend
+Spring profile: `dev` (see `SPRING_PROFILES_ACTIVE` in `compose.yml`).
+
+2) Stop
+
+```bash
+docker compose down
+```
+
+### B. Run app locally with Dockerized MySQL/Redis
+
+1) Start infra only
+
+```bash
+docker compose up -d mysql redis
+```
+
+2) Export environment for local run
+
+```bash
+export MYSQL_HOST=localhost
+export MYSQL_PORT=3307
+# Also export: MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, JWT_SECRET_KEY, ... (see Env Vars below)
+```
+
+3) Run the app
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Or build and run:
+### Build a jar and run
 
 ```bash
 ./mvnw clean package
-java -jar target/document-management-system.jar
+java -jar target/document-management-system-0.0.1-SNAPSHOT.jar
 ```
+
+### Production (example)
+
+- Dockerfile: `Dockerfile.prod`
+- Compose: `compose.prod.yml`
+
+Example (adjust to your registry and env):
+
+```bash
+docker build -f Dockerfile.prod -t dms:prod .
+docker compose -f compose.prod.yml up -d
+```
+
+---
 
 ## Environment Variables
 
-| Variable                       | Description                                   |
-|--------------------------------|-----------------------------------------------|
-| `MYSQL_HOST`                   | MySQL database host address                   |
-| `MYSQL_PORT`                   | MySQL database port                           |
-| `MYSQL_ROOT_PASSWORD`          | MySQL root user password                      |
-| `MYSQL_DATABASE`               | MySQL database name                           |
-| `MYSQL_USER`                   | MySQL application user                        |
-| `MYSQL_PASSWORD`               | MySQL application user password               |
-| `JWT_SECRET_KEY`               | Secret key for signing JWTs                   |
-| `JWT_ACCESS_TOKEN_EXPIRATION`  | Access token expiration time (e.g., 15m, 1h)  |
-| `JWT_REFRESH_TOKEN_EXPIRATION` | Refresh token expiration time (e.g., 7d, 30d) |
-| `CLIENT_URL`                   | Frontend application URL for CORS             |
-| `AZURE_BLOB_SERVICE_ENDPOINT`  | Azure Blob Storage service endpoint           |
-| `AZURE_BLOB_SERVICE_SAS_TOKEN` | Azure Blob Storage SAS token                  |
-| `AZURE_BLOB_SERVICE_CONTAINER` | Azure Blob Storage container name             |
+Defined/used in `src/main/resources/application.yml` and compose files:
+
+| Variable                       | Required | Notes                                                    |
+|--------------------------------|----------|----------------------------------------------------------|
+| `MYSQL_HOST`                   | yes      | e.g., `mysql` (inside Docker) or `localhost` (local run) |
+| `MYSQL_PORT`                   | yes      | 3306 in container; 3307 on host via compose mapping      |
+| `MYSQL_DATABASE`               | yes      | Database name                                            |
+| `MYSQL_USER`                   | yes      | Application DB user                                      |
+| `MYSQL_PASSWORD`               | yes      | Application DB password                                  |
+| `MYSQL_ROOT_PASSWORD`          | optional | Used by MySQL container initialization                   |
+| `JWT_SECRET_KEY`               | yes      | Secret for signing JWTs                                  |
+| `JWT_ACCESS_TOKEN_EXPIRATION`  | yes      | e.g., `15m`, `1h`                                        |
+| `JWT_REFRESH_TOKEN_EXPIRATION` | yes      | e.g., `7d`, `30d`                                        |
+| `CLIENT_URL`                   | optional | Frontend origin for CORS                                 |
+| `AZURE_BLOB_SERVICE_ENDPOINT`  | optional | Azure Blob endpoint                                      |
+| `AZURE_BLOB_SERVICE_SAS_TOKEN` | optional | Azure Blob SAS token                                     |
+| `AZURE_BLOB_SERVICE_CONTAINER` | optional | Azure container name                                     |
 
 ---
 
-## Security Overview
+## WebSockets
 
-- JWT authentication with an access token and optional refresh token
-- Passwords hashed using BCrypt
-- Permission rules:
-    - **Unauthorized** → cannot view a document
-    - **Read-only** → can view but not modify
-    - **Read-write** → full access
+- STOMP over WebSocket
+- Handshake endpoint (from `WebSocketConfig`):
+
+```
+/gs-guide-websocket
+```
+
+- Broker destinations enabled: `/document`, `/queue/`, `/user/`
+- Application destination prefix: `/app`
+
+Examples:
+
+- Subscribe: `/document/{some-topic}` or `/user/{userId}/status`
+- Send: `/app/{mapping}` (depends on controller mappings)
+
+TODO: Document specific application destinations and message payloads.
 
 ---
 
-## WebSocket Endpoints
+## API and Docs
 
-| Endpoint               | Description                      |
-|------------------------|----------------------------------|
-| `/ws`                  | WebSocket handshake              |
-| `/topic/document/{id}` | Broadcast updates to subscribers |
-| `/app/document.update` | Client-to-server updates         |
+- Swagger UI (springdoc):
+    - `http://localhost:8080/swagger-ui/index.html`
+    - OpenAPI JSON: `/v3/api-docs`
+- Actuator (if enabled by profile/config): `/actuator`
 
-**Protocol:** STOMP over WebSocket
+---
+
+## Database & Migrations
+
+- Flyway runs on startup; place migrations under `src/main/resources/db/migration`
+- DataSource configured via `MYSQL_*` variables
+
+---
+
+## Caching & Rate Limiting
+
+- Redis connection is configured in `application.yml`
+- Basic rate limiter configured via `resilience4j` (`resilience4j.ratelimiter.*`)
+
+---
+
+## Scripts and Useful Commands
+
+- Start everything (dev): `docker compose up -d`
+- Start only DB/Cache: `docker compose up -d mysql redis`
+- Run app locally: `./mvnw spring-boot:run`
+- Run tests: `./mvnw test`
+- Format package and run: `./mvnw clean package && java -jar target/document-management-system-0.0.1-SNAPSHOT.jar`
 
 ---
 
 ## Testing
 
-Run unit tests:
+Run all tests:
 
 ```bash
 ./mvnw test
 ```
 
-The project uses:
+Run a single test:
 
-- JUnit 5
-- Mockito (including static mocking)
-- Testcontainers (optional) for MySQL/Redis integration tests
-
----
-
-## Database Schema
-
-- **Documents**
-- **Branches**
-- **Content**
-- **Version history**
-- **Users & permissions**
-- **Templates**
-- **Comments**
-- **Shared Documents**
-
----
-
-## Docker Compose (example)
-
-```yaml
-services:
-  mysql:
-    image: mysql:8
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: dms
-    ports:
-      - "3306:3306"
-
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
+```bash
+./mvnw -Dtest=com.nipun.system.document.version.VersionServiceTest test
 ```
 
----
-
-## API Documentation
-
-Swagger/OpenAPI is available at:
-
-- `/swagger-ui.html`
-- `/v3/api-docs`
+The project uses JUnit 5, Spring Boot Test, Mockito. No Testcontainers dependency is declared by default.
 
 ---
 
-## Roadmap
+## License
 
-- Collaborative edit conflict resolution
-- Offline syncing
-- S3 file attachments
-- RBAC admin dashboard
-- Document metadata search (Elasticsearch optional)
+TODO: Add a LICENSE file and specify the project license here.
 
 ---
+
+## Notes
+
+- Default server port: `8080`
+- Default profile in Docker: `dev` (via `SPRING_PROFILES_ACTIVE`)
+- MySQL host/port when running locally: `localhost:3307` (mapped from the container)

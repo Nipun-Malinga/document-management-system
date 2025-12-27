@@ -2,6 +2,7 @@ package com.nipun.system.document.base;
 
 import com.nipun.system.document.Status;
 import com.nipun.system.document.branch.Branch;
+import com.nipun.system.document.folder.Folder;
 import com.nipun.system.document.share.SharedDocument;
 import com.nipun.system.user.User;
 import jakarta.persistence.*;
@@ -67,6 +68,10 @@ public class Document {
 
     @Column(name = "favorite")
     private boolean favorite;
+
+    @OneToOne(cascade = {CascadeType.REMOVE})
+    @JoinColumn(name = "folder_id")
+    private Folder folder;
 
     public UUID getMainBranchId() {
         return branches.stream()
