@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/documents/trash")
+@RequestMapping("/api/documents/trash")
 @Tag(name = "Document Trash", description = "Manage trashed documents in the system")
 public class TrashController {
 

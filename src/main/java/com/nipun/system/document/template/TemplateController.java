@@ -13,7 +13,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/documents/templates")
+@RequestMapping("/api/documents/templates")
 public class TemplateController {
 
     private final TemplateService templateService;

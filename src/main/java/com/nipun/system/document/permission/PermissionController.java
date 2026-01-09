@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/permissions/documents")
+@RequestMapping("/api/permissions/documents")
 @Tag(name = "Permissions", description = "Broadcasts user permission validity")
 public class PermissionController {
 

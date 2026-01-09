@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/documents")
+@RequestMapping("/api/documents")
 @Tag(name = "Document Versions", description = "Manage document versions in the system")
 public class VersionController {
 

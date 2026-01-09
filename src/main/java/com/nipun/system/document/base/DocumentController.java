@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/documents")
+@RequestMapping("/api/documents")
 @Tag(name = "Documents", description = "Manage documents in the system")
 public class DocumentController {
 

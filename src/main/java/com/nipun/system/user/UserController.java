@@ -17,7 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @Tag(name = "User Controller", description = "Manage users in the system")
 public class UserController {
     private final UserService userService;

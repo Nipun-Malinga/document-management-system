@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/documents")
+@RequestMapping("/api/documents")
 @Tag(name = "Document Branches", description = "Manage document branches in the system")
 public class BranchController {
 

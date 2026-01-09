@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/api/files")
 @Tag(name = "File Manager", description = "Manages files in the system")
 public class FileManagerController {
 

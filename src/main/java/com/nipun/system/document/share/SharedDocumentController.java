@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/documents")
+@RequestMapping("/api/documents")
 @Tag(name = "Share Document", description = "Manage document permissions")
 public class SharedDocumentController {
 
