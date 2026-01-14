@@ -29,7 +29,7 @@ public class UserController {
             @RequestBody @Valid RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
     ) {
-        var userDto = userService.registerUser(request);
+        var userDto = userService.registerUser(request, Role.USER);
 
         var uri = uriBuilder
                 .path("/users/{userId}")

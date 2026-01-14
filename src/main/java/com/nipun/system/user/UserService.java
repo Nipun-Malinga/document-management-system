@@ -18,7 +18,8 @@ public class UserService {
     private final UserMapper userMapper;
 
     public UserResponse registerUser(
-            RegisterUserRequest request
+            RegisterUserRequest request,
+            Role role
     ) {
         if (request == null)
             throw new IllegalArgumentException("Register request cannot be null");
@@ -32,7 +33,7 @@ public class UserService {
             throw new EmailAlreadyRegisteredException("Email: " + user.getEmail() + " is already registered in system.");
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Role.USER);
+        user.setRole(role);
 
         return userMapper.toDto(userRepository.save(user));
     }

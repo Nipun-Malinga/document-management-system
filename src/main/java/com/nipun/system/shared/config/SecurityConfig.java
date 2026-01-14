@@ -1,6 +1,7 @@
 package com.nipun.system.shared.config;
 
 import com.nipun.system.shared.filters.JwtAuthenticationFilter;
+import com.nipun.system.user.Role;
 import com.nipun.system.user.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +48,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                                .requestMatchers("/api/documents/templates").hasRole(Role.ADMIN.toString())
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(config -> {

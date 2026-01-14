@@ -70,7 +70,7 @@ class UserServiceTest {
             when(userRepository.save(any(User.class))).thenReturn(testUser);
             when(userMapper.toDto(any(User.class))).thenReturn(testUserResponse);
 
-            var result = UserServiceTest.this.userService.registerUser(testRegisterUserRequest);
+            var result = UserServiceTest.this.userService.registerUser(testRegisterUserRequest, Role.USER);
 
             assertNotNull(result);
             assertEquals(testUserResponse, result);
@@ -92,7 +92,7 @@ class UserServiceTest {
 
             UsernameAlreadyExistsException exception = assertThrows(
                     UsernameAlreadyExistsException.class,
-                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest)
+                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest, Role.USER)
             );
 
             assertEquals(
@@ -112,7 +112,7 @@ class UserServiceTest {
 
             EmailAlreadyRegisteredException exception = assertThrows(
                     EmailAlreadyRegisteredException.class,
-                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest)
+                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest, Role.USER)
             );
 
             assertEquals(
@@ -131,7 +131,7 @@ class UserServiceTest {
 
             IllegalArgumentException exception = assertThrows(
                     IllegalArgumentException.class,
-                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest)
+                    () -> UserServiceTest.this.userService.registerUser(testRegisterUserRequest, Role.USER)
             );
 
             assertEquals(

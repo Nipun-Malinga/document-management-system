@@ -26,6 +26,9 @@ security:
     secretKey: ${JWT_SECRET_KEY}
     accessTokenExpiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
     refreshTokenExpiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+  admin:
+    email: ${HEAD_ADMIN_EMAIL}
+    password: ${HEAD_ADMIN_PASSWORD}
 
 cache:
   names:

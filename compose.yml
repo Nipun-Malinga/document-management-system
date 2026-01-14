@@ -1,5 +1,6 @@
 services:
   server:
+    image: doc-server-dev:latest
     build:
       context: .
       dockerfile: Dockerfile.dev
