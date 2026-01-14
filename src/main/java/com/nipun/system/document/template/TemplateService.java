@@ -4,6 +4,9 @@ import com.nipun.system.document.template.dtos.TemplateRequest;
 import com.nipun.system.document.template.dtos.TemplateResponse;
 import com.nipun.system.document.template.exceptions.TemplateNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,12 +27,13 @@ public class TemplateService {
         return templates.stream().map(templateMapper::toDto).toList();
     }
 
-
+    @Cacheable(value = "documentTemplate", key = "#templateId")
     public TemplateResponse getTemplate(long templateId) {
         var template = templateRepository.findById(templateId).orElseThrow(TemplateNotFoundException::new);
         return templateMapper.toDto(template);
     }
 
+    @CachePut(value = "documentTemplate", key = "#templateId")
     public TemplateResponse updateTemplate(long templateId, TemplateRequest request) {
         var template = templateRepository.findById(templateId).orElseThrow(TemplateNotFoundException::new);
         template.setTitle(request.getTitle());
@@ -38,6 +42,7 @@ public class TemplateService {
         return templateMapper.toDto(templateRepository.save(template));
     }
 
+    @CacheEvict(value = "documentTemplate", key = "#templateId")
     public void deleteTemplate(long templateId) {
         var template = templateRepository.findById(templateId).orElseThrow(TemplateNotFoundException::new);
         templateRepository.delete(template);
