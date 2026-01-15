@@ -7,5 +7,7 @@ CREATE TABLE shared_documents
     CONSTRAINT fk_shared_document_id
         FOREIGN KEY (document_id) REFERENCES documents (id) ON DELETE CASCADE,
     CONSTRAINT fk_shared_user_id
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_shared_primary_key
+        PRIMARY KEY (document_id, user_id)
 );

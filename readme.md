@@ -35,6 +35,10 @@ and supporting real‑time updates over WebSockets.
 
 ---
 
+## ER Diagram
+
+![ER Diagram](/resources/er.png)
+
 ## Project Structure
 
 ```
@@ -98,7 +102,7 @@ docker compose down
 1) Start infra only
 
 ```bash
-docker compose up -d mysql redis
+docker compose up -d
 ```
 
 2) Export environment for local run
@@ -232,7 +236,8 @@ The project uses JUnit 5, Spring Boot Test, Mockito. No Testcontainers dependenc
 
 ## License
 
-TODO: Add a LICENSE file and specify the project license here.
+This project is licensed under the Apache License, Version 2.0.  
+See the [LICENSE](LICENSE) file for details.
 
 ---
 
